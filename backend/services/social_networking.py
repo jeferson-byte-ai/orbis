@@ -17,7 +17,7 @@ from sqlalchemy import select, update, and_, or_
 
 from backend.config import settings
 from backend.db.models import User
-from backend.db.session import engine
+from backend.db.session import async_engine
 
 logger = logging.getLogger(__name__)
 
@@ -682,7 +682,7 @@ class SocialNetworkingService:
     async def _store_user_profile(self, profile: UserProfile):
         """Store user profile in database"""
         try:
-            async with AsyncSession(engine) as session:
+            async with AsyncSession(async_engine) as session:
                 # This would store in UserProfile table
                 pass
         except Exception as e:
@@ -691,7 +691,7 @@ class SocialNetworkingService:
     async def _store_connection(self, connection: SocialConnection):
         """Store connection in database"""
         try:
-            async with AsyncSession(engine) as session:
+            async with AsyncSession(async_engine) as session:
                 # This would store in SocialConnection table
                 pass
         except Exception as e:
@@ -700,7 +700,7 @@ class SocialNetworkingService:
     async def _store_post(self, post: SocialPost):
         """Store post in database"""
         try:
-            async with AsyncSession(engine) as session:
+            async with AsyncSession(async_engine) as session:
                 # This would store in SocialPost table
                 pass
         except Exception as e:
@@ -709,7 +709,7 @@ class SocialNetworkingService:
     async def _store_event(self, event: SocialEvent):
         """Store event in database"""
         try:
-            async with AsyncSession(engine) as session:
+            async with AsyncSession(async_engine) as session:
                 # This would store in SocialEvent table
                 pass
         except Exception as e:

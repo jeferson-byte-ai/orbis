@@ -21,7 +21,7 @@ from sqlalchemy import select, update
 
 from backend.config import settings
 from backend.db.models import User
-from backend.db.session import engine
+from backend.db.session import async_engine
 
 logger = logging.getLogger(__name__)
 
@@ -747,7 +747,7 @@ class AdvancedAIFeaturesService:
     async def _store_insights(self, meeting_id: str, insights: List[AIInsight]):
         """Store insights in database"""
         try:
-            async with AsyncSession(engine) as session:
+            async with AsyncSession(async_engine) as session:
                 for insight in insights:
                     # This would store in AIInsight table
                     pass

@@ -228,7 +228,7 @@ class EmailService:
         logo_base64 = self.get_logo_base64()
         logo_html = f'<img src="{logo_base64}" alt="Orbis" style="width: 80px; height: 80px; margin: 0 auto 15px; display: block; border-radius: 15px;" />' if logo_base64 else '<div style="font-size: 64px; margin-bottom: 10px;">🎉</div>'
         
-        subject = "Welcome to Orbis! 🎉"
+        subject = "Welcome to Orbis!"
         
         html_content = f"""
         <!DOCTYPE html>
@@ -296,7 +296,7 @@ class EmailService:
         logo_base64 = self.get_logo_base64()
         logo_html = f'<img src="{logo_base64}" alt="Orbis" style="width: 80px; height: 80px; margin: 0 auto 15px; display: block; border-radius: 15px;" />' if logo_base64 else '<div style="font-size: 64px; margin-bottom: 10px;">🚀</div>'
         
-        subject = f"Welcome to Orbis {tier.capitalize()}! 🚀"
+        subject = f"Welcome to Orbis {tier.capitalize()}!"
         
         html_content = f"""
         <!DOCTYPE html>

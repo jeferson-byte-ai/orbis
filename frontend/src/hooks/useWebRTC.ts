@@ -19,8 +19,8 @@ interface UseWebRTCReturn {
   isMuted: boolean;
   isVideoOff: boolean;
   error: string | null;
-  toggleMute: () => void;
-  toggleVideo: () => void;
+  toggleMute: () => Promise<void>;
+  toggleVideo: () => Promise<void>;
   startCall: (roomId: string) => Promise<void>;
   endCall: () => void;
 }
@@ -62,23 +62,85 @@ export const useWebRTC = (): UseWebRTCReturn => {
   };
   
   // Toggle mute/unmute
-  const toggleMute = useCallback(() => {
+  const toggleMute = useCallback(async () => {
     if (localStream) {
       const audioTrack = localStream.getAudioTracks()[0];
-      if (audioTrack) {
+      if (audioTrack && audioTrack.readyState === 'live') {
+        // Track is alive, just toggle enabled
         audioTrack.enabled = !audioTrack.enabled;
         setIsMuted(!audioTrack.enabled);
+        console.log('🎤 Audio toggled:', audioTrack.enabled ? 'unmuted' : 'muted');
+      } else {
+        // Track is dead or missing, request new audio
+        console.log('🔄 Audio track dead, requesting new audio...');
+        try {
+          const newAudioStream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true,
+              sampleRate: 48000
+            }
+          });
+          
+          // Replace audio track in existing stream
+          const oldAudioTrack = localStream.getAudioTracks()[0];
+          if (oldAudioTrack) {
+            localStream.removeTrack(oldAudioTrack);
+            oldAudioTrack.stop();
+          }
+          
+          const newAudioTrack = newAudioStream.getAudioTracks()[0];
+          localStream.addTrack(newAudioTrack);
+          setIsMuted(false);
+          console.log('✅ New audio track added');
+        } catch (err) {
+          console.error('❌ Failed to get audio:', err);
+          setError('Failed to access microphone');
+        }
       }
     }
   }, [localStream]);
   
   // Toggle video on/off
-  const toggleVideo = useCallback(() => {
+  const toggleVideo = useCallback(async () => {
     if (localStream) {
       const videoTrack = localStream.getVideoTracks()[0];
-      if (videoTrack) {
+      if (videoTrack && videoTrack.readyState === 'live') {
+        // Track is alive, just toggle enabled
         videoTrack.enabled = !videoTrack.enabled;
         setIsVideoOff(!videoTrack.enabled);
+        console.log('📹 Video toggled:', videoTrack.enabled ? 'on' : 'off');
+      } else {
+        // Track is dead or missing, request new video
+        console.log('🔄 Video track dead, requesting new video...');
+        try {
+          const newVideoStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+              frameRate: { ideal: 30 }
+            }
+          });
+          
+          // Replace video track in existing stream
+          const oldVideoTrack = localStream.getVideoTracks()[0];
+          if (oldVideoTrack) {
+            localStream.removeTrack(oldVideoTrack);
+            oldVideoTrack.stop();
+          }
+          
+          const newVideoTrack = newVideoStream.getVideoTracks()[0];
+          localStream.addTrack(newVideoTrack);
+          setIsVideoOff(false);
+          
+          // Force re-render by updating state
+          setLocalStream(new MediaStream(localStream.getTracks()));
+          console.log('✅ New video track added');
+        } catch (err) {
+          console.error('❌ Failed to get video:', err);
+          setError('Failed to access camera');
+        }
       }
     }
   }, [localStream]);

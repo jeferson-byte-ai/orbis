@@ -17,7 +17,7 @@ from sqlalchemy import select, update, and_
 
 from backend.config import settings
 from backend.db.models import User
-from backend.db.session import engine
+from backend.db.session import async_engine
 
 logger = logging.getLogger(__name__)
 
@@ -676,7 +676,7 @@ class GamificationSystem:
     async def _save_user_level(self, level: UserLevel):
         """Save user level to database"""
         try:
-            async with AsyncSession(engine) as session:
+            async with AsyncSession(async_engine) as session:
                 # This would save to UserLevel table
                 # For now, just update in memory
                 self.user_levels[level.user_id] = level
@@ -686,7 +686,7 @@ class GamificationSystem:
     async def _save_user_streak(self, streak: UserStreak):
         """Save user streak to database"""
         try:
-            async with AsyncSession(engine) as session:
+            async with AsyncSession(async_engine) as session:
                 # This would save to UserStreak table
                 # For now, just update in memory
                 key = f"{streak.user_id}_{streak.type}"

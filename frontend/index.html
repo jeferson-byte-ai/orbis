@@ -1,142 +1,181 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/logo.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Orbis - Talk Without Borders</title>
-    <meta name="description" content="Revolutionary AI-powered platform breaking language barriers with real-time translation, voice cloning, and seamless multilingual communication" />
-    <meta name="keywords" content="multilingual, translation, voice cloning, AI, real-time, communication, global, meetings" />
-    <meta name="author" content="Orbis Team" />
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://orbis.app/" />
-    <meta property="og:title" content="Orbis - Talk Without Borders" />
-    <meta property="og:description" content="Revolutionary AI-powered platform breaking language barriers with real-time translation and voice cloning" />
-    <meta property="og:image" content="https://orbis.app/og-image.jpg" />
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://orbis.app/" />
-    <meta property="twitter:title" content="Orbis - Talk Without Borders" />
-    <meta property="twitter:description" content="Revolutionary AI-powered platform breaking language barriers with real-time translation and voice cloning" />
-    <meta property="twitter:image" content="https://orbis.app/og-image.jpg" />
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/logo (1).png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Orbis - Talk Without Borders</title>
+  <meta name="description"
+    content="Revolutionary AI-powered platform breaking language barriers with real-time translation, voice cloning, and seamless multilingual communication" />
+  <meta name="keywords"
+    content="multilingual, translation, voice cloning, AI, real-time, communication, global, meetings" />
+  <meta name="author" content="Orbis Team" />
 
-    <!-- Preload critical resources -->
-    <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin />
-    
-    <!-- Theme color -->
-    <meta name="theme-color" content="#000000" />
-    <meta name="msapplication-TileColor" content="#EF4444" />
-    
-    <!-- Apple touch icon -->
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    
-    <!-- Manifest -->
-    <link rel="manifest" href="/manifest.json" />
-    
-    <!-- Performance optimizations -->
-    <link rel="dns-prefetch" href="//api.orbis.app" />
-    <link rel="preconnect" href="//api.orbis.app" crossorigin />
-    
-    <!-- Critical CSS inline for faster loading -->
-    <style>
-      /* Critical CSS for initial load */
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { 
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
-        background: linear-gradient(to right, #000000 0%, #000000 70%, rgba(69, 10, 10, 0.3) 100%);
-        overflow-x: hidden;
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://orbis.app/" />
+  <meta property="og:title" content="Orbis - Talk Without Borders" />
+  <meta property="og:description"
+    content="Revolutionary AI-powered platform breaking language barriers with real-time translation and voice cloning" />
+  <meta property="og:image" content="https://orbis.app/og-image.jpg" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://orbis.app/" />
+  <meta property="twitter:title" content="Orbis - Talk Without Borders" />
+  <meta property="twitter:description"
+    content="Revolutionary AI-powered platform breaking language barriers with real-time translation and voice cloning" />
+  <meta property="twitter:image" content="https://orbis.app/og-image.jpg" />
+
+  <!-- Preload critical resources -->
+  <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin />
+
+  <!-- Theme color -->
+  <meta name="theme-color" content="#000000" />
+  <meta name="msapplication-TileColor" content="#EF4444" />
+
+  <!-- Apple touch icon -->
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+  <!-- Manifest -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Performance optimizations -->
+  <link rel="dns-prefetch" href="//api.orbis.app" />
+  <link rel="preconnect" href="//api.orbis.app" crossorigin />
+
+  <!-- Critical CSS inline for faster loading -->
+  <style>
+    /* Critical CSS for initial load */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(to right, #000000 0%, #000000 70%, rgba(69, 10, 10, 0.3) 100%);
+      overflow-x: hidden;
+    }
+
+    #root {
+      min-height: 100vh;
+    }
+
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to right, #000000 0%, #000000 70%, rgba(69, 10, 10, 0.3) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      overflow: hidden;
+    }
+
+    .loading-screen::before,
+    .loading-screen::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      mix-blend-mode: multiply;
+      filter: blur(60px);
+      opacity: 0.15;
+      animation: float 7s infinite;
+    }
+
+    .loading-screen::before {
+      top: 25%;
+      right: 80px;
+      width: 384px;
+      height: 384px;
+      background: #f87171;
+    }
+
+    .loading-screen::after {
+      bottom: 25%;
+      right: 160px;
+      width: 384px;
+      height: 384px;
+      background: #ef4444;
+      animation-delay: 2s;
+    }
+
+    .orbis-logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: bold;
+      color: white;
+      animation: pulse 2s infinite;
+      box-shadow: 0 20px 50px rgba(239, 68, 68, 0.3);
+      position: relative;
+      z-index: 10;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
       }
-      #root { min-height: 100vh; }
-      .loading-screen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(to right, #000000 0%, #000000 70%, rgba(69, 10, 10, 0.3) 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        overflow: hidden;
+
+      50% {
+        transform: scale(1.05);
       }
-      .loading-screen::before,
-      .loading-screen::after {
-        content: '';
-        position: absolute;
-        border-radius: 50%;
-        mix-blend-mode: multiply;
-        filter: blur(60px);
-        opacity: 0.15;
-        animation: float 7s infinite;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
       }
-      .loading-screen::before {
-        top: 25%;
-        right: 80px;
-        width: 384px;
-        height: 384px;
-        background: #f87171;
+
+      33% {
+        transform: translate(30px, -50px) scale(1.1);
       }
-      .loading-screen::after {
-        bottom: 25%;
-        right: 160px;
-        width: 384px;
-        height: 384px;
-        background: #ef4444;
-        animation-delay: 2s;
+
+      66% {
+        transform: translate(-20px, 20px) scale(0.9);
       }
-      .orbis-logo {
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 32px;
-        font-weight: bold;
-        color: white;
-        animation: pulse 2s infinite;
-        box-shadow: 0 20px 50px rgba(239, 68, 68, 0.3);
-        position: relative;
-        z-index: 10;
-      }
-      @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-      }
-      @keyframes float {
-        0%, 100% { transform: translate(0, 0) scale(1); }
-        33% { transform: translate(30px, -50px) scale(1.1); }
-        66% { transform: translate(-20px, 20px) scale(0.9); }
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Loading screen -->
-    <div class="loading-screen" id="loading-screen">
-      <img src="/logo.png" alt="Orbis" class="orbis-logo" style="width: 120px; height: auto; border-radius: 20px;" />
-    </div>
-    
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    
-    <!-- Remove loading screen after app loads -->
-    <script>
-      window.addEventListener('load', () => {
-        setTimeout(() => {
-          const loadingScreen = document.getElementById('loading-screen');
-          if (loadingScreen) {
-            loadingScreen.style.opacity = '0';
-            loadingScreen.style.transition = 'opacity 0.5s ease-out';
-            setTimeout(() => loadingScreen.remove(), 500);
-          }
-        }, 1000);
-      });
-    </script>
-  </body>
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Loading screen -->
+  <div class="loading-screen" id="loading-screen">
+    <img src="/logo.png" alt="Orbis" class="orbis-logo" style="width: 120px; height: auto; border-radius: 20px;" />
+  </div>
+
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+
+  <!-- Remove loading screen after app loads -->
+  <script>
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+          loadingScreen.style.opacity = '0';
+          loadingScreen.style.transition = 'opacity 0.5s ease-out';
+          setTimeout(() => loadingScreen.remove(), 500);
+        }
+      }, 1000);
+    });
+  </script>
+</body>
+
 </html>

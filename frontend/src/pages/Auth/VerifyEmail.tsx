@@ -15,7 +15,7 @@ const VerifyEmail: React.FC = () => {
   useEffect(() => {
     const verifyEmail = async () => {
       const token = searchParams.get('token');
-      
+
       if (!token) {
         setStatus('error');
         setMessage('Invalid verification link. No token provided.');
@@ -36,10 +36,10 @@ const VerifyEmail: React.FC = () => {
           throw new Error(errorData.detail || 'Verification failed');
         }
 
-        const data = await response.json();
+        await response.json(); // Verify response is valid JSON
         setStatus('success');
         setMessage('Email verified successfully! Redirecting to login...');
-        
+
         // Redirect to login after 3 seconds
         setTimeout(() => {
           navigate('/login');
@@ -120,11 +120,10 @@ const VerifyEmail: React.FC = () => {
           </div>
 
           {/* Message */}
-          <p className={`text-center mb-6 ${
-            status === 'success' ? 'text-green-400' : 
-            status === 'error' ? 'text-red-400' : 
-            'text-gray-300'
-          }`}>
+          <p className={`text-center mb-6 ${status === 'success' ? 'text-green-400' :
+              status === 'error' ? 'text-red-400' :
+                'text-gray-300'
+            }`}>
             {message}
           </p>
 

@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: orbis-postgres-prod
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-orbis}
+      POSTGRES_USER: ${POSTGRES_USER:-orbis}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orbis"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: orbis-redis-prod
+    restart: always
+    command: redis-server /usr/local/etc/redis/redis.conf --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.railway
+    container_name: orbis-backend-prod
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Database
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      
+      # Redis
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      
+      # Security
+      SECRET_KEY: ${SECRET_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      
+      # API
+      ENVIRONMENT: production
+      DEBUG: false
+      API_HOST: 0.0.0.0
+      API_PORT: ${PORT:-8000}
+      
+      # CORS
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      
+      # ML Models
+      ASR_MODEL: openai/whisper-base
+      ASR_DEVICE: cpu
+      MT_MODEL: facebook/nllb-200-distilled-600M
+      MT_DEVICE: cpu
+      TTS_DEVICE: cpu
+      
+      # Features
+      TARGET_LATENCY_MS: 800
+      MAX_ROOM_PARTICIPANTS: 50
+      ML_LAZY_LOAD: true
+      ML_AUTO_UNLOAD_ENABLED: true
+      ML_UNLOAD_AFTER_IDLE_SECONDS: 3600
+      
+    ports:
+      - "${PORT:-8000}:${PORT:-8000}"
+    command: >
+      sh -c "
+        echo 'Aguardando serviços...' &&
+        sleep 5 &&
+        echo 'Iniciando backend...' &&
+        uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}
+      "
+
+volumes:
+  postgres_data:
+  redis_data:

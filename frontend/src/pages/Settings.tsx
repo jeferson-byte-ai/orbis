@@ -40,7 +40,7 @@ const Settings: React.FC<SettingsProps> = ({
 }) => {
   // Initialize language hook
   const { currentLanguage, changeLanguage, t } = useLanguageContext();
-  
+
   const [activeTab, setActiveTab] = useState('account');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
@@ -70,15 +70,15 @@ const Settings: React.FC<SettingsProps> = ({
             is_oauth_user: updatedUser.is_oauth_user,
             password_hash_exists: updatedUser.password_hash !== null
           });
-          
+
           // Update local state immediately
           setIsOauthUser(updatedUser.is_oauth_user);
-          
+
           // Update localStorage
           const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
           currentUser.isOauthUser = updatedUser.is_oauth_user;
           localStorage.setItem('user', JSON.stringify(currentUser));
-          
+
           console.log('✅ Updated isOauthUser state:', updatedUser.is_oauth_user);
         }
       } catch (error) {
@@ -88,7 +88,7 @@ const Settings: React.FC<SettingsProps> = ({
 
     loadUserData();
   }, []);
-  
+
   // Debug effect
   React.useEffect(() => {
     console.log('Settings component mounted/updated', {
@@ -124,7 +124,7 @@ const Settings: React.FC<SettingsProps> = ({
   const [speakerVolume, setSpeakerVolume] = useState(user.preferences?.speaker_volume || 80);
   const [echoCancellation, setEchoCancellation] = useState(user.preferences?.echo_cancellation ?? true);
   const [noiseSuppression, setNoiseSuppression] = useState(user.preferences?.noise_suppression ?? true);
-  
+
   // Voice profile state
   const [voiceProfile, setVoiceProfile] = useState<any>(null);
   const [loadingVoiceProfile, setLoadingVoiceProfile] = useState(false);
@@ -140,14 +140,14 @@ const Settings: React.FC<SettingsProps> = ({
     { id: 'audio', label: t('audio_tab'), icon: Mic },
     { id: 'danger', label: t('danger_tab'), icon: AlertCircle }
   ];
-  
+
   // Load voice profile when audio tab is active
   useEffect(() => {
     if (activeTab === 'audio') {
       loadVoiceProfile();
     }
   }, [activeTab]);
-  
+
   const loadVoiceProfile = async () => {
     setLoadingVoiceProfile(true);
     try {
@@ -157,27 +157,27 @@ const Settings: React.FC<SettingsProps> = ({
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setVoiceProfile(data);
-        
+
         // Load audio file with authentication and create blob URL
         const audioResponse = await fetch('http://localhost:8000/api/voices/profile/audio', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
-        
+
         if (audioResponse.ok) {
           const blob = await audioResponse.blob();
           const url = URL.createObjectURL(blob);
-          
+
           // Revoke old URL if exists to free memory
           if (audioUrl) {
             URL.revokeObjectURL(audioUrl);
           }
-          
+
           setAudioUrl(url);
         }
       } else if (response.status === 404) {
@@ -190,30 +190,30 @@ const Settings: React.FC<SettingsProps> = ({
       setLoadingVoiceProfile(false);
     }
   };
-  
+
   const handleVoiceUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    
+
     if (!file.type.startsWith('audio/')) {
       setError('Please select a valid audio file');
       return;
     }
-    
+
     setUploadingVoice(true);
     setError('');
-    
+
     try {
       const token = localStorage.getItem('auth_token');
       if (!token) {
         throw new Error('You need to be logged in to upload');
       }
-      
+
       console.log('🎤 Uploading voice profile with token:', token.substring(0, 20) + '...');
-      
+
       const formData = new FormData();
       formData.append('file', file);
-      
+
       const response = await fetch('http://localhost:8000/api/voices/upload-profile-voice', {
         method: 'POST',
         headers: {
@@ -221,13 +221,13 @@ const Settings: React.FC<SettingsProps> = ({
         },
         body: formData
       });
-      
+
       console.log('📤 Upload response status:', response.status);
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error('❌ Upload error:', errorData);
-        
+
         // Check if token expired
         if (response.status === 401) {
           setError('Your session expired. Logout and login again.');
@@ -238,10 +238,10 @@ const Settings: React.FC<SettingsProps> = ({
           }, 1000);
           return;
         }
-        
+
         throw new Error(errorData.detail || 'Failed to upload voice profile');
       }
-      
+
       setSuccess('Voice profile saved! Will be used in next meetings.');
       await loadVoiceProfile();
       setTimeout(() => setSuccess(''), 3000);
@@ -253,15 +253,15 @@ const Settings: React.FC<SettingsProps> = ({
       event.target.value = '';
     }
   };
-  
+
   const handleDeleteVoiceProfile = async () => {
     if (!confirm('Are you sure you want to delete your voice profile? This action cannot be undone.')) {
       return;
     }
-    
+
     setDeletingVoice(true);
     setError('');
-    
+
     try {
       const token = localStorage.getItem('auth_token');
       const response = await fetch('http://localhost:8000/api/voices/profile', {
@@ -270,20 +270,20 @@ const Settings: React.FC<SettingsProps> = ({
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to delete voice profile');
       }
-      
+
       setSuccess('Voice profile deleted successfully');
       setVoiceProfile(null);
-      
+
       // Revoke audio URL to free memory
       if (audioUrl) {
         URL.revokeObjectURL(audioUrl);
         setAudioUrl(null);
       }
-      
+
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {
       setError(err.message || 'Error deleting voice profile');
@@ -333,7 +333,7 @@ const Settings: React.FC<SettingsProps> = ({
           auto_detect_output: autoDetectOutput
         }));
       }
-      
+
       console.log('✅ Preferences saved successfully!');
       setSuccess(t('preferences_saved'));
       setTimeout(() => setSuccess(''), 3000);
@@ -474,11 +474,10 @@ const Settings: React.FC<SettingsProps> = ({
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id as any)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                        activeTab === tab.id
-                          ? 'bg-gradient-to-r from-red-500 to-red-600 text-white'
-                          : 'text-gray-300 hover:bg-white/5'
-                      }`}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === tab.id
+                        ? 'bg-gradient-to-r from-red-500 to-red-600 text-white'
+                        : 'text-gray-300 hover:bg-white/5'
+                        }`}
                     >
                       <Icon size={20} />
                       <span className="font-medium">{tab.label}</span>
@@ -819,7 +818,7 @@ const Settings: React.FC<SettingsProps> = ({
                     {/* Animated background effect */}
                     <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-transparent opacity-50" />
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-                    
+
                     <div className="relative z-10">
                       <div className="flex items-center gap-3 mb-3">
                         <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-3 rounded-xl shadow-lg shadow-white/10">
@@ -833,7 +832,7 @@ const Settings: React.FC<SettingsProps> = ({
                           <p className="text-sm text-gray-400">Clonagem de voz com IA</p>
                         </div>
                       </div>
-                      
+
                       <p className="text-gray-300 text-sm mb-6 leading-relaxed">
                         Upload an audio of your voice to create a profile. It will be used automatically in next meetings for translation with <span className="text-gray-300 font-semibold">your cloned voice</span>.
                       </p>
@@ -891,8 +890,8 @@ const Settings: React.FC<SettingsProps> = ({
                                 <label className="text-sm text-gray-300 font-medium">Sample da sua voz:</label>
                               </div>
                               {audioUrl ? (
-                                <audio 
-                                  controls 
+                                <audio
+                                  controls
                                   className="w-full h-10 rounded-lg"
                                   style={{ filter: 'hue-rotate(0deg) saturate(1.2)' }}
                                   src={audioUrl}
@@ -959,7 +958,7 @@ const Settings: React.FC<SettingsProps> = ({
                               {/* Animated background */}
                               <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-white/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                              
+
                               <input
                                 type="file"
                                 accept="audio/*"
@@ -967,7 +966,7 @@ const Settings: React.FC<SettingsProps> = ({
                                 disabled={uploadingVoice}
                                 className="hidden"
                               />
-                              
+
                               {uploadingVoice ? (
                                 <div className="flex flex-col items-center gap-4 relative z-10">
                                   <div className="relative">
@@ -992,18 +991,18 @@ const Settings: React.FC<SettingsProps> = ({
                                       <Upload className="text-white" size={48} />
                                     </div>
                                   </div>
-                                  
+
                                   <p className="text-2xl text-white font-bold mb-3">No voice profile found</p>
                                   <p className="text-gray-300 mb-6 max-w-md mx-auto leading-relaxed">
                                     Upload an audio with <span className="text-gray-300 font-semibold">minimum 6 seconds</span> of your voice to create your cloning profile
                                   </p>
-                                  
+
                                   <div className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white rounded-xl font-bold shadow-xl shadow-white/10 group-hover:shadow-white/15 transition-all group-hover:scale-105">
                                     <Mic size={20} />
                                     Selecionar Arquivo de Áudio
                                     <Upload size={18} />
                                   </div>
-                                  
+
                                   <div className="flex items-center justify-center gap-6 mt-6 text-xs text-gray-500">
                                     <span className="flex items-center gap-1">
                                       ✓ WAV
@@ -1189,7 +1188,7 @@ const Settings: React.FC<SettingsProps> = ({
                   />
                 </div>
               )}
-              
+
               {isOauthUser && (
                 <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
                   <p className="text-blue-300 text-sm">
@@ -1235,7 +1234,7 @@ const Settings: React.FC<SettingsProps> = ({
               <button
                 onClick={handleDeleteAccount}
                 disabled={
-                  loading || 
+                  loading ||
                   deleteConfirmation.toUpperCase() !== 'DELETE' ||
                   (!isOauthUser && !deletePassword)  // Only require password for non-OAuth users
                 }

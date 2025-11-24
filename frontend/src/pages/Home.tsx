@@ -17,7 +17,6 @@ interface HomeProps {
     analytics: boolean;
   };
   onUpdatePreferences?: (preferences: any) => void;
-  connectionQuality?: 'excellent' | 'good' | 'fair' | 'poor';
   user?: { username: string; email: string } | null;
   onLogout?: () => void;
 }
@@ -28,13 +27,13 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
   const [loading, setLoading] = useState(false);
   const [showVoiceSetup, setShowVoiceSetup] = useState(false);
   const [pendingMeetingCreation, setPendingMeetingCreation] = useState(false);
-  
+
   const checkVoiceProfileAndCreateMeeting = async () => {
     setLoading(true);
-    
+
     // Get real token from localStorage
     const token = localStorage.getItem('auth_token');
-    
+
     if (!token) {
       alert('Você precisa fazer login primeiro!\n\nPor favor, acesse /login para autenticar.');
       window.location.href = '/login';
@@ -53,7 +52,7 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
 
       if (voiceResponse.ok) {
         const voiceData = await voiceResponse.json();
-        
+
         if (!voiceData.exists) {
           // No voice profile - show modal
           setLoading(false);
@@ -62,7 +61,7 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
           return;
         }
       }
-      
+
       // Voice exists or check failed - proceed with meeting creation
       await createMeetingRoom(token);
     } catch (error) {
@@ -74,7 +73,7 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
 
   const createMeetingRoom = async (token: string) => {
     setLoading(true);
-    
+
     // Create real room via API
     try {
       const response = await fetch('http://localhost:8000/api/rooms', {
@@ -90,11 +89,11 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
           is_public: false
         })
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to create room');
       }
-      
+
       const data = await response.json();
       onJoinMeeting(data.id, token);
     } catch (error) {
@@ -118,6 +117,12 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
       if (token) {
         createMeetingRoom(token);
       }
+    } else if (roomId.trim()) {
+      // User completed voice setup and wants to join meeting
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        onJoinMeeting(roomId, token);
+      }
     }
   };
 
@@ -130,29 +135,66 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
       if (token) {
         createMeetingRoom(token);
       }
+    } else if (roomId.trim()) {
+      // User skipped voice setup but still wants to join meeting
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        onJoinMeeting(roomId, token);
+      }
     }
   };
-  
-  const handleJoinMeeting = async () => {
+
+  const checkVoiceProfileAndJoinMeeting = async () => {
     if (!roomId.trim()) return;
-    
+
     setLoading(true);
-    
+
     // Get real token from localStorage
     const token = localStorage.getItem('auth_token');
-    
+
     if (!token) {
       alert('Você precisa fazer login primeiro!\n\nPor favor, acesse /login para autenticar.');
       window.location.href = '/login';
+      setLoading(false);
       return;
     }
-    
-    setTimeout(() => {
+
+    // Check if user has voice profile
+    try {
+      const voiceResponse = await fetch('http://localhost:8000/api/voices/profile-voice-status', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+
+      if (voiceResponse.ok) {
+        const voiceData = await voiceResponse.json();
+
+        if (!voiceData.exists) {
+          // No voice profile - show modal
+          setLoading(false);
+          setShowVoiceSetup(true);
+          setPendingMeetingCreation(false); // Not creating, just joining
+          return;
+        }
+      }
+
+      // Voice exists or check failed - proceed with joining meeting
       onJoinMeeting(roomId, token);
       setLoading(false);
-    }, 500);
+    } catch (error) {
+      console.error('Error checking voice profile:', error);
+      // On error, still allow joining meeting
+      onJoinMeeting(roomId, token);
+      setLoading(false);
+    }
   };
-  
+
+  const handleJoinMeeting = async () => {
+    checkVoiceProfileAndJoinMeeting();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-950 to-zinc-950 flex flex-col relative overflow-hidden">
       {/* Animated background elements - Sutil glow effect */}
@@ -160,7 +202,7 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
         {/* Grid pattern overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.03),transparent_50%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
-        
+
         {/* Subtle glowing orbs */}
         <div className="absolute top-20 right-20 w-96 h-96 bg-white/5 rounded-full filter blur-3xl animate-float" />
         <div className="absolute bottom-20 left-20 w-96 h-96 bg-white/5 rounded-full filter blur-3xl animate-float" style={{ animationDelay: '2s' }} />
@@ -171,12 +213,12 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <img src="/logo.png" alt="Orbis" className="w-10 h-10 rounded-2xl" />
+              <img src="/logo.png" alt="Orbis" className="w-10 h-10 rounded-3xl" />
             </div>
             <h1 className="text-white text-3xl font-bold tracking-tight">Orbis</h1>
             <span className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs px-2 py-1 rounded-full font-semibold">FREE</span>
           </div>
-          
+
           <div className="flex items-center gap-3">
             {/* Description Button */}
             <a
@@ -187,7 +229,7 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
               <Sparkles size={18} className="text-red-400" />
               <span className="hidden md:inline">Description</span>
             </a>
-            
+
             {user ? (
               <>
                 <span className="text-gray-300 text-sm hidden md:block">
@@ -217,7 +259,7 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
           </div>
         </div>
       </header>
-      
+
       {/* Hero Section */}
       <main className="flex-1 flex items-center justify-center px-6 py-12 relative z-10">
         <div className="max-w-5xl w-full">
@@ -227,7 +269,7 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
               {t('powered_by_ai')}
             </div>
             <h2 className="text-6xl md:text-7xl font-black text-white mb-6 leading-tight relative z-20">
-              {t('hero_title_1')}<br/>
+              {t('hero_title_1')}<br />
               <span className="text-white">{t('hero_title_2')}</span>
             </h2>
             <p className="text-xl md:text-2xl text-gray-300 mb-4 max-w-3xl mx-auto leading-relaxed">
@@ -238,7 +280,7 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
               <span className="font-semibold text-white">170ms</span> {t('end_to_end_latency')}
             </p>
           </div>
-          
+
           {/* Features */}
           <div className="grid md:grid-cols-4 gap-4 mb-16 animate-slide-up">
             <Feature
@@ -266,12 +308,12 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
               gradient="from-green-500 to-emerald-500"
             />
           </div>
-          
+
           {/* Meeting Controls */}
           <div className="bg-black/40 backdrop-blur-xl rounded-3xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.4)] border border-white/10 animate-scale-in hover-lift relative overflow-hidden">
             {/* Subtle inner glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-transparent pointer-events-none" />
-            
+
             <div className="space-y-6 relative z-10">
               {/* Create Meeting */}
               <div>
@@ -294,14 +336,14 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
                   )}
                 </button>
               </div>
-              
+
               {/* Divider */}
               <div className="flex items-center gap-4">
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                 <span className="text-gray-500 text-sm font-medium">{t('or')}</span>
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
               </div>
-              
+
               {/* Join Meeting */}
               <div className="flex gap-3">
                 <input
@@ -322,7 +364,7 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
               </div>
             </div>
           </div>
-          
+
           {/* Info */}
           <div className="mt-12 text-center space-y-4">
             <p className="text-gray-400 flex items-center justify-center gap-4 flex-wrap">
@@ -342,7 +384,7 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
           </div>
         </div>
       </main>
-      
+
       {/* Footer */}
       <footer className="px-6 py-8 text-center text-gray-500 relative z-10 border-t border-white/5">
         <div className="max-w-4xl mx-auto space-y-4">

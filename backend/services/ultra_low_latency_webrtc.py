@@ -19,7 +19,7 @@ from sqlalchemy import select, update
 from backend.config import settings
 from backend.db.models import Room, User
 # # from backend.db.models import WebRTCSession  # TODO: Create this model
-from backend.db.session import engine
+from backend.db.session import async_engine
 
 logger = logging.getLogger(__name__)
 
@@ -484,7 +484,7 @@ class UltraLowLatencyWebRTCService:
     async def _store_connection_stats(self):
         """Store connection statistics in database"""
         try:
-            async with AsyncSession(engine) as session:
+            async with AsyncSession(async_engine) as session:
                 for connection_id, stats in self.connection_stats.items():
                     # This would store in WebRTCSession table
                     # For now, just log it

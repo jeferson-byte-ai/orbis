@@ -16,38 +16,53 @@ interface Participant {
 interface VideoGridProps {
   localStream: MediaStream | null;
   participants: Map<string, Participant>;
+  isMuted: boolean;
   isVideoOff: boolean;
   userName?: string;
 }
 
-const VideoGrid: React.FC<VideoGridProps> = ({ localStream, participants, isVideoOff, userName }) => {
+const VideoGrid: React.FC<VideoGridProps> = ({ localStream, participants, isMuted, isVideoOff, userName }) => {
   const localVideoRef = useRef<HTMLVideoElement>(null);
   
-  // Set up local video stream
+  // Ensure the local video element always has the correct stream attached
   useEffect(() => {
-    if (localVideoRef.current && localStream) {
-      localVideoRef.current.srcObject = localStream;
+    const videoElement = localVideoRef.current;
+    if (!videoElement) return;
+
+    if (!localStream) {
+      videoElement.srcObject = null;
+      return;
     }
-  }, [localStream]);
+
+    if (videoElement.srcObject !== localStream) {
+      videoElement.srcObject = localStream;
+    }
+
+    if (!isVideoOff) {
+      videoElement.play().catch(err => {
+        console.warn('Video autoplay warning:', err);
+      });
+    }
+  }, [localStream, isVideoOff]);
   
   const participantCount = participants.size + 1; // +1 for local user
   
   // Calculate grid layout based on participant count
   const getGridClass = () => {
-    if (participantCount === 1) return 'grid-cols-1';
-    if (participantCount === 2) return 'grid-cols-2';
+    if (participantCount === 1) return 'grid-cols-1 grid-rows-1';
+    if (participantCount === 2) return 'grid-cols-2 grid-rows-1';
     if (participantCount <= 4) return 'grid-cols-2 grid-rows-2';
     if (participantCount <= 6) return 'grid-cols-3 grid-rows-2';
     return 'grid-cols-3 grid-rows-3';
   };
   
   return (
-    <div className={`h-full w-full grid ${getGridClass()} gap-2 p-4`}>
+    <div className={`h-full w-full grid ${getGridClass()} gap-4 p-6 overflow-auto`}>
       {/* Local video */}
       <VideoTile
         videoRef={localVideoRef}
         isLocal
-        isMuted={false}
+        isMuted={isMuted}
         isVideoOff={isVideoOff}
         label="You"
         userName={userName}
@@ -91,7 +106,7 @@ const VideoTile: React.FC<VideoTileProps> = ({
   
   return (
     <div 
-      className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl overflow-hidden aspect-video shadow-xl border border-white/10 hover:border-white/20 transition-all group"
+      className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl overflow-hidden h-full w-full shadow-xl border border-white/10 hover:border-white/20 transition-all group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

@@ -22,7 +22,7 @@ from sqlalchemy import select, update
 from backend.config import settings
 # # from backend.db.models import LanguagePair  # TODO: Create this model
 # from backend.db.models import TranslationCache  # TODO: Create this model
-from backend.db.session import engine
+from backend.db.session import async_engine
 
 logger = logging.getLogger(__name__)
 
@@ -465,7 +465,7 @@ class UltraFastTranslationService:
     async def _load_language_pair_stats(self):
         """Load language pair statistics from database"""
         try:
-            async with AsyncSession(engine) as session:
+            async with AsyncSession(async_engine) as session:
                 result = await session.execute(select(LanguagePair))
                 language_pairs = result.scalars().all()
                 
@@ -510,7 +510,7 @@ class UltraFastTranslationService:
     async def _update_database_stats(self):
         """Update database with current statistics"""
         try:
-            async with AsyncSession(engine) as session:
+            async with AsyncSession(async_engine) as session:
                 for pair, stats in self.stats.items():
                     await session.execute(
                         update(LanguagePair)

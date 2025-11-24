@@ -16,7 +16,7 @@ from sqlalchemy import select, update, delete
 from sqlalchemy.orm import selectinload
 
 from backend.db.models import User, Room, VoiceProfile, Subscription
-from backend.db.session import engine
+from backend.db.session import async_engine
 from backend.core.cache import cache_service
 from backend.config import settings
 
@@ -142,7 +142,7 @@ class EnterpriseService:
     async def get_user_limits(self, user_id: int) -> EnterpriseLimits:
         """Get enterprise limits for a user"""
         # Get user subscription tier
-        async with AsyncSession(engine) as session:
+        async with AsyncSession(async_engine) as session:
             result = await session.execute(
                 select(Subscription).where(Subscription.user_id == user_id)
             )
@@ -183,7 +183,7 @@ class EnterpriseService:
                 logger.warning(f"Failed to get cached active rooms: {e}")
         
         # Query database for active rooms
-        async with AsyncSession(engine) as session:
+        async with AsyncSession(async_engine) as session:
             result = await session.execute(
                 select(Room).where(
                     Room.created_by == user_id,
@@ -372,7 +372,7 @@ class EnterpriseService:
     
     async def get_user_voice_count(self, user_id: int) -> int:
         """Get voice profile count for a user"""
-        async with AsyncSession(engine) as session:
+        async with AsyncSession(async_engine) as session:
             result = await session.execute(
                 select(VoiceProfile).where(VoiceProfile.user_id == user_id)
             )

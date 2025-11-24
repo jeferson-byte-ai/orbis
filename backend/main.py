@@ -13,7 +13,7 @@ from fastapi.responses import JSONResponse
 from backend.config import settings
 from backend.db.base import Base
 from backend.db.session import engine
-from backend.api import auth, users, voices, rooms
+from backend.api import auth, users, voices, rooms, chat
 from backend.api import profile, billing
 from backend.api.websocket import router as websocket_router
 from backend.core.exceptions import OrbisException
@@ -60,6 +60,10 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Reduce SQLAlchemy logging verbosity (only show warnings and errors)
+logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.pool').setLevel(logging.WARNING)
 
 # Create FastAPI app
 app = FastAPI(
@@ -330,6 +334,7 @@ app.include_router(voices.router)
 app.include_router(rooms.router)
 app.include_router(profile.router)
 app.include_router(billing.router)
+app.include_router(chat.router)  # Chat endpoints
 app.include_router(websocket_router, prefix="/api")  # WebSocket endpoints
 
 # Include developer API
@@ -435,9 +440,9 @@ async def _initialize_advanced_services():
     await advanced_voice_cloning_service.initialize()
     logger.info("✅ Advanced voice cloning service initialized")
     
-    # Initialize ultra-fast translation
-    await ultra_fast_translation_service.initialize()
-    logger.info("✅ Ultra-fast translation service initialized")
+    # Initialize ultra-fast translation (DISABLED - high memory usage)
+    # await ultra_fast_translation_service.initialize()
+    # logger.info("✅ Ultra-fast translation service initialized")
     
     # Initialize ultra-low latency WebRTC
     await ultra_low_latency_webrtc_service.initialize()

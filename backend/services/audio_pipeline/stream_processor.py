@@ -32,6 +32,18 @@ class AudioStreamProcessor:
         self.input_sample_rate = 16000
         self.output_sample_rate = 22050
     
+    async def _notify_translation_error(self, user_id: UUID, stage: str, detail: str):
+        """Send translation error information back to the user"""
+        logger.error("Translation pipeline error (%s) for user %s: %s", stage, user_id, detail)
+        try:
+            await connection_manager.send_personal_message(user_id, {
+                "type": "translation_error",
+                "stage": stage,
+                "message": detail
+            })
+        except Exception as exc:  # noqa: BLE001
+            logger.error("Failed to notify user %s about translation error: %s", user_id, exc)
+
     async def start_processing(self, user_id: UUID, room_id: str, input_lang: str = 'auto', output_lang: str = 'en'):
         """Start processing audio for a user"""
         self.user_languages[user_id] = {
@@ -110,7 +122,13 @@ class AudioStreamProcessor:
             asr_start_time = time.time()
             
             # Ensure Whisper is loaded
-            await lazy_loader.ensure_loaded(ModelType.WHISPER)
+            if not await lazy_loader.ensure_loaded(ModelType.WHISPER):
+                await self._notify_translation_error(user_id, "asr", "Speech recognition model unavailable")
+                return
+
+            if not getattr(whisper_service, "model_loaded", False):
+                await self._notify_translation_error(user_id, "asr", "Whisper model failed to load")
+                return
             
             transcribed_text, detected_lang, _ = await whisper_service.transcribe(
                 audio_array,
@@ -132,7 +150,13 @@ class AudioStreamProcessor:
             mt_start_time = time.time()
             
             # Ensure NLLB is loaded
-            await lazy_loader.ensure_loaded(ModelType.NLLB)
+            if not await lazy_loader.ensure_loaded(ModelType.NLLB):
+                await self._notify_translation_error(user_id, "mt", "Translation model unavailable")
+                return
+
+            if getattr(nllb_service, "model", None) is None:
+                await self._notify_translation_error(user_id, "mt", "NLLB model failed to load")
+                return
             
             translated_text = await self._translate_text(transcribed_text, input_lang or detected_lang, output_lang)
             mt_latency = (time.time() - mt_start_time) * 1000
@@ -141,7 +165,13 @@ class AudioStreamProcessor:
             tts_start_time = time.time()
             
             # Ensure Coqui TTS is loaded
-            await lazy_loader.ensure_loaded(ModelType.COQUI)
+            if not await lazy_loader.ensure_loaded(ModelType.COQUI):
+                await self._notify_translation_error(user_id, "tts", "Voice synthesis model unavailable")
+                return
+
+            if getattr(coqui_service, "tts", None) is None:
+                await self._notify_translation_error(user_id, "tts", "Coqui TTS model failed to load")
+                return
             
             translated_audio = await self._text_to_speech(translated_text, output_lang, user_id)
             tts_latency = (time.time() - tts_start_time) * 1000

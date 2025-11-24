@@ -16,7 +16,7 @@ from sqlalchemy import select, update
 
 from backend.db.models import User, Room
 # from backend.db.models import MeetingTranscript  # TODO: Create this model
-from backend.db.session import engine
+from backend.db.session import async_engine
 from backend.config import settings
 
 logger = logging.getLogger(__name__)
@@ -387,7 +387,7 @@ class AIMeetingAssistant:
     async def _store_meeting_summary(self, summary: MeetingSummary):
         """Store meeting summary in database"""
         try:
-            async with AsyncSession(engine) as session:
+            async with AsyncSession(async_engine) as session:
                 # Create meeting transcript record
                 transcript = MeetingTranscript(
                     room_id=summary.room_id,
@@ -455,7 +455,7 @@ class AIMeetingAssistant:
     async def get_meeting_history(self, user_id: int, limit: int = 10) -> List[MeetingSummary]:
         """Get meeting history for a user"""
         try:
-            async with AsyncSession(engine) as session:
+            async with AsyncSession(async_engine) as session:
                 result = await session.execute(
                     select(MeetingTranscript)
                     .where(MeetingTranscript.room_id.in_(

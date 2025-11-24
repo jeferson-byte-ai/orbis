@@ -254,3 +254,36 @@ body {
 /* Hover effects - already defined above */
 
 /* Shimmer effect - already defined above */
+
+/* Fullscreen support - ensure 100% coverage */
+:fullscreen,
+:-webkit-full-screen,
+:-moz-full-screen,
+:-ms-fullscreen {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Ensure child elements in fullscreen also take full space */
+:fullscreen > *,
+:-webkit-full-screen > *,
+:-moz-full-screen > *,
+:-ms-fullscreen > * {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Remove any scrollbars in fullscreen */
+:fullscreen::-webkit-scrollbar,
+:-webkit-full-screen::-webkit-scrollbar {
+  display: none;
+}
+
+:fullscreen {
+  scrollbar-width: none;
+}

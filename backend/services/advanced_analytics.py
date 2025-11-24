@@ -22,7 +22,7 @@ from backend.config import settings
 from backend.db.models import User, Room, VoiceProfile, Subscription
 # from backend.db.models import APICall  # TODO: Create this model
 # from backend.db.models import MeetingTranscript  # TODO: Create this model
-from backend.db.session import engine
+from backend.db.session import async_engine
 
 logger = logging.getLogger(__name__)
 
@@ -168,7 +168,7 @@ class AdvancedAnalyticsService:
     async def _load_user_segments(self):
         """Load user segments from database"""
         try:
-            async with AsyncSession(engine) as session:
+            async with AsyncSession(async_engine) as session:
                 # This would load from a UserSegment table
                 # For now, create default segments
                 self.user_segments = {
@@ -255,7 +255,7 @@ class AdvancedAnalyticsService:
                                         days: int = 30) -> Dict[str, Any]:
         """Get user engagement metrics"""
         try:
-            async with AsyncSession(engine) as session:
+            async with AsyncSession(async_engine) as session:
                 # Get user data
                 user_result = await session.execute(
                     select(User).where(User.id == user_id)
@@ -276,7 +276,7 @@ class AdvancedAnalyticsService:
                     "total_voice_synthesis": 0,
                     "engagement_score": 0.0,
                     "retention_rate": 0.0,
-                    "last_activity": user.last_login
+                    "last_activity": user.last_login_at
                 }
                 
                 # Get meeting data
@@ -348,7 +348,7 @@ class AdvancedAnalyticsService:
                                 end_date: datetime) -> Dict[str, Any]:
         """Get revenue metrics for date range"""
         try:
-            async with AsyncSession(engine) as session:
+            async with AsyncSession(async_engine) as session:
                 # Get subscription data
                 subscriptions_result = await session.execute(
                     select(Subscription).where(
@@ -406,7 +406,7 @@ class AdvancedAnalyticsService:
         """Get performance metrics"""
         try:
             # Get API call data for performance analysis
-            async with AsyncSession(engine) as session:
+            async with AsyncSession(async_engine) as session:
                 api_calls_result = await session.execute(
                     select(APICall).where(
                         and_(
@@ -630,11 +630,11 @@ class AdvancedAnalyticsService:
     async def _update_real_time_metrics_from_db(self):
         """Update real-time metrics from database"""
         try:
-            async with AsyncSession(engine) as session:
+            async with AsyncSession(async_engine) as session:
                 # Update active users count
                 active_users_result = await session.execute(
                     select(func.count(User.id)).where(
-                        User.last_login >= datetime.utcnow() - timedelta(hours=1)
+                        User.last_login_at >= datetime.utcnow() - timedelta(hours=1)
                     )
                 )
                 self.real_time_metrics["active_users"] = active_users_result.scalar()
@@ -642,7 +642,7 @@ class AdvancedAnalyticsService:
                 # Update active rooms count
                 active_rooms_result = await session.execute(
                     select(func.count(Room.id)).where(
-                        Room.status == "active"
+                        Room.is_active == True
                     )
                 )
                 self.real_time_metrics["active_rooms"] = active_rooms_result.scalar()

@@ -33,7 +33,11 @@ class CacheService:
             await self.redis.ping()
             logger.info("✅ Redis connected successfully")
         except Exception as e:
-            logger.error(f"❌ Redis connection failed: {e}")
+            logger.warning(f"⚠️  Redis connection failed: {e}")
+            logger.warning("⚠️  Sistema funcionará com cache in-memory (limitado)")
+            logger.warning("⚠️  Para melhor performance, inicie Redis:")
+            logger.warning("   • Docker: docker-compose up -d")
+            logger.warning("   • Windows: .\install_redis_windows.ps1")
             self.redis = None
     
     async def disconnect(self):

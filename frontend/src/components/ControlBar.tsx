@@ -3,7 +3,7 @@
  * Meeting controls (mute, video, leave, etc.)
  */
 import React, { useState } from 'react';
-import { Mic, MicOff, Video, VideoOff, PhoneOff, Monitor, MonitorOff, Users } from 'lucide-react';
+import { Mic, MicOff, Video, VideoOff, PhoneOff, Monitor, MonitorOff, Users, Maximize, Minimize, MessageSquare, Subtitles } from 'lucide-react';
 
 interface ControlBarProps {
   isMuted: boolean;
@@ -16,6 +16,12 @@ interface ControlBarProps {
   onToggleScreenShare?: () => void;
   isScreenSharing?: boolean;
   participantCount?: number;
+  onToggleFullscreen?: () => void;
+  isFullscreen?: boolean;
+  onToggleChat?: () => void;
+  isChatVisible?: boolean;
+  onToggleCaptions?: () => void;
+  showCaptions?: boolean;
 }
 
 const ControlBar: React.FC<ControlBarProps> = ({
@@ -28,7 +34,13 @@ const ControlBar: React.FC<ControlBarProps> = ({
   isHost = false,
   onToggleScreenShare,
   isScreenSharing = false,
-  participantCount = 1
+  participantCount = 1,
+  onToggleFullscreen,
+  isFullscreen = false,
+  onToggleChat,
+  isChatVisible = true,
+  onToggleCaptions,
+  showCaptions = true
 }) => {
   const [showEndMeetingConfirm, setShowEndMeetingConfirm] = useState(false);
 
@@ -69,6 +81,57 @@ const ControlBar: React.FC<ControlBarProps> = ({
               onClick={onToggleScreenShare}
               isActive={isScreenSharing}
             />
+          )}
+          
+          {/* Fullscreen */}
+          {onToggleFullscreen && (
+            <ControlButton
+              icon={isFullscreen ? Minimize : Maximize}
+              label={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+              onClick={onToggleFullscreen}
+              isActive={isFullscreen}
+            />
+          )}
+          
+          {/* Captions toggle */}
+          {onToggleCaptions && (
+            <ControlButton
+              icon={Subtitles}
+              label={showCaptions ? 'Hide Captions' : 'Show Captions'}
+              onClick={onToggleCaptions}
+              isActive={showCaptions}
+            />
+          )}
+          
+          {/* Chat toggle - Enhanced with visible label */}
+          {onToggleChat && (
+            <div className="relative">
+              <button
+                onClick={onToggleChat}
+                className={`rounded-full p-4 transition-all hover:scale-110 active:scale-95 relative group ${
+                  isChatVisible
+                    ? 'bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg shadow-red-600/50'
+                    : 'glass hover:bg-white/10 text-white animate-pulse'
+                }`}
+                title={isChatVisible ? 'Hide Chat' : 'Show Chat'}
+              >
+                <MessageSquare size={24} />
+                {/* Badge when chat is hidden */}
+                {!isChatVisible && (
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                )}
+              </button>
+              {/* Tooltip */}
+              <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                {isChatVisible ? 'Hide Chat' : 'Show Chat'}
+              </div>
+              {/* Visible label when hidden */}
+              {!isChatVisible && (
+                <div className="absolute top-full mt-1 left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-xs px-2 py-1 rounded-full whitespace-nowrap font-medium animate-bounce">
+                  Show Chat
+                </div>
+              )}
+            </div>
           )}
           
           {/* Participant count */}

@@ -19,7 +19,7 @@ from sqlalchemy import select, update, delete
 from backend.db.models import User, APIKey
 # from backend.db.models import APIPlan  # TODO: Create this model
 # from backend.db.models import APICall  # TODO: Create this model
-from backend.db.session import get_db, engine
+from backend.db.session import get_db, async_engine
 from backend.core.security import verify_api_key
 from backend.services.ultra_fast_translation import ultra_fast_translation_service, TranslationRequest, TranslationQuality, TranslationMode
 from backend.services.advanced_voice_cloning import advanced_voice_cloning_service, VoiceSynthesisRequest, VoiceQuality, EmotionType
@@ -148,7 +148,7 @@ async def track_api_call(user: User, endpoint: str, request_data: Dict[str, Any]
                         response_data: Dict[str, Any], processing_time: float):
     """Track API call for billing and analytics"""
     try:
-        async with AsyncSession(engine) as session:
+        async with AsyncSession(async_engine) as session:
             # Get user's API key
             result = await session.execute(
                 select(APIKey).where(APIKey.user_id == user.id, APIKey.is_active == True)
@@ -575,7 +575,7 @@ async def get_api_plans():
 async def get_api_usage(current_user: User = Depends(get_current_user)):
     """Get API usage statistics for current user"""
     try:
-        async with AsyncSession(engine) as session:
+        async with AsyncSession(async_engine) as session:
             # Get user's API key
             result = await session.execute(
                 select(APIKey).where(APIKey.user_id == current_user.id, APIKey.is_active == True)
@@ -630,7 +630,7 @@ async def create_api_key(
 ):
     """Create a new API key"""
     try:
-        async with AsyncSession(engine) as session:
+        async with AsyncSession(async_engine) as session:
             # Check if user already has an active API key
             result = await session.execute(
                 select(APIKey).where(APIKey.user_id == current_user.id, APIKey.is_active == True)
@@ -681,7 +681,7 @@ async def revoke_api_key(
 ):
     """Revoke an API key"""
     try:
-        async with AsyncSession(engine) as session:
+        async with AsyncSession(async_engine) as session:
             # Get API key
             result = await session.execute(
                 select(APIKey).where(

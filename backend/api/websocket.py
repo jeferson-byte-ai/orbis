@@ -98,6 +98,26 @@ async def handle_websocket_message(user_id: UUID, room_id: str, data: dict):
     """Handle different types of WebSocket messages"""
     message_type = data.get("type")
     
+    if message_type == "init_settings":
+        input_lang = data.get("input_language", "auto")
+        output_lang = data.get("output_language", "en")
+
+        audio_stream_processor.update_user_language(user_id, input_lang, output_lang)
+
+        await connection_manager.send_personal_message(user_id, {
+            "type": "language_updated",
+            "input_language": input_lang,
+            "output_language": output_lang,
+            "message": "Initial language preferences applied"
+        })
+        logger.info(
+            "Initial language settings received for user %s: %s→%s",
+            user_id,
+            input_lang,
+            output_lang
+        )
+        return
+
     if message_type == "audio_chunk":
         await handle_audio_chunk(user_id, data)
     

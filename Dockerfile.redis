@@ -1,0 +1,31 @@
+FROM redis:7-alpine
+
+# Metadados
+LABEL maintainer="Orbis Team"
+LABEL version="7.0"
+LABEL description="Redis with Custom Configuration for Orbis"
+
+# Copiar configuração customizada
+COPY redis.conf /usr/local/etc/redis/redis.conf
+
+# Ajustar permissões
+RUN chown redis:redis /usr/local/etc/redis/redis.conf
+
+# Criar diretório de dados
+RUN mkdir -p /data && chown redis:redis /data
+
+# Volume para persistência
+VOLUME /data
+
+# Expor porta
+EXPOSE 6379
+
+# Usuário não-root
+USER redis
+
+# Health check
+HEALTHCHECK --interval=10s --timeout=3s --retries=3 \
+  CMD redis-cli ping || exit 1
+
+# Comando com configuração customizada
+CMD ["redis-server", "/usr/local/etc/redis/redis.conf"]

@@ -1,0 +1,54 @@
+FROM python:3.11-slim
+
+# Metadados
+LABEL maintainer="Orbis Team"
+LABEL version="2.0"
+LABEL description="Orbis Backend - Real-time Translation Platform"
+
+# Configurar ambiente
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /app
+
+# Instalar dependências do sistema
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    git \
+    ffmpeg \
+    libsndfile1 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar requirements primeiro (cache de Docker)
+COPY requirements.txt .
+
+# Instalar dependências Python
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copiar código fonte
+COPY backend/ ./backend/
+COPY data/ ./data/ 2>/dev/null || mkdir -p ./data
+
+# Criar diretórios necessários
+RUN mkdir -p data/models data/voices data/uploads logs backups && \
+    chmod -R 755 data logs backups
+
+# Expor porta (Railway usa variável $PORT)
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:8000/health || exit 1
+
+# Usuário não-root (segurança)
+RUN useradd -m -u 1000 orbis && \
+    chown -R orbis:orbis /app
+USER orbis
+
+# Comando padrão (Railway sobrescreve se necessário)
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

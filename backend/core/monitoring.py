@@ -345,7 +345,7 @@ def log_error(
 async def health_check_detailed() -> dict:
     """Comprehensive health check"""
     from backend.core.cache import cache_service
-    from backend.db.session import engine
+    from backend.db.session import engine, async_engine
     
     health = {
         "status": "healthy",

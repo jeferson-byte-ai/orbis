@@ -145,7 +145,7 @@ class SecurityEvent(Base):
     
     # Event details
     description = Column(Text)
-    metadata = Column(Text)  # JSON with additional context
+    event_metadata = Column(Text)  # JSON with additional context
     
     # Request context
     ip_address = Column(String(45))

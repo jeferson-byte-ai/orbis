@@ -45,6 +45,8 @@ frontend/node_modules/
 .env
 .env.*
 !.env.example
+!.env.production.example
+.deploy_config.txt
 *.pem
 *.key
 client_secret_*.json
@@ -73,7 +75,6 @@ uvicorn*.log
 
 # ============ Docker ============
 docker-compose.override.yml
-.dockerignore
 
 # ============ ML Models ============
 models/*.pt

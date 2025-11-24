@@ -425,3 +425,27 @@ class RoomEncryptionKey(Base):
     
     def __repr__(self):
         return f"<RoomEncryptionKey room={self.room_id} v{self.version}>"
+
+
+class ChatMessage(Base):
+    """Chat message model for in-meeting chat"""
+    __tablename__ = "chat_messages"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    room_id = Column(UUID(as_uuid=True), ForeignKey("rooms.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    
+    # Message content
+    content = Column(Text, nullable=False)
+    language = Column(String(10), nullable=True)  # Auto-detected language
+    
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    edited_at = Column(DateTime, nullable=True)
+    
+    # Relationships
+    room = relationship("Room", backref="chat_messages")
+    user = relationship("User", backref="chat_messages")
+    
+    def __repr__(self):
+        return f"<ChatMessage room={self.room_id} user={self.user_id}>"

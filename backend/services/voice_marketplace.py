@@ -18,7 +18,7 @@ from sqlalchemy.orm import selectinload
 
 from backend.db.models import User, VoiceProfile
 # from backend.db.models import VoiceMarketplaceListing  # TODO: Create this model
-from backend.db.session import engine
+from backend.db.session import async_engine
 from backend.config import settings
 
 logger = logging.getLogger(__name__)
@@ -135,7 +135,7 @@ class VoiceMarketplaceService:
         listing_id = str(uuid.uuid4())
         
         # Validate voice profile exists and belongs to seller
-        async with AsyncSession(engine) as session:
+        async with AsyncSession(async_engine) as session:
             result = await session.execute(
                 select(VoiceProfile).where(
                     and_(
@@ -187,7 +187,7 @@ class VoiceMarketplaceService:
     
     async def _store_voice_listing(self, listing: VoiceListing):
         """Store voice listing in database"""
-        async with AsyncSession(engine) as session:
+        async with AsyncSession(async_engine) as session:
             db_listing = VoiceMarketplaceListing(
                 id=listing.id,
                 title=listing.title,
@@ -253,7 +253,7 @@ class VoiceMarketplaceService:
                 logger.warning(f"Failed to get cached listings: {e}")
         
         # Query database
-        async with AsyncSession(engine) as session:
+        async with AsyncSession(async_engine) as session:
             query = select(VoiceMarketplaceListing).where(
                 VoiceMarketplaceListing.status == ListingStatus.APPROVED.value
             )
@@ -395,7 +395,7 @@ class VoiceMarketplaceService:
     
     async def _increment_download_count(self, listing_id: str):
         """Increment download count for listing"""
-        async with AsyncSession(engine) as session:
+        async with AsyncSession(async_engine) as session:
             await session.execute(
                 update(VoiceMarketplaceListing)
                 .where(VoiceMarketplaceListing.id == listing_id)
@@ -461,7 +461,7 @@ class VoiceMarketplaceService:
                 logger.warning(f"Failed to get cached listing: {e}")
         
         # Query database
-        async with AsyncSession(engine) as session:
+        async with AsyncSession(async_engine) as session:
             result = await session.execute(
                 select(VoiceMarketplaceListing).where(VoiceMarketplaceListing.id == listing_id)
             )
@@ -505,7 +505,7 @@ class VoiceMarketplaceService:
     
     async def get_seller_listings(self, seller_id: int) -> List[VoiceListing]:
         """Get all listings for a seller"""
-        async with AsyncSession(engine) as session:
+        async with AsyncSession(async_engine) as session:
             result = await session.execute(
                 select(VoiceMarketplaceListing)
                 .where(VoiceMarketplaceListing.seller_id == seller_id)
@@ -548,7 +548,7 @@ class VoiceMarketplaceService:
     
     async def get_marketplace_stats(self) -> Dict[str, Any]:
         """Get marketplace statistics"""
-        async with AsyncSession(engine) as session:
+        async with AsyncSession(async_engine) as session:
             # Total listings
             total_listings_result = await session.execute(
                 select(VoiceMarketplaceListing).where(

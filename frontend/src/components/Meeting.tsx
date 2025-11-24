@@ -7,9 +7,9 @@ import { useWebRTC } from '../hooks/useWebRTC';
 import { useTranslation } from '../hooks/useTranslation';
 import VideoGrid from './VideoGrid';
 import ControlBar from './ControlBar';
-import TranslationBar from './TranslationBar';
 import LanguageSelector from './LanguageSelector';
 import LanguageConfigModal from './LanguageConfigModal';
+import Chat from './Chat';
 import { Copy, Check, Sparkles, Activity, Globe } from 'lucide-react';
 
 interface MeetingProps {
@@ -24,7 +24,6 @@ interface MeetingProps {
     notifications: boolean;
     analytics: boolean;
   };
-  connectionQuality?: 'excellent' | 'good' | 'fair' | 'poor';
 }
 
 const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
@@ -36,8 +35,13 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
   const [speaksLanguages, setSpeaksLanguages] = useState<string[]>(['en']);
   const [understandsLanguages, setUnderstandsLanguages] = useState<string[]>(['en']);
   const [userName, setUserName] = useState<string>('');
+  const [userId, setUserId] = useState<string>('');
   const [isHost, setIsHost] = useState<boolean>(false);
   const [isScreenSharing, setIsScreenSharing] = useState<boolean>(false);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [isChatVisible, setIsChatVisible] = useState<boolean>(true);
+  const [showControls, setShowControls] = useState<boolean>(true);
+  const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null);
   
   // WebRTC for video/audio
   const {
@@ -52,6 +56,11 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
     startCall,
     endCall
   } = useWebRTC();
+
+  // Wrap video toggle to keep ControlBar prop signature simple
+  const handleToggleVideo = () => {
+    toggleVideo();
+  };
   
   // Translation WebSocket
   const {
@@ -237,6 +246,126 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Handle fullscreen toggle
+  const handleToggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        // Enter fullscreen - try different APIs for cross-browser support
+        const elem = document.documentElement;
+        
+        if (elem.requestFullscreen) {
+          await elem.requestFullscreen();
+        } else if ((elem as any).webkitRequestFullscreen) {
+          // Safari
+          await (elem as any).webkitRequestFullscreen();
+        } else if ((elem as any).mozRequestFullScreen) {
+          // Firefox
+          await (elem as any).mozRequestFullScreen();
+        } else if ((elem as any).msRequestFullscreen) {
+          // IE/Edge
+          await (elem as any).msRequestFullscreen();
+        }
+        
+        console.log('✅ Entered fullscreen mode');
+        setIsFullscreen(true);
+      } else {
+        // Exit fullscreen
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if ((document as any).webkitExitFullscreen) {
+          await (document as any).webkitExitFullscreen();
+        } else if ((document as any).mozCancelFullScreen) {
+          await (document as any).mozCancelFullScreen();
+        } else if ((document as any).msExitFullscreen) {
+          await (document as any).msExitFullscreen();
+        }
+        
+        console.log('✅ Exited fullscreen mode');
+        setIsFullscreen(false);
+      }
+    } catch (error) {
+      console.error('❌ Error toggling fullscreen:', error);
+      alert('Fullscreen not supported or blocked by browser');
+    }
+  };
+
+  // Detect fullscreen changes (e.g., when user presses ESC)
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  // Auto-hide controls in fullscreen
+  useEffect(() => {
+    if (!isFullscreen) {
+      setShowControls(true);
+      if (hideControlsTimeout.current) {
+        clearTimeout(hideControlsTimeout.current);
+      }
+      return;
+    }
+
+    const handleMouseMove = () => {
+      setShowControls(true);
+      
+      // Clear existing timeout
+      if (hideControlsTimeout.current) {
+        clearTimeout(hideControlsTimeout.current);
+      }
+      
+      // Hide controls after 3 seconds of no mouse movement
+      hideControlsTimeout.current = setTimeout(() => {
+        setShowControls(false);
+      }, 3000);
+    };
+
+    // Show controls when mouse moves to bottom 20% of screen
+    const handleMouseMoveBottom = (e: MouseEvent) => {
+      // Check if mouse is over chat area (ignore chat interactions)
+      const target = e.target as HTMLElement;
+      const isOverChat = target.closest('[data-chat-panel]');
+      
+      if (isOverChat) {
+        // Don't show/hide controls when interacting with chat
+        return;
+      }
+      
+      const windowHeight = window.innerHeight;
+      const mouseY = e.clientY;
+      
+      // If mouse is in bottom 20% of screen, always show controls
+      if (mouseY > windowHeight * 0.8) {
+        setShowControls(true);
+        if (hideControlsTimeout.current) {
+          clearTimeout(hideControlsTimeout.current);
+        }
+      } else {
+        handleMouseMove();
+      }
+    };
+
+    document.addEventListener('mousemove', handleMouseMoveBottom);
+    
+    // Initially hide controls after 3 seconds
+    hideControlsTimeout.current = setTimeout(() => {
+      setShowControls(false);
+    }, 3000);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMoveBottom);
+      if (hideControlsTimeout.current) {
+        clearTimeout(hideControlsTimeout.current);
+      }
+    };
+  }, [isFullscreen]);
+
   // Load user's language preferences and profile info
   useEffect(() => {
     const loadUserInfo = async () => {
@@ -254,7 +383,8 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
           const data = await response.json();
           setSpeaksLanguages(data.speaks_languages || ['en']);
           setUnderstandsLanguages(data.understands_languages || ['en']);
-          setUserName(data.username || data.email || 'User');
+          setUserName(data.full_name || data.username || data.email || 'User');
+          setUserId(data.id);
         }
       } catch (error) {
         console.error('Error loading user info:', error);
@@ -274,8 +404,14 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
 
         if (response.ok) {
           const data = await response.json();
-          const userId = localStorage.getItem('user_id');
-          setIsHost(data.created_by === userId);
+          const currentUserId = localStorage.getItem('user_id');
+          console.log('🔍 Host check:', {
+            roomCreatedBy: data.created_by,
+            currentUserId: currentUserId,
+            match: String(data.created_by) === String(currentUserId)
+          });
+          // Compare as strings to avoid type issues
+          setIsHost(String(data.created_by) === String(currentUserId));
         }
       } catch (error) {
         console.error('Error checking host status:', error);
@@ -320,14 +456,21 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-r from-black via-black via-70% to-red-950/30 flex flex-col relative overflow-hidden">
+    <div 
+      className={`bg-gradient-to-r from-black via-black via-70% to-red-950/30 flex flex-col relative overflow-hidden ${
+        isFullscreen ? 'w-screen h-screen' : 'h-screen'
+      }`}
+      style={isFullscreen ? { width: '100vw', height: '100vh' } : undefined}
+    >
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
         <div className="absolute top-1/4 right-20 w-96 h-96 bg-red-400 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-float" />
         <div className="absolute bottom-1/4 right-40 w-96 h-96 bg-red-500 rounded-full mix-blend-multiply filter blur-3xl opacity-12 animate-float" style={{ animationDelay: '2s' }} />
       </div>
-      {/* Header with room info and status */}
-      <div className="glass-dark px-6 py-4 flex items-center justify-between relative z-10 backdrop-blur-xl border-b border-white/10">
+      {/* Header with room info and status - Hidden in fullscreen */}
+      <div className={`glass-dark px-6 py-4 flex items-center justify-between relative z-10 backdrop-blur-xl border-b border-white/10 flex-shrink-0 transition-all duration-300 ${
+        isFullscreen ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'
+      }`}>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
             <div className="bg-gradient-to-br from-red-500 to-red-600 p-2 rounded-xl shadow-lg">
@@ -405,47 +548,72 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
         </div>
       )}
       
-      {/* Main video grid */}
-      <div className="flex-1 relative z-10">
-        <VideoGrid 
-          localStream={localStream}
-          participants={webrtcParticipants}
-          isVideoOff={isVideoOff}
-          userName={userName}
-        />
+      {/* Main content area with video and chat */}
+      <div className={`flex overflow-hidden ${
+        isFullscreen ? 'absolute inset-0 h-screen' : 'flex-1 relative z-10 h-full'
+      }`}>
+        {/* Video Grid */}
+        <div className={`relative ${isChatVisible ? 'flex-1' : 'w-full'} h-full overflow-hidden flex flex-col`}>
+          <VideoGrid 
+            localStream={localStream}
+            participants={webrtcParticipants}
+            isMuted={isMuted}
+            isVideoOff={isVideoOff}
+            userName={userName}
+          />
+          
+          {/* Translation captions overlay */}
+          {showCaptions && lastTranslation && (
+            <div className={`absolute left-1/2 transform -translate-x-1/2 glass-dark text-white px-8 py-4 rounded-2xl max-w-3xl shadow-2xl animate-slide-up border border-white/20 z-20 ${
+              isFullscreen ? 'bottom-32' : 'bottom-8'
+            }`}>
+              <p className="text-center text-lg leading-relaxed">{lastTranslation}</p>
+            </div>
+          )}
+        </div>
         
-        {/* Translation captions overlay */}
-        {showCaptions && lastTranslation && (
-          <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 glass-dark text-white px-8 py-4 rounded-2xl max-w-3xl shadow-2xl animate-slide-up border border-white/20">
-            <p className="text-center text-lg leading-relaxed">{lastTranslation}</p>
+        {/* Chat Panel */}
+        {isChatVisible && (
+          <div className={`w-96 flex-shrink-0 ${
+            isFullscreen ? 'h-screen' : 'h-full'
+          }`}>
+            <Chat
+              roomId={roomId}
+              token={token}
+              userName={userName}
+              currentUserId={userId}
+              targetLanguage={understandsLanguages[0] || 'en'}
+              onClose={() => setIsChatVisible(false)}
+              isVisible={isChatVisible}
+              isFullscreen={isFullscreen}
+            />
           </div>
         )}
       </div>
       
-      {/* Translation bar with language selection */}
-      <div className="relative z-10">
-        <TranslationBar
-          inputLanguage={inputLanguage}
-          outputLanguage={outputLanguage}
-          onLanguageClick={() => setShowLanguageSelector(true)}
-          onToggleCaptions={() => setShowCaptions(!showCaptions)}
-          showCaptions={showCaptions}
-        />
-      </div>
-      
-      {/* Control bar */}
-      <div className="relative z-10">
+      {/* Control bar - Overlay in fullscreen */}
+      <div className={`z-30 transition-all duration-300 ${
+        isFullscreen 
+          ? `fixed bottom-0 left-0 right-0 ${!showControls ? 'translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`
+          : 'relative flex-shrink-0'
+      }`}>
         <ControlBar
           isMuted={isMuted}
           isVideoOff={isVideoOff}
           onToggleMute={handleToggleMute}
-          onToggleVideo={toggleVideo}
+          onToggleVideo={handleToggleVideo}
           onLeave={handleLeave}
           onEndMeeting={isHost ? handleEndMeeting : undefined}
           isHost={isHost}
           onToggleScreenShare={handleToggleScreenShare}
           isScreenSharing={isScreenSharing}
           participantCount={webrtcParticipants.size + 1}
+          onToggleFullscreen={handleToggleFullscreen}
+          isFullscreen={isFullscreen}
+          onToggleCaptions={() => setShowCaptions(!showCaptions)}
+          showCaptions={showCaptions}
+          onToggleChat={() => setIsChatVisible(!isChatVisible)}
+          isChatVisible={isChatVisible}
         />
       </div>
       
