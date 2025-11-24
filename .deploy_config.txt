@@ -1,0 +1,80 @@
+=====================================
+🚀 CONFIGURAÇÕES DE DEPLOY - ORBIS
+=====================================
+Data: 2025-11-24
+Plataformas: Vercel + Pella + Neon + Upstash
+
+=====================================
+📦 1. NEON (PostgreSQL)
+=====================================
+DATABASE_URL=postgresql://neondb_owner:npg_OBmJPexT0v9y@ep-noisy-morning-ac52efim-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require
+
+=====================================
+📮 2. UPSTASH (Redis)
+=====================================
+REDIS_URL=redis://default:AaAoAAIncDI0YTg4OGM5ZTM3MmM0YzA2YmFjYzgyYTU2MWQxODg5ZnAyNDEwMDA@living-liger-41000.upstash.io:6379
+
+✅ URL CONFIGURADA!
+
+=====================================
+🔐 3. CHAVES SECRETAS (GERADAS)
+=====================================
+SECRET_KEY=lrmwIEZm5TUceGwJS7O6fogm_uIBVG76cJtoPh-QGMw
+JWT_SECRET=A87-TNMDtAjfSjOyKgaqVwOMDO2g5gYqyFRKLaaBFr4
+
+⚠️ NÃO COMPARTILHE ESSAS CHAVES!
+⚠️ NÃO COMMITE ESTE ARQUIVO!
+
+=====================================
+🐍 4. PELLA.APP (Backend)
+=====================================
+Status: PENDENTE
+
+Quando fizer deploy, anote aqui a URL:
+BACKEND_URL=https://orbis-backend.pella.app (ou similar)
+
+=====================================
+🌐 5. VERCEL (Frontend)
+=====================================
+Status: PENDENTE
+
+Quando fizer deploy, anote aqui a URL:
+FRONTEND_URL=https://orbis.vercel.app (ou similar)
+
+=====================================
+📋 VARIÁVEIS DE AMBIENTE - PELLA
+=====================================
+Copie e cole no Pella.app quando criar a aplicação:
+
+ENVIRONMENT=production
+DEBUG=false
+PYTHON_VERSION=3.11
+API_HOST=0.0.0.0
+API_PORT=8000
+DATABASE_URL=postgresql://neondb_owner:npg_OBmJPexT0v9y@ep-noisy-morning-ac52efim-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require
+REDIS_URL=redis://default:AaAoAAIncDI0YTg4OGM5ZTM3MmM0YzA2YmFjYzgyYTU2MWQxODg5ZnAyNDEwMDA@living-liger-41000.upstash.io:6379
+SECRET_KEY=lrmwIEZm5TUceGwJS7O6fogm_uIBVG76cJtoPh-QGMw
+JWT_SECRET=A87-TNMDtAjfSjOyKgaqVwOMDO2g5gYqyFRKLaaBFr4
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173,https://*.vercel.app
+ASR_MODEL=openai/whisper-base
+ASR_DEVICE=cpu
+MT_MODEL=facebook/nllb-200-distilled-600M
+MT_DEVICE=cpu
+TTS_DEVICE=cpu
+TARGET_LATENCY_MS=800
+MAX_ROOM_PARTICIPANTS=50
+ML_LAZY_LOAD=true
+ML_AUTO_UNLOAD_ENABLED=true
+ML_UNLOAD_AFTER_IDLE_SECONDS=3600
+RATE_LIMIT_PER_MINUTE=60
+MAX_CONNECTIONS_PER_ROOM=50
+
+=====================================
+✅ PRÓXIMOS PASSOS
+=====================================
+1. ⏳ Pegar URL completa do Redis (Upstash)
+2. 📝 Criar frontend/src/config.ts
+3. 🚀 Deploy backend no Pella
+4. 🌐 Deploy frontend no Vercel
+5. 🧪 Testar tudo!
+
