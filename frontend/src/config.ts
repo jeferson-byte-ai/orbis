@@ -12,9 +12,9 @@
 
 const isDevelopment = import.meta.env.MODE === 'development';
 
-// ⚠️ ATENÇÃO: Após fazer deploy do backend no Pella, 
-// cole a URL aqui substituindo 'SEU_BACKEND_URL'
-const PRODUCTION_BACKEND_URL = 'SEU_BACKEND_URL'; // Ex: https://orbis-backend.pella.app
+// ⚠️ URL do Ngrok - MUDA quando você reinicia o ngrok!
+// URL atual: https://convolutionary-staminal-caren.ngrok-free.dev
+const PRODUCTION_BACKEND_URL = 'https://convolutionary-staminal-caren.ngrok-free.dev';
 
 export const API_BASE_URL = isDevelopment
     ? 'http://localhost:8000'
