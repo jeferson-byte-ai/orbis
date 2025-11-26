@@ -77,14 +77,14 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     """Global rate limiting middleware"""
     
     def __init__(self, app, default_limit: int = 100, default_window: int = 60):
-        self.app = app
+        super().__init__(app)
         self.default_limiter = RateLimiter(
             requests=default_limit,
             window=default_window,
             key_prefix="global_rate_limit"
         )
     
-    async def __call__(self, request: Request, call_next):
+    async def dispatch(self, request: Request, call_next):
         """Process request with rate limiting"""
         
         # Skip rate limiting for health checks
