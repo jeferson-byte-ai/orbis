@@ -3,6 +3,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { apiFetch } from '../../utils/api';
 
 const VerifyEmail: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -23,7 +24,7 @@ const VerifyEmail: React.FC = () => {
       }
 
       try {
-        const response = await fetch('http://localhost:8000/api/auth/verify-email', {
+        const response = await apiFetch('/api/auth/verify-email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -61,7 +62,7 @@ const VerifyEmail: React.FC = () => {
 
     setResending(true);
     try {
-      const response = await fetch('http://localhost:8000/api/auth/resend-verification', {
+      const response = await apiFetch('/api/auth/resend-verification', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

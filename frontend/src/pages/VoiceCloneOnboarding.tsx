@@ -4,6 +4,7 @@
  */
 import React, { useState, useRef } from 'react';
 import { Check, Loader, Sparkles, Volume2, Wand2, Upload, FileAudio, AlertCircle, X, User } from 'lucide-react';
+import { authenticatedFetch } from '../utils/api';
 
 interface VoiceCloneOnboardingProps {
   onComplete: () => void;
@@ -88,12 +89,9 @@ const VoiceCloneOnboarding: React.FC<VoiceCloneOnboardingProps> = ({
         setProcessingProgress(progress);
       }, 200);
 
-      const response = await fetch('http://localhost:8000/api/voices/upload-profile-voice', {
+      const response = await authenticatedFetch('/api/voices/upload-profile-voice', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData,
+        body: formData
       });
 
       if (uploadIntervalRef.current) {

@@ -4,6 +4,7 @@
  */
 import React, { useState, useRef } from 'react';
 import { Upload, FileAudio, X, AlertCircle, Loader, Check, Sparkles, Volume2 } from 'lucide-react';
+import { authenticatedFetch } from '../utils/api';
 
 interface VoiceSetupModalProps {
   isOpen: boolean;
@@ -68,12 +69,9 @@ const VoiceSetupModal: React.FC<VoiceSetupModalProps> = ({ isOpen, onClose, onCo
         setUploadProgress(progress);
       }, 200);
 
-      const response = await fetch('http://localhost:8000/api/voices/upload-profile-voice', {
+      const response = await authenticatedFetch('/api/voices/upload-profile-voice', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData,
+        body: formData
       });
 
       clearInterval(progressInterval);

@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader, AlertCircle, CheckCircle } from 'lucide-react';
+import { apiFetch } from '../../utils/api';
 
 const GoogleCallback: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -58,8 +59,8 @@ const GoogleCallback: React.FC = () => {
         console.log('📤 Sending OAuth code to backend...');
         
         // Exchange code for tokens
-        const response = await fetch(
-          `http://localhost:8000/api/auth/oauth/google/callback?code=${code}&state=${state}`
+        const response = await apiFetch(
+          `/api/auth/oauth/google/callback?code=${code}&state=${state}`
         );
 
         console.log('📬 Backend response:', response.status);

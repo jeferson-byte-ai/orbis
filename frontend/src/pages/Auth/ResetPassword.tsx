@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { Lock, Eye, EyeOff, AlertCircle, Loader, CheckCircle } from 'lucide-react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { apiFetch } from '../../utils/api';
 
 const ResetPassword: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -66,7 +67,7 @@ const ResetPassword: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/auth/password-reset/confirm', {
+      const response = await apiFetch('/api/auth/password-reset/confirm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

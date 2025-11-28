@@ -4,6 +4,8 @@
  */
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Languages, X, Loader2, Check, Sparkles, Zap } from 'lucide-react';
+import { apiFetch } from '../utils/api';
+import { WS_BASE_URL } from '../config';
 
 interface ChatMessage {
   id: string;
@@ -79,8 +81,8 @@ const Chat: React.FC<ChatProps> = ({
   useEffect(() => {
     const loadMessages = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:8000/api/chat/messages/${roomId}?limit=100`,
+        const response = await apiFetch(
+          `/api/chat/messages/${roomId}?limit=100`,
           {
             headers: {
               'Authorization': `Bearer ${token}`
@@ -104,8 +106,7 @@ const Chat: React.FC<ChatProps> = ({
 
   // Connect to WebSocket for real-time messages
   useEffect(() => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//localhost:8000/api/chat/ws/${roomId}`;
+    const wsUrl = `${WS_BASE_URL}/api/chat/ws/${roomId}`;
 
     const websocket = new WebSocket(wsUrl);
 
@@ -168,7 +169,7 @@ const Chat: React.FC<ChatProps> = ({
     setNewMessage('');
 
     try {
-      const response = await fetch('http://localhost:8000/api/chat/messages', {
+      const response = await apiFetch('/api/chat/messages', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -228,7 +229,7 @@ const Chat: React.FC<ChatProps> = ({
     );
 
     try {
-      const response = await fetch('http://localhost:8000/api/chat/translate', {
+      const response = await apiFetch('/api/chat/translate', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader, AlertCircle, CheckCircle } from 'lucide-react';
+import { apiFetch } from '../../utils/api';
 
 const GitHubCallback: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -45,8 +46,8 @@ const GitHubCallback: React.FC = () => {
 
       try {
         // Exchange code for tokens
-        const response = await fetch(
-          `http://localhost:8000/api/auth/oauth/github/callback?code=${code}&state=${state}`
+        const response = await apiFetch(
+          `/api/auth/oauth/github/callback?code=${code}&state=${state}`
         );
 
         if (!response.ok) {

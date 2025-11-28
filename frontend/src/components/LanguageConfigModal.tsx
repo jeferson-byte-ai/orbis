@@ -4,6 +4,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { X, Check, Globe, Mic, Ear, Search, Loader } from 'lucide-react';
+import { apiFetch } from '../utils/api';
 
 interface Language {
   code: string;
@@ -46,7 +47,7 @@ const LanguageConfigModal: React.FC<LanguageConfigModalProps> = ({
     setLoading(true);
     try {
       // Endpoint público - não precisa de autenticação
-      const response = await fetch('http://localhost:8000/api/profile/languages/supported');
+      const response = await apiFetch('/api/profile/languages/supported');
 
       if (!response.ok) {
         throw new Error(`Failed to load languages: ${response.status}`);

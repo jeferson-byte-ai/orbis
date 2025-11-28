@@ -1,6 +1,28 @@
 /**
  * API Utilities - Centralized fetch wrapper with automatic token expiration handling
  */
+import { API_BASE_URL } from '../config';
+
+const buildApiUrl = (rawUrl: string): string => {
+  if (!rawUrl) {
+    return API_BASE_URL;
+  }
+
+  const trimmedUrl = rawUrl.trim();
+
+  // Replace localhost references with the configured backend URL
+  const replacedUrl = trimmedUrl.replace(/^https?:\/\/localhost:8000/i, API_BASE_URL);
+
+  if (/^https?:\/\//i.test(replacedUrl)) {
+    return replacedUrl;
+  }
+
+  if (replacedUrl.startsWith('/')) {
+    return `${API_BASE_URL}${replacedUrl}`;
+  }
+
+  return `${API_BASE_URL}/${replacedUrl}`;
+};
 
 /**
  * Custom fetch wrapper that automatically handles token expiration
@@ -10,6 +32,8 @@ export async function apiFetch(
   url: string,
   options: RequestInit = {}
 ): Promise<Response> {
+  const resolvedUrl = buildApiUrl(url);
+
   // Add ngrok bypass header for mobile compatibility
   const headers = new Headers(options.headers);
   headers.set('ngrok-skip-browser-warning', 'true');
@@ -17,7 +41,7 @@ export async function apiFetch(
   // Also add user-agent to help with mobile detection
   headers.set('User-Agent', 'Orbis-App');
 
-  const response = await fetch(url, {
+  const response = await fetch(resolvedUrl, {
     ...options,
     headers
   });
@@ -74,6 +98,8 @@ export async function authenticatedFetch(
     headers
   });
 }
+
+export { buildApiUrl };
 
 /**
  * Helper for GET requests

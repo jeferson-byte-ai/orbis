@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import { Mail, AlertCircle, Loader, ArrowLeft, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { apiFetch } from '../../utils/api';
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -17,7 +18,7 @@ const ForgotPassword: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/auth/password-reset/request', {
+      const response = await apiFetch('/api/auth/password-reset/request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })

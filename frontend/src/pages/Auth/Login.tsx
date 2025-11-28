@@ -42,7 +42,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       const { apiFetch } = await import('../../utils/api');
 
       // Call backend to get OAuth URL
-      const response = await apiFetch('http://localhost:8000/api/auth/oauth/google');
+      const response = await apiFetch('/api/auth/oauth/google');
       const data = await response.json();
 
       if (data.auth_url) {

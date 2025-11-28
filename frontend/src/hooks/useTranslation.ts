@@ -3,6 +3,8 @@
  * Manages real-time audio translation via WebSocket
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { WS_BASE_URL } from '../config';
+import { authenticatedFetch } from '../utils/api';
 
 // Feature flags - Set to true to enable advanced features
 const ENABLE_VOICE_CLONING = true;
@@ -38,8 +40,6 @@ interface UseTranslationReturn {
   unmute: () => void;
 }
 
-const WS_BASE_URL = 'ws://localhost:8000/api';
-
 export const useTranslation = (): UseTranslationReturn => {
   const [isConnected, setIsConnected] = useState(false);
   const [inputLanguage, setInputLanguage] = useState('auto');
@@ -65,12 +65,7 @@ export const useTranslation = (): UseTranslationReturn => {
       }
       
       try {
-        const token = localStorage.getItem('auth_token');
-        const response = await fetch('http://localhost:8000/api/voices/profile-voice-status', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const response = await authenticatedFetch('/api/voices/profile-voice-status');
         
         if (response.ok) {
           const data = await response.json();

@@ -123,7 +123,7 @@ const App: React.FC = () => {
       // Use apiFetch to automatically add ngrok headers
       const { apiFetch } = await import('./utils/api');
 
-      const response = await apiFetch('http://localhost:8000/api/auth/login', {
+      const response = await apiFetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -162,7 +162,7 @@ const App: React.FC = () => {
       const { apiFetch } = await import('./utils/api');
 
       // Call signup endpoint
-      const response = await apiFetch('http://localhost:8000/api/auth/signup', {
+      const response = await apiFetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, username, password, full_name: fullName })
@@ -174,7 +174,7 @@ const App: React.FC = () => {
       }
 
       // User created successfully, now login
-      const loginResponse = await apiFetch('http://localhost:8000/api/auth/login', {
+      const loginResponse = await apiFetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -327,7 +327,8 @@ const App: React.FC = () => {
                   <Settings
                     user={user}
                     onUpdateProfile={async (data) => {
-                      const response = await fetch('http://localhost:8000/api/users/me/profile', {
+                      const { apiFetch } = await import('./utils/api');
+                      const response = await apiFetch('/api/users/me/profile', {
                         method: 'PUT',
                         headers: {
                           'Content-Type': 'application/json',
@@ -344,7 +345,8 @@ const App: React.FC = () => {
                       localStorage.setItem('user', JSON.stringify(updatedUser));
                     }}
                     onChangePassword={async (current, newPass) => {
-                      const response = await fetch('http://localhost:8000/api/users/me/change-password', {
+                      const { apiFetch } = await import('./utils/api');
+                      const response = await apiFetch('/api/users/me/change-password', {
                         method: 'POST',
                         headers: {
                           'Content-Type': 'application/json',
@@ -364,7 +366,8 @@ const App: React.FC = () => {
                       console.log('🔑 Token in delete request:', authToken ? `${authToken.substring(0, 20)}...` : 'NULL');
                       console.log('📝 Delete request body:', { password: password ? '***' : 'empty', confirmation });
 
-                      const response = await fetch('http://localhost:8000/api/users/me', {
+                      const { apiFetch } = await import('./utils/api');
+                      const response = await apiFetch('/api/users/me', {
                         method: 'DELETE',
                         headers: {
                           'Content-Type': 'application/json',
@@ -391,7 +394,8 @@ const App: React.FC = () => {
                       handleLogout();
                     }}
                     onUpdatePreferences={async (preferences: any) => {
-                      const response = await fetch('http://localhost:8000/api/users/me/preferences/all', {
+                      const { apiFetch } = await import('./utils/api');
+                      const response = await apiFetch('/api/users/me/preferences/all', {
                         method: 'PUT',
                         headers: {
                           'Content-Type': 'application/json',

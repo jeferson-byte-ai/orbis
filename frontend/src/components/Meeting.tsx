@@ -11,6 +11,7 @@ import LanguageSelector from './LanguageSelector';
 import LanguageConfigModal from './LanguageConfigModal';
 import Chat from './Chat';
 import { Copy, Check, Sparkles, Activity, Globe } from 'lucide-react';
+import { authenticatedFetch } from '../utils/api';
 
 interface MeetingProps {
   roomId: string;
@@ -189,11 +190,8 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
       const token = localStorage.getItem('auth_token');
       if (!token) return;
 
-      const response = await fetch(`http://localhost:8000/api/rooms/${roomId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await authenticatedFetch(`/api/rooms/${roomId}`, {
+        method: 'DELETE'
       });
 
       if (response.ok) {
@@ -373,11 +371,7 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
         const token = localStorage.getItem('auth_token');
         if (!token) return;
 
-        const response = await fetch('http://localhost:8000/api/profile/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const response = await authenticatedFetch('/api/profile/me');
 
         if (response.ok) {
           const data = await response.json();
@@ -396,11 +390,7 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
         const token = localStorage.getItem('auth_token');
         if (!token) return;
 
-        const response = await fetch(`http://localhost:8000/api/rooms/${roomId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const response = await authenticatedFetch(`/api/rooms/${roomId}`);
 
         if (response.ok) {
           const data = await response.json();
@@ -429,10 +419,9 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
       throw new Error('Not authenticated');
     }
 
-    const response = await fetch('http://localhost:8000/api/profile/languages', {
+    const response = await authenticatedFetch('/api/profile/languages', {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({

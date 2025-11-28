@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useLanguageContext } from '../contexts/LanguageContext';
 import { Language } from '../i18n/translations';
+import { authenticatedFetch } from '../utils/api';
 
 interface SettingsProps {
   user: {
@@ -54,14 +55,9 @@ const Settings: React.FC<SettingsProps> = ({
   React.useEffect(() => {
     const loadUserData = async () => {
       try {
-        const token = localStorage.getItem('auth_token');
-        if (!token) return;
+        if (!localStorage.getItem('auth_token')) return;
 
-        const response = await fetch('http://localhost:8000/api/users/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const response = await authenticatedFetch('/api/users/me');
 
         if (response.ok) {
           const updatedUser = await response.json();
@@ -151,23 +147,14 @@ const Settings: React.FC<SettingsProps> = ({
   const loadVoiceProfile = async () => {
     setLoadingVoiceProfile(true);
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:8000/api/voices/profile', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await authenticatedFetch('/api/voices/profile');
 
       if (response.ok) {
         const data = await response.json();
         setVoiceProfile(data);
 
         // Load audio file with authentication and create blob URL
-        const audioResponse = await fetch('http://localhost:8000/api/voices/profile/audio', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const audioResponse = await authenticatedFetch('/api/voices/profile/audio');
 
         if (audioResponse.ok) {
           const blob = await audioResponse.blob();
@@ -214,11 +201,8 @@ const Settings: React.FC<SettingsProps> = ({
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('http://localhost:8000/api/voices/upload-profile-voice', {
+      const response = await authenticatedFetch('/api/voices/upload-profile-voice', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
         body: formData
       });
 
@@ -268,12 +252,8 @@ const Settings: React.FC<SettingsProps> = ({
     setError('');
 
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:8000/api/voices/profile', {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await authenticatedFetch('/api/voices/profile', {
+        method: 'DELETE'
       });
 
       if (!response.ok) {

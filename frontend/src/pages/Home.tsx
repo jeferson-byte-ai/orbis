@@ -77,7 +77,7 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
       const { apiFetch } = await import('../utils/api');
 
       // Check if user has voice profile
-      const voiceResponse = await apiFetch('http://localhost:8000/api/voices/profile-voice-status', {
+      const voiceResponse = await apiFetch('/api/voices/profile-voice-status', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -112,7 +112,7 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
     try {
       const { apiFetch } = await import('../utils/api');
 
-      const response = await apiFetch('http://localhost:8000/api/rooms', {
+      const response = await apiFetch('/api/rooms', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -199,7 +199,7 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
       const { apiFetch } = await import('../utils/api');
 
       // Check if user has voice profile
-      const voiceResponse = await apiFetch('http://localhost:8000/api/voices/profile-voice-status', {
+      const voiceResponse = await apiFetch('/api/voices/profile-voice-status', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
