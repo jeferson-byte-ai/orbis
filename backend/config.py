@@ -59,7 +59,7 @@ class Settings(BaseSettings):
     jwt_refresh_token_expire_days: int = 30
     
     # CORS
-    cors_origins: str = "http://localhost:3000,http://localhost:5173"
+    cors_origins: str = "http://localhost:3000,http://localhost:5173,https://orbis-omega.vercel.app,https://convolutionary-staminal-caren.ngrok-free.dev"
     cors_allow_credentials: bool = True
     
     @property
