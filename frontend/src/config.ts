@@ -10,7 +10,7 @@
  *   - WebSocket: wss://orbis-backend.pella.app
  */
 
-const isDevelopment = import.meta.env.MODE === 'development';
+const isDevelopment = (import.meta as any).env?.MODE === 'development';
 
 // ⚠️ URL do Ngrok - MUDA quando você reinicia o ngrok!
 // URL atual: https://convolutionary-staminal-caren.ngrok-free.dev
@@ -36,8 +36,8 @@ console.log('🔧 Orbis Config:', {
     apiUrl: API_BASE_URL,
     wsUrl: WS_BASE_URL,
     environment: isDevelopment ? 'development' : 'production',
-    mode: import.meta.env.MODE,
-    userAgent: navigator.userAgent
+    mode: (import.meta as any).env?.MODE,
+    userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'N/A'
 });
 
 export default config;
