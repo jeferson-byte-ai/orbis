@@ -9,6 +9,10 @@ engine = create_engine(
     settings.database_url,
     connect_args={"check_same_thread": False} if "sqlite" in settings.database_url else {},
     echo=False,  # Disable SQL query logging (too verbose)
+    pool_pre_ping=True,  # Test connections before using
+    pool_recycle=300,  # Recycle connections every 5 minutes (Neon idle timeout)
+    pool_size=5,  # Connection pool size
+    max_overflow=10  # Max overflow connections
 )
 
 # Create asynchronous engine for async operations

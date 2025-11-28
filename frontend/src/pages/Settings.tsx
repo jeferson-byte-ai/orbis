@@ -243,6 +243,11 @@ const Settings: React.FC<SettingsProps> = ({
       }
 
       setSuccess('Voice profile saved! Will be used in next meetings.');
+
+      // Update localStorage flag immediately
+      localStorage.setItem('hasVoiceProfile', 'true');
+      console.log('✅ Updated hasVoiceProfile flag in localStorage');
+
       await loadVoiceProfile();
       setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {

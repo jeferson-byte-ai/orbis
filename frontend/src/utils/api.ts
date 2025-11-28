@@ -10,29 +10,39 @@ export async function apiFetch(
   url: string,
   options: RequestInit = {}
 ): Promise<Response> {
-  const response = await fetch(url, options);
+  // Add ngrok bypass header for mobile compatibility
+  const headers = new Headers(options.headers);
+  headers.set('ngrok-skip-browser-warning', 'true');
+
+  // Also add user-agent to help with mobile detection
+  headers.set('User-Agent', 'Orbis-App');
+
+  const response = await fetch(url, {
+    ...options,
+    headers
+  });
 
   // Check if token expired (401 Unauthorized)
   if (response.status === 401) {
     console.warn('🔒 Token expired or invalid - Logging out...');
-    
+
     // Clear authentication data
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_id');
     localStorage.removeItem('user_email');
     localStorage.removeItem('username');
-    
+
     // Show notification to user
     const event = new CustomEvent('auth:expired', {
       detail: { message: 'Your session has expired. Please login again.' }
     });
     window.dispatchEvent(event);
-    
+
     // Redirect to login after a short delay
     setTimeout(() => {
       window.location.href = '/login';
     }, 1500);
-    
+
     // Throw error to prevent further processing
     throw new Error('Token expired - User logged out');
   }
@@ -49,7 +59,7 @@ export async function authenticatedFetch(
   options: RequestInit = {}
 ): Promise<Response> {
   const token = localStorage.getItem('auth_token');
-  
+
   if (!token) {
     console.warn('⚠️ No auth token found - Redirecting to login...');
     window.location.href = '/login';

@@ -337,6 +337,10 @@ app.include_router(billing.router)
 app.include_router(chat.router)  # Chat endpoints
 app.include_router(websocket_router, prefix="/api")  # WebSocket endpoints
 
+# Include admin API
+from backend.api.admin import router as admin_router
+app.include_router(admin_router)
+
 # Include developer API
 from backend.api.developer_api import router as developer_api_router
 app.include_router(developer_api_router)

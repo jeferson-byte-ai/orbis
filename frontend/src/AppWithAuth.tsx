@@ -120,7 +120,10 @@ const App: React.FC = () => {
 
   const handleLogin = async (email: string, password: string) => {
     try {
-      const response = await fetch('http://localhost:8000/api/auth/login', {
+      // Use apiFetch to automatically add ngrok headers
+      const { apiFetch } = await import('./utils/api');
+
+      const response = await apiFetch('http://localhost:8000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -155,8 +158,11 @@ const App: React.FC = () => {
 
   const handleSignup = async (email: string, username: string, password: string, fullName?: string) => {
     try {
+      // Use apiFetch to automatically add ngrok headers
+      const { apiFetch } = await import('./utils/api');
+
       // Call signup endpoint
-      const response = await fetch('http://localhost:8000/api/auth/signup', {
+      const response = await apiFetch('http://localhost:8000/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, username, password, full_name: fullName })
@@ -168,7 +174,7 @@ const App: React.FC = () => {
       }
 
       // User created successfully, now login
-      const loginResponse = await fetch('http://localhost:8000/api/auth/login', {
+      const loginResponse = await apiFetch('http://localhost:8000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

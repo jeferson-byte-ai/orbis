@@ -2,7 +2,7 @@
  * Home Page - Premium Landing
  * Landing page with meeting join/create options
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Video, Globe, Mic2, Zap, Sparkles, Shield, ArrowRight, Settings } from 'lucide-react';
 import { useLanguageContext } from '../contexts/LanguageContext';
@@ -28,6 +28,38 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
   const [showVoiceSetup, setShowVoiceSetup] = useState(false);
   const [pendingMeetingCreation, setPendingMeetingCreation] = useState(false);
 
+  // Auto-detect room ID from URL parameter (?room=)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomParam = urlParams.get('room');
+
+    if (roomParam) {
+      console.log('🔗 Room ID detected from URL:', roomParam);
+      setRoomId(roomParam);
+
+      // Clean URL without reloading page
+      window.history.replaceState({}, '', window.location.pathname);
+
+      // Show notification to user
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 z-50 bg-red-500/10 border border-red-500/20 text-red-400 px-6 py-3 rounded-xl shadow-lg animate-slide-down';
+      notification.innerHTML = `
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>Room link detected! Click "Join" to enter the meeting.</span>
+        </div>
+      `;
+      document.body.appendChild(notification);
+
+      // Remove notification after 5 seconds
+      setTimeout(() => {
+        notification.remove();
+      }, 5000);
+    }
+  }, []);
+
   const checkVoiceProfileAndCreateMeeting = async () => {
     setLoading(true);
 
@@ -41,9 +73,11 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
       return;
     }
 
-    // Check if user has voice profile
     try {
-      const voiceResponse = await fetch('http://localhost:8000/api/voices/profile-voice-status', {
+      const { apiFetch } = await import('../utils/api');
+
+      // Check if user has voice profile
+      const voiceResponse = await apiFetch('http://localhost:8000/api/voices/profile-voice-status', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -76,7 +110,9 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
 
     // Create real room via API
     try {
-      const response = await fetch('http://localhost:8000/api/rooms', {
+      const { apiFetch } = await import('../utils/api');
+
+      const response = await apiFetch('http://localhost:8000/api/rooms', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -159,9 +195,11 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
       return;
     }
 
-    // Check if user has voice profile
     try {
-      const voiceResponse = await fetch('http://localhost:8000/api/voices/profile-voice-status', {
+      const { apiFetch } = await import('../utils/api');
+
+      // Check if user has voice profile
+      const voiceResponse = await apiFetch('http://localhost:8000/api/voices/profile-voice-status', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
