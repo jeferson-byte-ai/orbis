@@ -31,9 +31,13 @@ export const config = {
     isDevelopment,
 };
 
-// Log para debug (apenas em desenvolvimento)
-if (isDevelopment) {
-    console.log('🔧 Config:', config);
-}
+// Log para debug (SEMPRE, para diagnosticar mobile)
+console.log('🔧 Orbis Config:', {
+    apiUrl: API_BASE_URL,
+    wsUrl: WS_BASE_URL,
+    environment: isDevelopment ? 'development' : 'production',
+    mode: import.meta.env.MODE,
+    userAgent: navigator.userAgent
+});
 
 export default config;
