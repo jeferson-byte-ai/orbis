@@ -38,7 +38,7 @@ const resolveApiBaseUrl = () => {
         console.warn('⚠️ Nenhuma variável VITE_API_* definida. Usando fallback padrão.');
     }
 
-    const prodFallback = [DEFAULT_PROD_API, LEGACY_NGROK_API].find(Boolean) ?? DEFAULT_DEV_API;
+    const prodFallback = [LEGACY_NGROK_API, DEFAULT_PROD_API].find(Boolean) ?? DEFAULT_DEV_API;
     return isDevelopment ? DEFAULT_DEV_API : prodFallback;
 };
 
@@ -52,7 +52,7 @@ const ensureWebSocketScheme = (url: string) => {
     if (url.startsWith('http://')) {
         return url.replace('http://', 'ws://');
     }
-    return isDevelopment ? 'ws://localhost:8000' : 'wss://orbis-backend.pella.app';
+    return isDevelopment ? 'ws://localhost:8000' : `wss://${LEGACY_NGROK_API.replace('https://', '')}`;
 };
 
 const resolveWsBaseUrl = (apiUrl: string) => {
@@ -70,7 +70,7 @@ const resolveWsBaseUrl = (apiUrl: string) => {
         console.warn('⚠️ Nenhuma variável VITE_WS_* definida. Derivando URL do WebSocket a partir da API.');
     }
 
-    const wsFallbackBase = apiUrl || DEFAULT_PROD_API || LEGACY_NGROK_API;
+    const wsFallbackBase = apiUrl || LEGACY_NGROK_API || DEFAULT_PROD_API;
     return ensureWebSocketScheme(wsFallbackBase);
 };
 
