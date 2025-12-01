@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { Video, Globe, Mic2, Zap, Sparkles, Shield, ArrowRight, Settings } from 'lucide-react';
 import { useLanguageContext } from '../contexts/LanguageContext';
 import VoiceSetupModal from '../components/VoiceSetupModal';
+import { authenticatedFetch } from '../utils/api';
 
 interface HomeProps {
   onJoinMeeting: (roomId: string, token: string, participants?: string[], language?: string) => void;
@@ -60,6 +61,28 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
     }
   }, []);
 
+  const ensureVoiceProfileExists = async (): Promise<boolean> => {
+    try {
+      const response = await authenticatedFetch('/api/voices/profile', { method: 'GET' });
+
+      if (response.ok) {
+        localStorage.setItem('hasVoiceProfile', 'true');
+        return true;
+      }
+
+      if (response.status === 404) {
+        localStorage.setItem('hasVoiceProfile', 'false');
+        return false;
+      }
+
+      console.warn('Unexpected status when checking voice profile:', response.status);
+      return true;
+    } catch (error) {
+      console.error('Error checking voice profile:', error);
+      return true;
+    }
+  };
+
   const checkVoiceProfileAndCreateMeeting = async () => {
     setLoading(true);
 
@@ -74,29 +97,15 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
     }
 
     try {
-      const { apiFetch } = await import('../utils/api');
+      const hasVoiceProfile = await ensureVoiceProfileExists();
 
-      // Check if user has voice profile
-      const voiceResponse = await apiFetch('/api/voices/profile-voice-status', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        }
-      });
-
-      if (voiceResponse.ok) {
-        const voiceData = await voiceResponse.json();
-
-        if (!voiceData.exists) {
-          // No voice profile - show modal
-          setLoading(false);
-          setShowVoiceSetup(true);
-          setPendingMeetingCreation(true);
-          return;
-        }
+      if (!hasVoiceProfile) {
+        setLoading(false);
+        setShowVoiceSetup(true);
+        setPendingMeetingCreation(true);
+        return;
       }
 
-      // Voice exists or check failed - proceed with meeting creation
       await createMeetingRoom(token);
     } catch (error) {
       console.error('Error checking voice profile:', error);
@@ -110,12 +119,9 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
 
     // Create real room via API
     try {
-      const { apiFetch } = await import('../utils/api');
-
-      const response = await apiFetch('/api/rooms', {
+      const response = await authenticatedFetch('/api/rooms', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -131,6 +137,7 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
       }
 
       const data = await response.json();
+      localStorage.setItem('hasVoiceProfile', 'true');
       onJoinMeeting(data.id, token);
     } catch (error) {
       console.error('Error creating meeting:', error);
@@ -147,6 +154,7 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
 
   const handleVoiceSetupComplete = () => {
     setShowVoiceSetup(false);
+    localStorage.setItem('hasVoiceProfile', 'true');
     if (pendingMeetingCreation) {
       setPendingMeetingCreation(false);
       const token = localStorage.getItem('auth_token');
@@ -196,29 +204,15 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
     }
 
     try {
-      const { apiFetch } = await import('../utils/api');
+      const hasVoiceProfile = await ensureVoiceProfileExists();
 
-      // Check if user has voice profile
-      const voiceResponse = await apiFetch('/api/voices/profile-voice-status', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        }
-      });
-
-      if (voiceResponse.ok) {
-        const voiceData = await voiceResponse.json();
-
-        if (!voiceData.exists) {
-          // No voice profile - show modal
-          setLoading(false);
-          setShowVoiceSetup(true);
-          setPendingMeetingCreation(false); // Not creating, just joining
-          return;
-        }
+      if (!hasVoiceProfile) {
+        setLoading(false);
+        setShowVoiceSetup(true);
+        setPendingMeetingCreation(false);
+        return;
       }
 
-      // Voice exists or check failed - proceed with joining meeting
       onJoinMeeting(roomId, token);
       setLoading(false);
     } catch (error) {

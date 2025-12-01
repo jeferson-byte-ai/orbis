@@ -208,7 +208,7 @@ const Chat: React.FC<ChatProps> = ({
   const translateMessage = async (message: ChatMessage) => {
     const rawTarget = targetLanguage?.toLowerCase();
     const normalizedTarget = normalizeLanguageCode(targetLanguage) || (rawTarget && rawTarget !== 'auto' ? rawTarget : 'en');
-    let sourceCandidate = normalizeLanguageCode(message.language) || detectProbableLanguage(message.content) || (normalizedTarget === 'en' ? 'pt' : 'en');
+    const sourceCandidate = normalizeLanguageCode(message.language) || detectProbableLanguage(message.content) || (normalizedTarget === 'en' ? 'pt' : 'en');
 
     if (sourceCandidate === normalizedTarget) {
       setMessages(prev =>

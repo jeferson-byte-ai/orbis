@@ -65,16 +65,17 @@ export const useTranslation = (): UseTranslationReturn => {
       }
       
       try {
-        const response = await authenticatedFetch('/api/voices/profile-voice-status');
-        
+        const response = await authenticatedFetch('/api/voices/profile', { method: 'GET' });
+
         if (response.ok) {
-          const data = await response.json();
-          voiceProfileExists.current = data.exists;
-          console.log('✅ Voice profile status:', data.exists);
-        } else {
-          // No voice profile yet
+          voiceProfileExists.current = true;
+          console.log('✅ Voice profile status: true');
+        } else if (response.status === 404) {
           voiceProfileExists.current = false;
           console.log('ℹ️ No voice profile found (this is normal for new users)');
+        } else {
+          voiceProfileExists.current = true;
+          console.warn('⚠️ Unexpected response when checking voice profile:', response.status);
         }
       } catch (err) {
         console.warn('⚠️ Could not check voice profile status:', err);
@@ -176,7 +177,7 @@ export const useTranslation = (): UseTranslationReturn => {
         console.log('Translation service connected');
         break;
         
-      case 'translated_audio':
+      case 'translated_audio': {
         // Received translated audio from another participant
         if (data.text) {
           setLastTranslation(data.text);
@@ -193,6 +194,7 @@ export const useTranslation = (): UseTranslationReturn => {
           void playAudio(audioPayload.data, audioPayload.sample_rate ?? 22050, audioPayload.encoding ?? 'pcm_s16le');
         }
         break;
+      }
         
       case 'language_updated':
         console.log('Language preferences updated');

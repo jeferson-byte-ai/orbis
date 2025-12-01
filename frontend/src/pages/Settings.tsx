@@ -262,6 +262,7 @@ const Settings: React.FC<SettingsProps> = ({
 
       setSuccess('Voice profile deleted successfully');
       setVoiceProfile(null);
+      localStorage.setItem('hasVoiceProfile', 'false');
 
       // Revoke audio URL to free memory
       if (audioUrl) {
