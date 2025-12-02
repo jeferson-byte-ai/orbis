@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { Video, Globe, Mic2, Zap, Sparkles, Shield, ArrowRight, Settings } from 'lucide-react';
 import { useLanguageContext } from '../contexts/LanguageContext';
 import VoiceSetupModal from '../components/VoiceSetupModal';
-import { authenticatedFetch } from '../utils/api';
+import { authenticatedFetch, apiFetch } from '../utils/api';
 
 interface HomeProps {
   onJoinMeeting: (roomId: string, token: string, participants?: string[], language?: string) => void;
@@ -22,12 +22,79 @@ interface HomeProps {
   onLogout?: () => void;
 }
 
+const ROOM_ID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const PENDING_ROOM_STORAGE_KEY = 'orbis_pending_room';
+
+const extractRoomIdFromUrl = (value: string): string => {
+  try {
+    const parsed = new URL(value);
+    const param = parsed.searchParams.get('room');
+    if (param && ROOM_ID_REGEX.test(param)) {
+      return param;
+    }
+    const segments = parsed.pathname.split('/').filter(Boolean);
+    const candidate = segments[segments.length - 1];
+    if (candidate && ROOM_ID_REGEX.test(candidate)) {
+      return candidate;
+    }
+  } catch {
+    // Not a URL, ignore
+  }
+  return '';
+};
+
+const normalizeRoomCode = (rawValue: string): string => {
+  if (!rawValue) {
+    return '';
+  }
+
+  const trimmed = rawValue.trim();
+  if (!trimmed) {
+    return '';
+  }
+
+  const fromUrl = extractRoomIdFromUrl(trimmed);
+  if (fromUrl) {
+    return fromUrl;
+  }
+
+  const inlineMatch = trimmed.match(/room=([0-9a-fA-F-]{36})/);
+  if (inlineMatch && inlineMatch[1] && ROOM_ID_REGEX.test(inlineMatch[1])) {
+    return inlineMatch[1];
+  }
+
+  return ROOM_ID_REGEX.test(trimmed) ? trimmed : '';
+};
+
+const showRoomDetectedNotification = (message: string) => {
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  const notification = document.createElement('div');
+  notification.className = 'fixed top-4 right-4 z-50 bg-red-500/10 border border-red-500/20 text-red-400 px-6 py-3 rounded-xl shadow-lg animate-slide-down';
+  notification.innerHTML = `
+    <div class="flex items-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <span>${message}</span>
+    </div>
+  `;
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.remove();
+  }, 5000);
+};
+
 const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
   const { t } = useLanguageContext();
   const [roomId, setRoomId] = useState('');
   const [loading, setLoading] = useState(false);
   const [showVoiceSetup, setShowVoiceSetup] = useState(false);
   const [pendingMeetingCreation, setPendingMeetingCreation] = useState(false);
+  const [pendingRoomId, setPendingRoomId] = useState<string | null>(null);
 
   // Auto-detect room ID from URL parameter (?room=)
   useEffect(() => {
@@ -35,31 +102,38 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
     const roomParam = urlParams.get('room');
 
     if (roomParam) {
-      console.log('🔗 Room ID detected from URL:', roomParam);
-      setRoomId(roomParam);
+      const normalizedRoom = normalizeRoomCode(roomParam);
+      if (normalizedRoom) {
+        console.log('🔗 Room ID detected from URL:', normalizedRoom);
+        setRoomId(normalizedRoom);
 
-      // Clean URL without reloading page
-      window.history.replaceState({}, '', window.location.pathname);
+        // Clean URL without reloading page
+        window.history.replaceState({}, '', window.location.pathname);
 
-      // Show notification to user
-      const notification = document.createElement('div');
-      notification.className = 'fixed top-4 right-4 z-50 bg-red-500/10 border border-red-500/20 text-red-400 px-6 py-3 rounded-xl shadow-lg animate-slide-down';
-      notification.innerHTML = `
-        <div class="flex items-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <span>Room link detected! Click "Join" to enter the meeting.</span>
-        </div>
-      `;
-      document.body.appendChild(notification);
-
-      // Remove notification after 5 seconds
-      setTimeout(() => {
-        notification.remove();
-      }, 5000);
+        showRoomDetectedNotification('Room link detected! Click "Join" to enter the meeting.');
+      }
     }
   }, []);
+
+  useEffect(() => {
+    if (roomId) {
+      return;
+    }
+
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const storedRoom = sessionStorage.getItem(PENDING_ROOM_STORAGE_KEY);
+    if (storedRoom) {
+      const normalizedRoom = normalizeRoomCode(storedRoom);
+      if (normalizedRoom) {
+        setRoomId(normalizedRoom);
+        showRoomDetectedNotification('Room link restored after login. Click "Join" to enter the meeting.');
+      }
+      sessionStorage.removeItem(PENDING_ROOM_STORAGE_KEY);
+    }
+  }, [roomId]);
 
   const ensureVoiceProfileExists = async (): Promise<boolean> => {
     try {
@@ -80,6 +154,31 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
     } catch (error) {
       console.error('Error checking voice profile:', error);
       return true;
+    }
+  };
+
+  const joinRoomOnServer = async (targetRoomId: string, token: string) => {
+    const response = await apiFetch(`/api/rooms/${targetRoomId}/join`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        input_language: 'auto',
+        output_language: 'auto'
+      })
+    });
+
+    if (!response.ok) {
+      let detail = 'Failed to join room';
+      try {
+        const errorData = await response.json();
+        detail = errorData.detail || detail;
+      } catch {
+        // Ignore parse errors
+      }
+      throw new Error(detail);
     }
   };
 
@@ -138,6 +237,11 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
 
       const data = await response.json();
       localStorage.setItem('hasVoiceProfile', 'true');
+      await joinRoomOnServer(data.id, token);
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem(PENDING_ROOM_STORAGE_KEY);
+      }
+      setPendingRoomId(null);
       onJoinMeeting(data.id, token);
     } catch (error) {
       console.error('Error creating meeting:', error);
@@ -161,12 +265,8 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
       if (token) {
         createMeetingRoom(token);
       }
-    } else if (roomId.trim()) {
-      // User completed voice setup and wants to join meeting
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        onJoinMeeting(roomId, token);
-      }
+    } else {
+      void resumePendingRoomJoin();
     }
   };
 
@@ -179,25 +279,25 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
       if (token) {
         createMeetingRoom(token);
       }
-    } else if (roomId.trim()) {
-      // User skipped voice setup but still wants to join meeting
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        onJoinMeeting(roomId, token);
-      }
+    } else if (pendingRoomId || roomId.trim()) {
+      void resumePendingRoomJoin();
     }
   };
 
-  const checkVoiceProfileAndJoinMeeting = async () => {
-    if (!roomId.trim()) return;
+  const checkVoiceProfileAndJoinMeeting = async (targetRoomId: string) => {
+    if (!targetRoomId) {
+      return;
+    }
 
     setLoading(true);
 
-    // Get real token from localStorage
     const token = localStorage.getItem('auth_token');
 
     if (!token) {
       alert('Você precisa fazer login primeiro!\n\nPor favor, acesse /login para autenticar.');
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(PENDING_ROOM_STORAGE_KEY, targetRoomId);
+      }
       window.location.href = '/login';
       setLoading(false);
       return;
@@ -210,21 +310,78 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
         setLoading(false);
         setShowVoiceSetup(true);
         setPendingMeetingCreation(false);
+        setPendingRoomId(targetRoomId);
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(PENDING_ROOM_STORAGE_KEY, targetRoomId);
+        }
         return;
       }
 
-      onJoinMeeting(roomId, token);
-      setLoading(false);
+      await joinRoomOnServer(targetRoomId, token);
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem(PENDING_ROOM_STORAGE_KEY);
+      }
+      setPendingRoomId(null);
+      onJoinMeeting(targetRoomId, token);
     } catch (error) {
       console.error('Error checking voice profile:', error);
-      // On error, still allow joining meeting
-      onJoinMeeting(roomId, token);
+      const message = error instanceof Error
+        ? error.message
+        : 'Erro ao entrar na sala. Verifique o link e tente novamente.';
+      alert(message);
+    } finally {
       setLoading(false);
     }
   };
 
-  const handleJoinMeeting = async () => {
-    checkVoiceProfileAndJoinMeeting();
+  const resumePendingRoomJoin = async () => {
+    const targetRoomId = pendingRoomId || normalizeRoomCode(roomId);
+    if (!targetRoomId) {
+      alert('Insira um link ou código de reunião válido para continuar.');
+      return;
+    }
+
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      alert('Você precisa fazer login primeiro!\n\nPor favor, acesse /login para autenticar.');
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(PENDING_ROOM_STORAGE_KEY, targetRoomId);
+      }
+      window.location.href = '/login';
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await joinRoomOnServer(targetRoomId, token);
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem(PENDING_ROOM_STORAGE_KEY);
+      }
+      setPendingRoomId(null);
+      onJoinMeeting(targetRoomId, token);
+    } catch (error) {
+      console.error('Error joining room after voice setup:', error);
+      const message = error instanceof Error
+        ? error.message
+        : 'Não foi possível entrar na sala. Tente novamente.';
+      alert(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleJoinMeeting = () => {
+    const normalizedRoom = normalizeRoomCode(roomId);
+    if (!normalizedRoom) {
+      alert('Insira um link ou código de reunião válido.');
+      return;
+    }
+
+    if (normalizedRoom !== roomId) {
+      setRoomId(normalizedRoom);
+    }
+
+    void checkVoiceProfileAndJoinMeeting(normalizedRoom);
   };
 
   return (

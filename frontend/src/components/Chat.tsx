@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Languages, X, Loader2, Check, Sparkles, Zap } from 'lucide-react';
 import { apiFetch } from '../utils/api';
-import { WS_BASE_URL } from '../config';
+import { buildBackendWebSocketUrl } from '../utils/websocket';
 
 interface ChatMessage {
   id: string;
@@ -106,7 +106,7 @@ const Chat: React.FC<ChatProps> = ({
 
   // Connect to WebSocket for real-time messages
   useEffect(() => {
-    const wsUrl = `${WS_BASE_URL}/api/chat/ws/${roomId}`;
+    const wsUrl = buildBackendWebSocketUrl(`/api/chat/ws/${roomId}`);
 
     const websocket = new WebSocket(wsUrl);
 

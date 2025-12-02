@@ -100,6 +100,9 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
     
     // Cleanup on unmount
     return () => {
+      void authenticatedFetch(`/api/rooms/${roomId}/leave`, {
+        method: 'POST'
+      }).catch(() => undefined);
       endCall();
       disconnectTranslation();
       if (audioChunkInterval.current) {
@@ -179,9 +182,21 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
   
   // Handle leave meeting
   const handleLeave = () => {
-    endCall();
-    disconnectTranslation();
-    onLeave();
+    const leaveRoom = async () => {
+      try {
+        await authenticatedFetch(`/api/rooms/${roomId}/leave`, {
+          method: 'POST'
+        });
+      } catch (error) {
+        console.error('Error leaving room:', error);
+      } finally {
+        endCall();
+        disconnectTranslation();
+        onLeave();
+      }
+    };
+
+    void leaveRoom();
   };
 
   // Handle end meeting for all (host only)
