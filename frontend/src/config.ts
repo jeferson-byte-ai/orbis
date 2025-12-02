@@ -16,10 +16,59 @@ const isDevelopment = env.MODE === 'development';
 const DEFAULT_DEV_API = 'http://localhost:8000';
 const DEFAULT_PROD_API = 'https://orbis-backend.pella.app';
 const LEGACY_NGROK_API = 'https://convolutionary-staminal-caren.ngrok-free.dev';
+const DEFAULT_DEV_BACKEND_PORT = '8000';
 
 const sanitizeUrl = (url?: string) => (typeof url === 'string' ? url.trim().replace(/\/+$/, '') : '');
 
-const pickFirstDefined = (...values: string[]) => values.find(Boolean) ?? '';
+const pickFirstDefined = (...values: (string | undefined)[]) => values.find(value => typeof value === 'string' && value.trim().length > 0)?.trim() ?? '';
+
+const sanitizePort = (value?: string) => {
+    if (!value) {
+        return '';
+    }
+
+    const parsed = parseInt(value, 10);
+    return Number.isFinite(parsed) && parsed > 0 ? String(parsed) : '';
+};
+
+const isLocalLikeHost = (hostname: string) => {
+    if (!hostname) {
+        return false;
+    }
+
+    const normalized = hostname.toLowerCase();
+    if (normalized === 'localhost' || normalized === '127.0.0.1' || normalized === '::1') {
+        return true;
+    }
+
+    if (normalized.endsWith('.local')) {
+        return true;
+    }
+
+    return /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[0-1])\.)/.test(normalized);
+};
+
+const detectRuntimeLocalNetworkApiUrl = () => {
+    if (typeof window === 'undefined') {
+        return '';
+    }
+
+    const hostname = window.location?.hostname;
+    if (!hostname || !isLocalLikeHost(hostname)) {
+        return '';
+    }
+
+    const preferredPort = sanitizePort(
+        pickFirstDefined(
+            env.VITE_DEV_BACKEND_PORT,
+            env.VITE_BACKEND_PORT,
+            env.VITE_API_PORT
+        ) || DEFAULT_DEV_BACKEND_PORT
+    );
+
+    const portSuffix = preferredPort ? `:${preferredPort}` : '';
+    return `http://${hostname}${portSuffix}`;
+};
 
 const resolveApiBaseUrl = () => {
     const envUrl = pickFirstDefined(
@@ -34,7 +83,13 @@ const resolveApiBaseUrl = () => {
         return envUrl;
     }
 
-    if (!isDevelopment) {
+    if (isDevelopment) {
+        const runtimeLocalUrl = detectRuntimeLocalNetworkApiUrl();
+        if (runtimeLocalUrl) {
+            console.log('🔁 Utilizando backend local detectado via hostname:', runtimeLocalUrl);
+            return runtimeLocalUrl;
+        }
+    } else {
         console.warn('⚠️ Nenhuma variável VITE_API_* definida. Usando fallback padrão.');
     }
 

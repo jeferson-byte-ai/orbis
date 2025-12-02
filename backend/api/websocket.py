@@ -28,15 +28,23 @@ async def websocket_audio_endpoint(websocket: WebSocket, room_id: str):
     4. Server sends translated audio to other participants
     """
     
+    
     logger.info(f"🔌 WebSocket connection attempt to room: {room_id}")
     logger.info(f"Query params: {websocket.query_params}")
     logger.info(f"Headers: {dict(websocket.headers)}")
+    logger.info(f"Origin: {websocket.headers.get('origin', 'NO ORIGIN')}")
     
-    # Accept WebSocket connection first
+    # Check origin and log
+    origin = websocket.headers.get("origin")
+    if origin:
+        logger.info(f"📍 WebSocket connection from origin: {origin}")
+    
+    # IMPORTANT: Accept connection FIRST (before authentication)
+    # This prevents ngrok free tier from rejecting connections with query params
     await websocket.accept()
     logger.info("✅ WebSocket connection accepted")
     
-    # Authenticate user from WebSocket query parameters
+    # NOW authenticate user
     try:
         logger.info("🔐 Attempting to authenticate WebSocket user...")
         user = await get_current_user_ws(websocket)
