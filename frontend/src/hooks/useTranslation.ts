@@ -10,6 +10,40 @@ import { authenticatedFetch } from '../utils/api';
 const ENABLE_VOICE_CLONING = true;
 const ENABLE_TRANSLATION = true;
 
+const buildAudioWebSocketUrl = (roomId: string, token: string) => {
+  const fallback = () => {
+    const runtimeOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8000';
+    const sanitizedBase = (WS_BASE_URL || runtimeOrigin).replace(/\/+$/, '');
+    const hasApiPrefix = /(^|\/)api(\/|$)/.test(new URL(sanitizedBase, runtimeOrigin).pathname);
+    const baseWithApi = hasApiPrefix ? sanitizedBase : `${sanitizedBase}/api`;
+    return `${baseWithApi}/ws/audio/${roomId}?token=${encodeURIComponent(token)}`;
+  };
+
+  try {
+    const url = new URL(WS_BASE_URL);
+    let normalizedPath = url.pathname.replace(/\/+$/, '');
+    const segments = normalizedPath.split('/').filter(Boolean);
+
+    if (segments[0] !== 'api') {
+      normalizedPath = `/api${normalizedPath ? (normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`) : ''}`;
+    } else if (!normalizedPath.startsWith('/')) {
+      normalizedPath = `/${normalizedPath}`;
+    }
+
+    const basePath = (normalizedPath || '/api').replace(/\/+$/, '');
+    url.pathname = `${basePath}/ws/audio/${roomId}`;
+    url.search = '';
+    url.searchParams.set('token', token);
+    return url.toString();
+  } catch (_error) {
+    try {
+      return fallback();
+    } catch {
+      return `${WS_BASE_URL.replace(/\/+$/, '')}/api/ws/audio/${roomId}?token=${encodeURIComponent(token)}`;
+    }
+  }
+};
+
 interface TranslationAudioPayload {
   data: string;
   encoding?: string;
@@ -103,7 +137,7 @@ export const useTranslation = (): UseTranslationReturn => {
       setInputLanguage(initialInputLang);
       setOutputLanguage(initialOutputLang);
 
-      const wsUrl = `${WS_BASE_URL}/ws/audio/${roomId}?token=${token}`;
+      const wsUrl = buildAudioWebSocketUrl(roomId, token);
       console.log('🔌 Attempting WebSocket connection to:', wsUrl.replace(token, 'TOKEN_HIDDEN'));
       console.log('🎯 Room ID:', roomId);
       console.log('🔑 Token present:', !!token, 'Length:', token?.length);
