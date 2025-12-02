@@ -80,6 +80,14 @@ async def websocket_audio_endpoint(websocket: WebSocket, room_id: str):
             "message": "Connected to audio stream"
         })
         
+        # Notify all participants in the room that someone joined
+        participant_list = [str(uid) for uid in connection_manager.room_connections.get(room_id, [])]
+        await connection_manager.broadcast_to_room(room_id, {
+            "type": "participant_joined",
+            "user_id": str(user_id),
+            "participants": participant_list
+        }, exclude_user=None)
+        
         # Start audio processing for this user
         await audio_stream_processor.start_processing(
             user_id, room_id, 
@@ -100,6 +108,14 @@ async def websocket_audio_endpoint(websocket: WebSocket, room_id: str):
         # Cleanup on disconnect
         await audio_stream_processor.stop_processing(user_id)
         connection_manager.disconnect(user_id)
+        
+        # Notify all remaining participants that someone left
+        participant_list = [str(uid) for uid in connection_manager.room_connections.get(room_id, [])]
+        await connection_manager.broadcast_to_room(room_id, {
+            "type": "participant_left",
+            "user_id": str(user_id),
+            "participants": participant_list
+        }, exclude_user=None)
 
 
 async def handle_websocket_message(user_id: UUID, room_id: str, data: dict):
