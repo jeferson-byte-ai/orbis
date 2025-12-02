@@ -86,6 +86,7 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
   } = useTranslation();
 
   const audioChunkInterval = useRef<number | null>(null);
+  const webrtcStartedRef = useRef<boolean>(false);
 
   // Initialize call and translation on mount
   useEffect(() => {
@@ -110,33 +111,30 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
       if (audioChunkInterval.current) {
         clearInterval(audioChunkInterval.current);
       }
+      webrtcStartedRef.current = false; // Reset for potential remounts
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, token]); // Only re-run if roomId or token changes
 
   // Connect WebRTC to the translation WebSocket once it's ready
   useEffect(() => {
-    if (translationWebSocket && translationConnected && !rtcConnected) {
+    // Only initialize WebRTC once per session to prevent infinite loops
+    if (translationWebSocket && translationConnected && !rtcConnected && !webrtcStartedRef.current) {
       console.log('🔗 Connecting WebRTC to shared WebSocket');
-      
+      webrtcStartedRef.current = true;
+
       // Set up WebRTC message handler to route signaling messages
       setWebRTCMessageHandler((data: any) => {
         void handleWebRTCMessage(data);
       });
-      
+
       // Start WebRTC with the existing WebSocket
       startCall(roomId, translationWebSocket).catch(err => {
         console.error('Failed to start WebRTC call:', err);
+        webrtcStartedRef.current = false; // Reset on error to allow retry
       });
     }
-    
-    // Cleanup handler on unmount
-    return () => {
-      if (!rtcConnected) {
-        setWebRTCMessageHandler(null);
-      }
-    };
-  }, [translationWebSocket, translationConnected, rtcConnected, roomId, startCall, setWebRTCMessageHandler, handleWebRTCMessage]);
+  }, [translationWebSocket, translationConnected, rtcConnected]);
 
   // Process audio chunks for translation
   useEffect(() => {
@@ -601,7 +599,7 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
                   // Get participant info from translation service
                   const participantInfo = participantsInfo.get(pId);
                   const participantName = participantInfo?.name || participantInfo?.username || `Participant ${pId.substring(0, 6)}`;
-                  
+
                   // Create a placeholder participant for WebSocket-only users
                   mergedParticipants.set(pId, {
                     id: pId,
