@@ -45,12 +45,12 @@ export const useWebRTC = (): UseWebRTCReturn => {
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [signalingConnected, setSignalingConnected] = useState(false);
-  
+
   const peerConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
   const signalingWs = useRef<WebSocket | null>(null);
   const currentUserId = useRef<string | null>(null);
   const roomId = useRef<string | null>(null);
-  
+
   // Get user media (camera + microphone)
   const getUserMedia = async (): Promise<MediaStream> => {
     try {
@@ -67,7 +67,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
           sampleRate: 48000
         }
       });
-      
+
       setLocalStream(stream);
       return stream;
     } catch (err) {
@@ -76,7 +76,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
       throw new Error(errorMsg);
     }
   };
-  
+
   // Toggle mute/unmute
   const toggleMute = useCallback(async () => {
     if (localStream) {
@@ -98,14 +98,14 @@ export const useWebRTC = (): UseWebRTCReturn => {
               sampleRate: 48000
             }
           });
-          
+
           // Replace audio track in existing stream
           const oldAudioTrack = localStream.getAudioTracks()[0];
           if (oldAudioTrack) {
             localStream.removeTrack(oldAudioTrack);
             oldAudioTrack.stop();
           }
-          
+
           const newAudioTrack = newAudioStream.getAudioTracks()[0];
           localStream.addTrack(newAudioTrack);
           setIsMuted(false);
@@ -117,7 +117,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
       }
     }
   }, [localStream]);
-  
+
   // Toggle video on/off
   const toggleVideo = useCallback(async () => {
     if (localStream) {
@@ -138,18 +138,18 @@ export const useWebRTC = (): UseWebRTCReturn => {
               frameRate: { ideal: 30 }
             }
           });
-          
+
           // Replace video track in existing stream
           const oldVideoTrack = localStream.getVideoTracks()[0];
           if (oldVideoTrack) {
             localStream.removeTrack(oldVideoTrack);
             oldVideoTrack.stop();
           }
-          
+
           const newVideoTrack = newVideoStream.getVideoTracks()[0];
           localStream.addTrack(newVideoTrack);
           setIsVideoOff(false);
-          
+
           // Force re-render by updating state
           setLocalStream(new MediaStream(localStream.getTracks()));
           console.log('✅ New video track added');
@@ -160,13 +160,13 @@ export const useWebRTC = (): UseWebRTCReturn => {
       }
     }
   }, [localStream]);
-  
+
   // Create peer connection for a remote user
   const createPeerConnection = useCallback((remoteUserId: string): RTCPeerConnection => {
     console.log('🔗 Creating peer connection for:', remoteUserId);
-    
+
     const pc = new RTCPeerConnection(ICE_SERVERS);
-    
+
     // Add local stream tracks to peer connection
     if (localStream) {
       localStream.getTracks().forEach(track => {
@@ -174,12 +174,12 @@ export const useWebRTC = (): UseWebRTCReturn => {
         console.log('➕ Added local track:', track.kind);
       });
     }
-    
+
     // Handle incoming remote stream
     pc.ontrack = (event) => {
       console.log('📥 Received remote track:', event.track.kind, 'from:', remoteUserId);
       const remoteStream = event.streams[0];
-      
+
       setParticipants(prev => {
         const updated = new Map(prev);
         const existing = updated.get(remoteUserId);
@@ -194,7 +194,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
         return updated;
       });
     };
-    
+
     // Handle ICE candidates
     pc.onicecandidate = (event) => {
       if (event.candidate && signalingWs.current?.readyState === WebSocket.OPEN) {
@@ -206,7 +206,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
         }));
       }
     };
-    
+
     // Handle connection state changes
     pc.onconnectionstatechange = () => {
       console.log(`🔌 Connection state with ${remoteUserId}:`, pc.connectionState);
@@ -216,19 +216,19 @@ export const useWebRTC = (): UseWebRTCReturn => {
         console.log('❌ WebRTC connection failed/disconnected:', remoteUserId);
       }
     };
-    
+
     pc.oniceconnectionstatechange = () => {
       console.log(`❄️ ICE state with ${remoteUserId}:`, pc.iceConnectionState);
     };
-    
+
     peerConnections.current.set(remoteUserId, pc);
     return pc;
   }, [localStream]);
-  
+
   // Handle signaling messages - exposed for external WebSocket
   const handleSignalingMessage = useCallback(async (data: any) => {
     const messageType = data.type;
-    
+
     try {
       if (messageType === 'connected') {
         currentUserId.current = data.user_id;
@@ -236,26 +236,26 @@ export const useWebRTC = (): UseWebRTCReturn => {
         setSignalingConnected(true);
         return;
       }
-      
+
       if (messageType === 'webrtc_offer') {
         const fromUserId = data.from_user_id;
         const offer = data.offer;
-        
+
         console.log('📨 Received WebRTC offer from:', fromUserId);
-        
+
         // Create peer connection if it doesn't exist
         let pc = peerConnections.current.get(fromUserId);
         if (!pc) {
           pc = createPeerConnection(fromUserId);
         }
-        
+
         // Set remote description
         await pc.setRemoteDescription(new RTCSessionDescription(offer));
-        
+
         // Create and send answer
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
-        
+
         if (signalingWs.current?.readyState === WebSocket.OPEN) {
           signalingWs.current.send(JSON.stringify({
             type: 'webrtc_answer',
@@ -268,9 +268,9 @@ export const useWebRTC = (): UseWebRTCReturn => {
       else if (messageType === 'webrtc_answer') {
         const fromUserId = data.from_user_id;
         const answer = data.answer;
-        
+
         console.log('📨 Received WebRTC answer from:', fromUserId);
-        
+
         const pc = peerConnections.current.get(fromUserId);
         if (pc) {
           await pc.setRemoteDescription(new RTCSessionDescription(answer));
@@ -280,9 +280,9 @@ export const useWebRTC = (): UseWebRTCReturn => {
       else if (messageType === 'ice_candidate') {
         const fromUserId = data.from_user_id;
         const candidate = data.candidate;
-        
+
         console.log('🧊 Received ICE candidate from:', fromUserId);
-        
+
         const pc = peerConnections.current.get(fromUserId);
         if (pc) {
           await pc.addIceCandidate(new RTCIceCandidate(candidate));
@@ -290,22 +290,22 @@ export const useWebRTC = (): UseWebRTCReturn => {
       }
       else if (messageType === 'participant_joined') {
         const joinedUserId = data.user_id;
-        
+
         // Don't create connection to ourselves
         if (joinedUserId === currentUserId.current) {
           console.log('👤 Ignoring self join');
           return;
         }
-        
-        console.log('👋 Participant joined, creating offer for:', joinedUserId);
-        
+
+        console.log('👋 Participant joined, creating offer for:', joinedUserId, 'Has localStream:', !!localStream);
+
         // Create peer connection and send offer
         const pc = createPeerConnection(joinedUserId);
-        
+
         // Create and send offer
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
-        
+
         if (signalingWs.current?.readyState === WebSocket.OPEN) {
           signalingWs.current.send(JSON.stringify({
             type: 'webrtc_offer',
@@ -318,14 +318,14 @@ export const useWebRTC = (): UseWebRTCReturn => {
       else if (messageType === 'participant_left') {
         const leftUserId = data.user_id;
         console.log('👋 Participant left:', leftUserId);
-        
+
         // Close peer connection
         const pc = peerConnections.current.get(leftUserId);
         if (pc) {
           pc.close();
           peerConnections.current.delete(leftUserId);
         }
-        
+
         // Remove from participants
         setParticipants(prev => {
           const updated = new Map(prev);
@@ -337,46 +337,46 @@ export const useWebRTC = (): UseWebRTCReturn => {
       console.error('Error handling signaling message:', err);
     }
   }, [createPeerConnection]);
-  
+
   // Start WebRTC call - now uses existing WebSocket
   const startCall = useCallback(async (roomIdParam: string, existingWs: WebSocket) => {
     try {
       console.log('🚀 Starting WebRTC call in room:', roomIdParam);
       roomId.current = roomIdParam;
-      
+
       // Get local media first
       const stream = await getUserMedia();
       setIsConnected(true);
       setError(null);
-      
+
       // Use the existing WebSocket for signaling (shared with translation)
       signalingWs.current = existingWs;
-      
+
       console.log('✅ WebRTC using shared WebSocket for signaling');
-      
+
     } catch (err) {
       setError(`Failed to start call: ${err}`);
       console.error('Call start error:', err);
     }
   }, [getUserMedia]);
-  
+
   // End WebRTC call
   const endCall = useCallback(() => {
     console.log('🛑 Ending WebRTC call');
-    
+
     // Stop all tracks
     if (localStream) {
       localStream.getTracks().forEach(track => track.stop());
       setLocalStream(null);
     }
-    
+
     // Close all peer connections
     peerConnections.current.forEach(pc => pc.close());
     peerConnections.current.clear();
-    
+
     // Don't close the WebSocket - it's shared with translation service
     signalingWs.current = null;
-    
+
     setParticipants(new Map());
     setIsConnected(false);
     setIsMuted(false);
@@ -385,14 +385,14 @@ export const useWebRTC = (): UseWebRTCReturn => {
     currentUserId.current = null;
     roomId.current = null;
   }, [localStream]);
-  
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       endCall();
     };
   }, [endCall]);
-  
+
   return {
     localStream,
     participants,
