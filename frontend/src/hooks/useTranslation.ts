@@ -32,6 +32,7 @@ interface UseTranslationReturn {
   lastTranslation: string | null;
   latency: number;
   error: string | null;
+  participants: string[];
   connect: (roomId: string, token: string) => void;
   disconnect: () => void;
   sendAudioChunk: (audioData: ArrayBuffer) => Promise<void>;
@@ -47,13 +48,14 @@ export const useTranslation = (): UseTranslationReturn => {
   const [lastTranslation, setLastTranslation] = useState<string | null>(null);
   const [latency, setLatency] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  
+  const [participants, setParticipants] = useState<string[]>([]);
+
   const ws = useRef<WebSocket | null>(null);
   const audioContext = useRef<AudioContext | null>(null);
   const processingQueue = useRef<ArrayBuffer[]>([]);
   const isProcessing = useRef(false);
   const voiceProfileExists = useRef(false); // New ref to store voice profile status
-  
+
   // Initialize audio context and check voice profile status
   useEffect(() => {
     audioContext.current = new AudioContext({ sampleRate: 48000 });
@@ -63,7 +65,7 @@ export const useTranslation = (): UseTranslationReturn => {
         voiceProfileExists.current = false;
         return;
       }
-      
+
       try {
         const response = await authenticatedFetch('/api/voices/profile', { method: 'GET' });
 
@@ -89,7 +91,7 @@ export const useTranslation = (): UseTranslationReturn => {
       audioContext.current?.close();
     };
   }, []);
-  
+
   // Connect to WebSocket
   const connect = useCallback((roomId: string, token: string, initialInputLang: string = 'auto', initialOutputLang: string = 'en') => {
     try {
@@ -99,7 +101,7 @@ export const useTranslation = (): UseTranslationReturn => {
         ws.current.close();
         ws.current = null;
       }
-      
+
       setInputLanguage(initialInputLang);
       setOutputLanguage(initialOutputLang);
 
@@ -110,9 +112,9 @@ export const useTranslation = (): UseTranslationReturn => {
       console.log('🔌 Attempting WebSocket connection to:', maskedUrl);
       console.log('🎯 Room ID:', roomId);
       console.log('🔑 Token present:', !!token, 'Length:', token?.length);
-      
+
       ws.current = new WebSocket(wsUrl);
-      
+
       ws.current.onopen = () => {
         console.log('✅ WebSocket connected successfully for translation');
         setIsConnected(true);
@@ -127,7 +129,7 @@ export const useTranslation = (): UseTranslationReturn => {
           voice_profile_exists: voiceProfileExists.current // Send voice profile status
         }));
       };
-      
+
       ws.current.onmessage = (event) => {
         try {
           const data: TranslationMessage = JSON.parse(event.data);
@@ -136,14 +138,14 @@ export const useTranslation = (): UseTranslationReturn => {
           console.error('Failed to parse WebSocket message:', err);
         }
       };
-      
+
       ws.current.onerror = (event) => {
         console.error('❌ WebSocket error:', event);
         console.error('WebSocket state:', ws.current?.readyState);
         console.error('WebSocket URL was:', wsUrl.replace(token, 'TOKEN_HIDDEN'));
         setError('WebSocket connection error');
       };
-      
+
       ws.current.onclose = (event) => {
         console.log('🔴 WebSocket disconnected');
         console.log('Close code:', event.code);
@@ -151,13 +153,13 @@ export const useTranslation = (): UseTranslationReturn => {
         console.log('Clean close:', event.wasClean);
         setIsConnected(false);
       };
-      
+
     } catch (err) {
       setError(`Failed to connect: ${err}`);
       console.error('❌ WebSocket connection error:', err);
     }
   }, []);
-  
+
   // Disconnect from WebSocket
   const disconnect = useCallback(() => {
     if (ws.current) {
@@ -169,24 +171,24 @@ export const useTranslation = (): UseTranslationReturn => {
 
     setIsConnected(false);
   }, []);
-  
+
   // Handle incoming WebSocket messages
   const handleWebSocketMessage = (data: TranslationMessage) => {
     const startTime = data.timestamp || Date.now();
     const currentLatency = Date.now() - startTime;
-    
+
     switch (data.type) {
       case 'connected':
         console.log('Translation service connected');
         break;
-        
+
       case 'translated_audio': {
         // Received translated audio from another participant
         if (data.text) {
           setLastTranslation(data.text);
           setLatency(currentLatency);
         }
-        
+
         const audioPayload: TranslationAudioPayload | undefined = data.audio || (data.audio_data ? {
           data: data.audio_data,
           encoding: 'pcm_s16le',
@@ -198,21 +200,35 @@ export const useTranslation = (): UseTranslationReturn => {
         }
         break;
       }
-        
-      case 'language_updated':
-        console.log('Language preferences updated');
+
+      case 'participant_joined':
+        console.log('👋 Participant joined:', data.user_id);
+        // @ts-ignore - data.participants exists in backend response
+        if (data.participants) {
+          // @ts-ignore
+          setParticipants(data.participants);
+        }
         break;
-        
-      case 'mute_status':
-      case 'translation_status':
-        console.log('Status updated:', data);
+
+      case 'participant_left':
+        console.log('👋 Participant left:', data.user_id);
+        // @ts-ignore
+        if (data.participants) {
+          // @ts-ignore
+          setParticipants(data.participants);
+        }
         break;
-        
+
+      case 'error':
+        console.error('Translation error:', data);
+        setError(data.text || 'Unknown error');
+        break;
+
       default:
         console.log('Unknown message type:', data.type);
     }
   };
-  
+
   // Send audio chunk to server
   const processNextChunk = useCallback(async () => {
     if (isProcessing.current) return;
@@ -249,17 +265,17 @@ export const useTranslation = (): UseTranslationReturn => {
     if (!ENABLE_TRANSLATION) {
       return;
     }
-    
+
     processingQueue.current.push(audioData);
     await processNextChunk();
   }, [processNextChunk]);
-  
+
   // Update language preferences
   const updateLanguages = useCallback((input: string, output: string) => {
     console.log('🌐 Updating languages:', { from: inputLanguage, to: input }, { from: outputLanguage, to: output });
     setInputLanguage(input);
     setOutputLanguage(output);
-    
+
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify({
         type: 'language_update',
@@ -271,7 +287,7 @@ export const useTranslation = (): UseTranslationReturn => {
       console.warn('⚠️ WebSocket not connected, languages updated locally only');
     }
   }, [inputLanguage, outputLanguage]);
-  
+
   // Mute translation
   const mute = useCallback(() => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
@@ -281,7 +297,7 @@ export const useTranslation = (): UseTranslationReturn => {
       }));
     }
   }, []);
-  
+
   // Unmute translation
   const unmute = useCallback(() => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
@@ -291,7 +307,7 @@ export const useTranslation = (): UseTranslationReturn => {
       }));
     }
   }, []);
-  
+
   // Play translated audio
   const playAudio = async (audioData: string, sampleRate: number, encoding: string) => {
     try {
@@ -320,14 +336,14 @@ export const useTranslation = (): UseTranslationReturn => {
       console.error('Failed to play audio:', err);
     }
   };
-  
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       disconnect();
     };
   }, [disconnect]);
-  
+
   return {
     isConnected,
     inputLanguage,
@@ -335,6 +351,7 @@ export const useTranslation = (): UseTranslationReturn => {
     lastTranslation,
     latency,
     error,
+    participants,
     connect,
     disconnect,
     sendAudioChunk,
@@ -365,7 +382,7 @@ async function convertToPCM16(buffer: ArrayBuffer, audioContext: AudioContext, t
     if (!buffer || buffer.byteLength === 0) {
       return null;
     }
-    
+
     const audioBuffer = await audioContext.decodeAudioData(buffer.slice(0));
     const channelCount = audioBuffer.numberOfChannels;
     const length = audioBuffer.length;
