@@ -85,15 +85,18 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
   // Initialize call and translation on mount
   useEffect(() => {
     const initialize = async () => {
+      // Start WebRTC call (don't block translation if this fails)
       try {
-        // Start WebRTC call
         await startCall(roomId);
-
-        // Connect translation WebSocket, passing current languages
-        connectTranslation(roomId, token);
-
       } catch (err) {
-        console.error('Failed to initialize meeting:', err);
+        console.error('Failed to start WebRTC call:', err);
+      }
+
+      // Connect translation WebSocket independently
+      try {
+        connectTranslation(roomId, token);
+      } catch (err) {
+        console.error('Failed to connect translation service:', err);
       }
     };
 
@@ -625,7 +628,14 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
           isHost={isHost}
           onToggleScreenShare={handleToggleScreenShare}
           isScreenSharing={isScreenSharing}
-          participantCount={webrtcParticipants.size + 1}
+          participantCount={(() => {
+            // Merge WebRTC participants with WebSocket participants for accurate count
+            const allParticipantIds = new Set([
+              ...Array.from(webrtcParticipants.keys()),
+              ...translationParticipants.filter(pId => pId !== userId)
+            ]);
+            return allParticipantIds.size + 1; // +1 for current user
+          })()}
           onToggleFullscreen={handleToggleFullscreen}
           isFullscreen={isFullscreen}
           onToggleCaptions={() => setShowCaptions(!showCaptions)}

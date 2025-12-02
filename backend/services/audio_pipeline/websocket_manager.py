@@ -66,6 +66,32 @@ class ConnectionManager:
         if tasks:
             await asyncio.gather(*tasks, return_exceptions=True)
     
+    async def broadcast_to_room(self, room_id: str, message: dict, exclude_user: Optional[UUID] = None):
+        """Broadcast message to all users in room (optionally excluding a user)"""
+        if room_id not in self.room_connections:
+            logger.warning(f"Cannot broadcast to room {room_id}: room not found")
+            return
+        
+        tasks = []
+        for user_id in self.room_connections[room_id]:
+            if user_id == exclude_user:
+                continue
+            
+            if user_id in self.active_connections:
+                try:
+                    tasks.append(
+                        self.active_connections[user_id].send_json(message)
+                    )
+                except Exception as e:
+                    logger.error(f"Error sending message to user {user_id}: {e}")
+        
+        if tasks:
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            # Log any errors
+            for i, result in enumerate(results):
+                if isinstance(result, Exception):
+                    logger.error(f"Failed to send message: {result}")
+    
     async def send_personal_message(self, user_id: UUID, message: dict):
         """Send message to specific user"""
         if user_id in self.active_connections:
