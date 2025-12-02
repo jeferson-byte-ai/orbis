@@ -3,7 +3,6 @@
  * Manages WebRTC connections for video/audio streaming with signaling
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { buildBackendWebSocketUrl } from '../utils/websocket';
 
 interface Participant {
   id: string;
@@ -23,9 +22,10 @@ interface UseWebRTCReturn {
   error: string | null;
   toggleMute: () => Promise<void>;
   toggleVideo: () => Promise<void>;
-  startCall: (roomId: string, token: string) => Promise<void>;
+  startCall: (roomId: string, signalingWs: WebSocket) => Promise<void>;
   endCall: () => void;
   signalingConnected: boolean;
+  handleSignalingMessage: (data: any) => Promise<void>;
 }
 
 // ICE servers for STUN/TURN
@@ -225,11 +225,18 @@ export const useWebRTC = (): UseWebRTCReturn => {
     return pc;
   }, [localStream]);
   
-  // Handle signaling messages
+  // Handle signaling messages - exposed for external WebSocket
   const handleSignalingMessage = useCallback(async (data: any) => {
     const messageType = data.type;
     
     try {
+      if (messageType === 'connected') {
+        currentUserId.current = data.user_id;
+        console.log('👤 Our user ID:', currentUserId.current);
+        setSignalingConnected(true);
+        return;
+      }
+      
       if (messageType === 'webrtc_offer') {
         const fromUserId = data.from_user_id;
         const offer = data.offer;
@@ -331,8 +338,8 @@ export const useWebRTC = (): UseWebRTCReturn => {
     }
   }, [createPeerConnection]);
   
-  // Start WebRTC call
-  const startCall = useCallback(async (roomIdParam: string, token: string) => {
+  // Start WebRTC call - now uses existing WebSocket
+  const startCall = useCallback(async (roomIdParam: string, existingWs: WebSocket) => {
     try {
       console.log('🚀 Starting WebRTC call in room:', roomIdParam);
       roomId.current = roomIdParam;
@@ -342,45 +349,16 @@ export const useWebRTC = (): UseWebRTCReturn => {
       setIsConnected(true);
       setError(null);
       
-      // Connect to signaling server (reuse the same WebSocket)
-      const wsUrl = buildBackendWebSocketUrl(`/api/ws/audio/${roomIdParam}`, { token });
-      const ws = new WebSocket(wsUrl);
+      // Use the existing WebSocket for signaling (shared with translation)
+      signalingWs.current = existingWs;
       
-      ws.onopen = () => {
-        console.log('✅ WebRTC signaling connected');
-        setSignalingConnected(true);
-        
-        // Store our user ID when we receive it
-        ws.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          
-          if (data.type === 'connected') {
-            currentUserId.current = data.user_id;
-            console.log('👤 Our user ID:', currentUserId.current);
-          }
-          
-          // Handle all signaling messages
-          handleSignalingMessage(data);
-        };
-      };
-      
-      ws.onerror = (error) => {
-        console.error('❌ WebRTC signaling error:', error);
-        setSignalingConnected(false);
-      };
-      
-      ws.onclose = () => {
-        console.log('🔴 WebRTC signaling disconnected');
-        setSignalingConnected(false);
-      };
-      
-      signalingWs.current = ws;
+      console.log('✅ WebRTC using shared WebSocket for signaling');
       
     } catch (err) {
       setError(`Failed to start call: ${err}`);
       console.error('Call start error:', err);
     }
-  }, [getUserMedia, handleSignalingMessage]);
+  }, [getUserMedia]);
   
   // End WebRTC call
   const endCall = useCallback(() => {
@@ -396,11 +374,8 @@ export const useWebRTC = (): UseWebRTCReturn => {
     peerConnections.current.forEach(pc => pc.close());
     peerConnections.current.clear();
     
-    // Close signaling WebSocket
-    if (signalingWs.current) {
-      signalingWs.current.close();
-      signalingWs.current = null;
-    }
+    // Don't close the WebSocket - it's shared with translation service
+    signalingWs.current = null;
     
     setParticipants(new Map());
     setIsConnected(false);
@@ -429,6 +404,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
     toggleVideo,
     startCall,
     endCall,
-    signalingConnected
+    signalingConnected,
+    handleSignalingMessage
   };
 };

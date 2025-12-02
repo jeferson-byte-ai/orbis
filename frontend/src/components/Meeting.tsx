@@ -56,7 +56,8 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
     toggleVideo,
     startCall,
     endCall,
-    signalingConnected
+    signalingConnected,
+    handleSignalingMessage: handleWebRTCMessage
   } = useWebRTC();
 
   // Wrap video toggle to keep ControlBar prop signature simple
@@ -79,7 +80,9 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
     sendAudioChunk,
     updateLanguages,
     mute: muteTranslation,
-    unmute: unmuteTranslation
+    unmute: unmuteTranslation,
+    websocket: translationWebSocket,
+    setWebRTCMessageHandler
   } = useTranslation();
 
   const audioChunkInterval = useRef<number | null>(null);
@@ -87,14 +90,7 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
   // Initialize call and translation on mount
   useEffect(() => {
     const initialize = async () => {
-      // Start WebRTC call with token for signaling
-      try {
-        await startCall(roomId, token);
-      } catch (err) {
-        console.error('Failed to start WebRTC call:', err);
-      }
-
-      // Connect translation WebSocket independently
+      // Connect translation WebSocket first
       try {
         connectTranslation(roomId, token);
       } catch (err) {
@@ -117,6 +113,30 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, token]); // Only re-run if roomId or token changes
+
+  // Connect WebRTC to the translation WebSocket once it's ready
+  useEffect(() => {
+    if (translationWebSocket && translationConnected && !rtcConnected) {
+      console.log('🔗 Connecting WebRTC to shared WebSocket');
+      
+      // Set up WebRTC message handler to route signaling messages
+      setWebRTCMessageHandler((data: any) => {
+        void handleWebRTCMessage(data);
+      });
+      
+      // Start WebRTC with the existing WebSocket
+      startCall(roomId, translationWebSocket).catch(err => {
+        console.error('Failed to start WebRTC call:', err);
+      });
+    }
+    
+    // Cleanup handler on unmount
+    return () => {
+      if (!rtcConnected) {
+        setWebRTCMessageHandler(null);
+      }
+    };
+  }, [translationWebSocket, translationConnected, rtcConnected, roomId, startCall, setWebRTCMessageHandler, handleWebRTCMessage]);
 
   // Process audio chunks for translation
   useEffect(() => {

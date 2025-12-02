@@ -47,6 +47,8 @@ interface UseTranslationReturn {
   updateLanguages: (input: string, output: string) => void;
   mute: () => void;
   unmute: () => void;
+  websocket: WebSocket | null;
+  setWebRTCMessageHandler: (handler: ((data: any) => void) | null) => void;
 }
 
 export const useTranslation = (): UseTranslationReturn => {
@@ -64,6 +66,7 @@ export const useTranslation = (): UseTranslationReturn => {
   const processingQueue = useRef<ArrayBuffer[]>([]);
   const isProcessing = useRef(false);
   const voiceProfileExists = useRef(false); // New ref to store voice profile status
+  const webrtcMessageHandler = useRef<((data: any) => void) | null>(null);
 
   // Initialize audio context and check voice profile status
   useEffect(() => {
@@ -181,10 +184,27 @@ export const useTranslation = (): UseTranslationReturn => {
     setIsConnected(false);
   }, []);
 
+  // Set WebRTC message handler
+  const setWebRTCMessageHandler = useCallback((handler: ((data: any) => void) | null) => {
+    webrtcMessageHandler.current = handler;
+  }, []);
+
   // Handle incoming WebSocket messages
   const handleWebSocketMessage = (data: TranslationMessage) => {
     const startTime = data.timestamp || Date.now();
     const currentLatency = Date.now() - startTime;
+
+    // Check if this is a WebRTC signaling message
+    const webrtcMessageTypes = ['connected', 'webrtc_offer', 'webrtc_answer', 'ice_candidate', 'participant_joined', 'participant_left'];
+    if (webrtcMessageTypes.includes(data.type) && webrtcMessageHandler.current) {
+      // Route WebRTC messages to the handler
+      webrtcMessageHandler.current(data);
+      
+      // Still process participant_joined/left for translation service
+      if (data.type !== 'participant_joined' && data.type !== 'participant_left') {
+        return;
+      }
+    }
 
     switch (data.type) {
       case 'connected':
@@ -383,7 +403,9 @@ export const useTranslation = (): UseTranslationReturn => {
     sendAudioChunk,
     updateLanguages,
     mute,
-    unmute
+    unmute,
+    websocket: ws.current,
+    setWebRTCMessageHandler
   };
 };
 
