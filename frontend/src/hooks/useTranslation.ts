@@ -25,6 +25,13 @@ interface TranslationMessage {
   timestamp?: number;
 }
 
+interface ParticipantInfo {
+  id: string;
+  username: string;
+  full_name: string | null;
+  name: string;
+}
+
 interface UseTranslationReturn {
   isConnected: boolean;
   inputLanguage: string;
@@ -33,6 +40,7 @@ interface UseTranslationReturn {
   latency: number;
   error: string | null;
   participants: string[];
+  participantsInfo: Map<string, ParticipantInfo>;
   connect: (roomId: string, token: string) => void;
   disconnect: () => void;
   sendAudioChunk: (audioData: ArrayBuffer) => Promise<void>;
@@ -49,6 +57,7 @@ export const useTranslation = (): UseTranslationReturn => {
   const [latency, setLatency] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [participants, setParticipants] = useState<string[]>([]);
+  const [participantsInfo, setParticipantsInfo] = useState<Map<string, ParticipantInfo>>(new Map());
 
   const ws = useRef<WebSocket | null>(null);
   const audioContext = useRef<AudioContext | null>(null);
@@ -202,11 +211,19 @@ export const useTranslation = (): UseTranslationReturn => {
       }
 
       case 'participant_joined':
-        console.log('👋 Participant joined:', data.user_id);
+        console.log('👋 Participant joined:', data.user_id, (data as any).user_name);
         // @ts-ignore - data.participants exists in backend response
         if (data.participants) {
           // @ts-ignore
-          setParticipants(data.participants);
+          const participantsList = data.participants as ParticipantInfo[];
+          setParticipants(participantsList.map(p => p.id));
+          
+          // Update participants info map
+          const newParticipantsInfo = new Map<string, ParticipantInfo>();
+          participantsList.forEach(p => {
+            newParticipantsInfo.set(p.id, p);
+          });
+          setParticipantsInfo(newParticipantsInfo);
         }
         break;
 
@@ -215,7 +232,15 @@ export const useTranslation = (): UseTranslationReturn => {
         // @ts-ignore
         if (data.participants) {
           // @ts-ignore
-          setParticipants(data.participants);
+          const participantsList = data.participants as ParticipantInfo[];
+          setParticipants(participantsList.map(p => p.id));
+          
+          // Update participants info map
+          const newParticipantsInfo = new Map<string, ParticipantInfo>();
+          participantsList.forEach(p => {
+            newParticipantsInfo.set(p.id, p);
+          });
+          setParticipantsInfo(newParticipantsInfo);
         }
         break;
 
@@ -352,6 +377,7 @@ export const useTranslation = (): UseTranslationReturn => {
     latency,
     error,
     participants,
+    participantsInfo,
     connect,
     disconnect,
     sendAudioChunk,

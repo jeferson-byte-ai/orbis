@@ -55,7 +55,8 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
     toggleMute,
     toggleVideo,
     startCall,
-    endCall
+    endCall,
+    signalingConnected
   } = useWebRTC();
 
   // Wrap video toggle to keep ControlBar prop signature simple
@@ -72,6 +73,7 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
     latency,
     error: translationError,
     participants: translationParticipants, // Get participants from translation service
+    participantsInfo, // Get detailed participant info
     connect: connectTranslation,
     disconnect: disconnectTranslation,
     sendAudioChunk,
@@ -85,9 +87,9 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
   // Initialize call and translation on mount
   useEffect(() => {
     const initialize = async () => {
-      // Start WebRTC call (don't block translation if this fails)
+      // Start WebRTC call with token for signaling
       try {
-        await startCall(roomId);
+        await startCall(roomId, token);
       } catch (err) {
         console.error('Failed to start WebRTC call:', err);
       }
@@ -513,9 +515,9 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
 
           {/* Connection status */}
           <div className="glass px-3 py-2 rounded-lg flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${rtcConnected ? 'bg-red-500 animate-pulse' : 'bg-gray-500'}`} />
+            <div className={`w-2 h-2 rounded-full ${translationConnected ? 'bg-red-500 animate-pulse' : 'bg-gray-500'}`} />
             <span className="text-white text-sm font-medium">
-              {rtcConnected ? 'Connected' : 'Disconnected'}
+              {translationConnected ? 'Connected' : 'Disconnected'}
             </span>
           </div>
 
@@ -524,6 +526,14 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
             <Activity size={14} className={translationConnected ? 'text-red-400' : 'text-gray-400'} />
             <span className="text-white text-sm font-medium">
               {translationConnected ? 'Translating' : 'Inactive'}
+            </span>
+          </div>
+
+          {/* WebRTC status */}
+          <div className="glass px-3 py-2 rounded-lg flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${signalingConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-500'}`} />
+            <span className="text-white text-sm font-medium">
+              WebRTC {signalingConnected ? 'Ready' : 'Offline'}
             </span>
           </div>
 
@@ -568,13 +578,18 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
 
               translationParticipants.forEach(pId => {
                 if (pId !== userId && !mergedParticipants.has(pId)) {
+                  // Get participant info from translation service
+                  const participantInfo = participantsInfo.get(pId);
+                  const participantName = participantInfo?.name || participantInfo?.username || `Participant ${pId.substring(0, 6)}`;
+                  
                   // Create a placeholder participant for WebSocket-only users
                   mergedParticipants.set(pId, {
                     id: pId,
                     stream: null, // No video stream for WebSocket-only
                     isMuted: false,
                     isVideoOff: true, // Audio-only via WebSocket
-                    language: 'en' // Default language
+                    language: 'en', // Default language
+                    userName: participantName // Add participant name
                   });
                 }
               });

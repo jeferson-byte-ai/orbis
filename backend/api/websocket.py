@@ -9,11 +9,40 @@ from fastapi.routing import APIRouter
 
 from backend.services.audio_pipeline.websocket_manager import connection_manager, audio_chunk_manager
 from backend.services.audio_pipeline.stream_processor import audio_stream_processor
-from backend.api.deps import get_current_user_ws
+from backend.api.deps import get_current_user_ws, get_current_user
+from backend.db.session import get_db
+from backend.db.models import User
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+async def get_participants_info(room_id: str) -> list:
+    """Get detailed information about all participants in a room"""
+    from backend.db.session import SessionLocal
+    
+    participants = []
+    user_ids = connection_manager.room_connections.get(room_id, [])
+    
+    if not user_ids:
+        return participants
+    
+    db = SessionLocal()
+    try:
+        for user_id in user_ids:
+            user = db.query(User).filter(User.id == user_id).first()
+            if user:
+                participants.append({
+                    "id": str(user.id),
+                    "username": user.username,
+                    "full_name": user.full_name,
+                    "name": user.full_name or user.username
+                })
+    finally:
+        db.close()
+    
+    return participants
 
 
 @router.websocket("/ws/audio/{room_id}")
@@ -81,10 +110,11 @@ async def websocket_audio_endpoint(websocket: WebSocket, room_id: str):
         })
         
         # Notify all participants in the room that someone joined
-        participant_list = [str(uid) for uid in connection_manager.room_connections.get(room_id, [])]
+        participant_list = await get_participants_info(room_id)
         await connection_manager.broadcast_to_room(room_id, {
             "type": "participant_joined",
             "user_id": str(user_id),
+            "user_name": user.full_name or user.username,
             "participants": participant_list
         }, exclude_user=None)
         
@@ -110,7 +140,7 @@ async def websocket_audio_endpoint(websocket: WebSocket, room_id: str):
         connection_manager.disconnect(user_id)
         
         # Notify all remaining participants that someone left
-        participant_list = [str(uid) for uid in connection_manager.room_connections.get(room_id, [])]
+        participant_list = await get_participants_info(room_id)
         await connection_manager.broadcast_to_room(room_id, {
             "type": "participant_left",
             "user_id": str(user_id),
@@ -150,6 +180,16 @@ async def handle_websocket_message(user_id: UUID, room_id: str, data: dict):
     
     elif message_type == "control":
         await handle_control_message(user_id, room_id, data)
+    
+    # WebRTC Signaling messages
+    elif message_type == "webrtc_offer":
+        await handle_webrtc_offer(user_id, room_id, data)
+    
+    elif message_type == "webrtc_answer":
+        await handle_webrtc_answer(user_id, room_id, data)
+    
+    elif message_type == "ice_candidate":
+        await handle_ice_candidate(user_id, room_id, data)
     
     else:
         logger.warning(f"Unknown message type: {message_type}")
@@ -259,6 +299,81 @@ async def handle_control_message(user_id: UUID, room_id: str, data: dict):
             
     except Exception as e:
         logger.error(f"Error handling control message for user {user_id}: {e}")
+
+
+async def handle_webrtc_offer(user_id: UUID, room_id: str, data: dict):
+    """Handle WebRTC offer from a peer"""
+    try:
+        target_user_id = data.get("target_user_id")
+        offer = data.get("offer")
+        
+        if not target_user_id or not offer:
+            logger.warning(f"Invalid WebRTC offer from {user_id}")
+            return
+        
+        target_uuid = UUID(target_user_id)
+        
+        # Forward the offer to the target user
+        await connection_manager.send_personal_message(target_uuid, {
+            "type": "webrtc_offer",
+            "from_user_id": str(user_id),
+            "offer": offer
+        })
+        
+        logger.info(f"Forwarded WebRTC offer from {user_id} to {target_user_id}")
+        
+    except Exception as e:
+        logger.error(f"Error handling WebRTC offer: {e}")
+
+
+async def handle_webrtc_answer(user_id: UUID, room_id: str, data: dict):
+    """Handle WebRTC answer from a peer"""
+    try:
+        target_user_id = data.get("target_user_id")
+        answer = data.get("answer")
+        
+        if not target_user_id or not answer:
+            logger.warning(f"Invalid WebRTC answer from {user_id}")
+            return
+        
+        target_uuid = UUID(target_user_id)
+        
+        # Forward the answer to the target user
+        await connection_manager.send_personal_message(target_uuid, {
+            "type": "webrtc_answer",
+            "from_user_id": str(user_id),
+            "answer": answer
+        })
+        
+        logger.info(f"Forwarded WebRTC answer from {user_id} to {target_user_id}")
+        
+    except Exception as e:
+        logger.error(f"Error handling WebRTC answer: {e}")
+
+
+async def handle_ice_candidate(user_id: UUID, room_id: str, data: dict):
+    """Handle ICE candidate from a peer"""
+    try:
+        target_user_id = data.get("target_user_id")
+        candidate = data.get("candidate")
+        
+        if not target_user_id or not candidate:
+            logger.warning(f"Invalid ICE candidate from {user_id}")
+            return
+        
+        target_uuid = UUID(target_user_id)
+        
+        # Forward the ICE candidate to the target user
+        await connection_manager.send_personal_message(target_uuid, {
+            "type": "ice_candidate",
+            "from_user_id": str(user_id),
+            "candidate": candidate
+        })
+        
+        logger.debug(f"Forwarded ICE candidate from {user_id} to {target_user_id}")
+        
+    except Exception as e:
+        logger.error(f"Error handling ICE candidate: {e}")
 
 
 @router.websocket("/ws/status/{room_id}")

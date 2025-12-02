@@ -11,6 +11,7 @@ interface Participant {
   isMuted: boolean;
   isVideoOff: boolean;
   language: string;
+  userName?: string;
 }
 
 interface VideoGridProps {
@@ -194,7 +195,8 @@ const ParticipantVideo: React.FC<ParticipantVideoProps> = ({ participant }) => {
       videoRef={videoRef}
       isMuted={participant.isMuted}
       isVideoOff={participant.isVideoOff}
-      label={`Participant ${participant.id.substring(0, 6)}`}
+      label={participant.userName || `Participant ${participant.id.substring(0, 6)}`}
+      userName={participant.userName}
     />
   );
 };
