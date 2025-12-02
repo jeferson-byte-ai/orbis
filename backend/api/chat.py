@@ -135,7 +135,7 @@ async def send_message(
             message.room_id,
             {
                 "type": "new_message",
-                "message": response.dict()
+                "message": response.model_dump(mode='json')
             }
         )
         
