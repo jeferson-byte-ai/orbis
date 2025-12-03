@@ -13,6 +13,11 @@ interface Participant {
   userName?: string;
 }
 
+interface PendingOffer {
+  fromUserId: string;
+  offer: RTCSessionDescriptionInit;
+}
+
 interface UseWebRTCReturn {
   localStream: MediaStream | null;
   participants: Map<string, Participant>;
@@ -53,6 +58,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
   const roomId = useRef<string | null>(null);
   const pendingParticipants = useRef<Set<string>>(new Set()); // Track participants waiting for localStream
   const negotiatingPeers = useRef<Set<string>>(new Set()); // Track peers currently negotiating
+  const pendingOffers = useRef<PendingOffer[]>([]);
 
   // Get user media (camera + microphone)
   const getUserMedia = async (): Promise<MediaStream> => {
@@ -288,6 +294,33 @@ export const useWebRTC = (): UseWebRTCReturn => {
     return pc;
   }, [localStream]);
 
+  const processIncomingOffer = useCallback(async (fromUserId: string, offer: RTCSessionDescriptionInit) => {
+    let pc = peerConnections.current.get(fromUserId);
+    if (!pc) {
+      pc = createPeerConnection(fromUserId);
+    }
+
+    if (!pc) {
+      throw new Error('Failed to create peer connection for incoming offer');
+    }
+
+    await pc.setRemoteDescription(new RTCSessionDescription(offer));
+
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+
+    if (signalingWs.current?.readyState === WebSocket.OPEN) {
+      signalingWs.current.send(JSON.stringify({
+        type: 'webrtc_answer',
+        target_user_id: fromUserId,
+        answer
+      }));
+      console.log('📤 Sent WebRTC answer to:', fromUserId);
+    } else {
+      console.warn('⚠️ Cannot send WebRTC answer, signaling WebSocket not open');
+    }
+  }, [createPeerConnection]);
+
   // Handle signaling messages - exposed for external WebSocket
   const handleSignalingMessage = useCallback(async (data: any) => {
     const messageType = data.type;
@@ -306,27 +339,13 @@ export const useWebRTC = (): UseWebRTCReturn => {
 
         console.log('📨 Received WebRTC offer from:', fromUserId);
 
-        // Create peer connection if it doesn't exist
-        let pc = peerConnections.current.get(fromUserId);
-        if (!pc) {
-          pc = createPeerConnection(fromUserId);
+        if (!localStream) {
+          console.warn('⏳ LocalStream not ready yet, queueing offer from', fromUserId);
+          pendingOffers.current.push({ fromUserId, offer });
+          return;
         }
 
-        // Set remote description
-        await pc.setRemoteDescription(new RTCSessionDescription(offer));
-
-        // Create and send answer
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
-
-        if (signalingWs.current?.readyState === WebSocket.OPEN) {
-          signalingWs.current.send(JSON.stringify({
-            type: 'webrtc_answer',
-            target_user_id: fromUserId,
-            answer: answer
-          }));
-          console.log('📤 Sent WebRTC answer to:', fromUserId);
-        }
+        await processIncomingOffer(fromUserId, offer);
       }
       else if (messageType === 'webrtc_answer') {
         const fromUserId = data.from_user_id;
@@ -424,7 +443,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
     } catch (err) {
       console.error('Error handling signaling message:', err);
     }
-  }, [createPeerConnection, localStream]); // Keep localStream to get latest value
+  }, [createPeerConnection, localStream, processIncomingOffer]); // Keep localStream to get latest value
 
   // Start WebRTC call - now uses existing WebSocket
   const startCall = useCallback(async (roomIdParam: string, existingWs: WebSocket) => {
@@ -600,7 +619,19 @@ export const useWebRTC = (): UseWebRTCReturn => {
         console.log(`  ⏳ Waiting for automatic renegotiation with ${userId}...`);
       }
     });
-  }, [localStream, createPeerConnection]);
+
+    if (pendingOffers.current.length > 0) {
+      console.log(`📬 Processing ${pendingOffers.current.length} queued offers now that localStream is ready`);
+      const offersToProcess = [...pendingOffers.current];
+      pendingOffers.current = [];
+
+      offersToProcess.forEach(({ fromUserId, offer }) => {
+        processIncomingOffer(fromUserId, offer).catch(err => {
+          console.error(`❌ Failed to process queued offer from ${fromUserId}:`, err);
+        });
+      });
+    }
+  }, [localStream, createPeerConnection, processIncomingOffer]);
 
   // Cleanup on unmount ONLY
   useEffect(() => {
