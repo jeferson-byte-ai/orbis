@@ -7,7 +7,7 @@ import base64
 import logging
 import time
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Any
 from uuid import UUID
 
 import numpy as np
@@ -105,13 +105,17 @@ class AudioStreamProcessor:
         start_time = time.time()
         
         try:
-            user_config = self.user_languages[user_id]
+            user_config = self.user_languages.get(user_id)
+            if not user_config:
+                logger.warning(f"No language config for user {user_id}, skipping audio processing")
+                return
+                
             room_id = user_config['room_id']
             input_lang = user_config['input']
             output_lang = user_config['output']
 
-            if output_lang in (None, 'auto'):
-                output_lang = input_lang if input_lang not in (None, 'auto') else 'en'
+            # Note: output_lang is what the SPEAKER wants to HEAR from others
+            # input_lang is what the SPEAKER is SPEAKING
             
             # Step 1: Convert bytes to numpy array
             audio_array = self._bytes_to_audio_array(audio_data)
@@ -146,9 +150,9 @@ class AudioStreamProcessor:
                 self.user_languages[user_id]['input'] = detected_lang
                 input_lang = detected_lang
             
-            # Step 3: Machine Translation (Lazy Load)
-            mt_start_time = time.time()
+            logger.info(f"🎤 User {user_id} spoke in {input_lang}: '{transcribed_text}'")
             
+            # Step 3: Machine Translation (Lazy Load)
             # Ensure NLLB is loaded
             if not await lazy_loader.ensure_loaded(ModelType.NLLB):
                 await self._notify_translation_error(user_id, "mt", "Translation model unavailable")
@@ -158,13 +162,9 @@ class AudioStreamProcessor:
                 await self._notify_translation_error(user_id, "mt", "NLLB model failed to load")
                 return
             
-            translated_text = await self._translate_text(transcribed_text, input_lang or detected_lang, output_lang)
-            mt_latency = (time.time() - mt_start_time) * 1000
+            mt_latency = 0.0
             
             # Step 4: Text-to-Speech with Voice Cloning (Lazy Load)
-            tts_start_time = time.time()
-            
-            # Ensure Coqui TTS is loaded
             if not await lazy_loader.ensure_loaded(ModelType.COQUI):
                 await self._notify_translation_error(user_id, "tts", "Voice synthesis model unavailable")
                 return
@@ -173,30 +173,102 @@ class AudioStreamProcessor:
                 await self._notify_translation_error(user_id, "tts", "Coqui TTS model failed to load")
                 return
             
-            translated_audio = await self._text_to_speech(translated_text, output_lang, user_id)
-            tts_latency = (time.time() - tts_start_time) * 1000
-            if not translated_audio:
-                logger.debug(f"No translated audio generated for user {user_id}")
+            listeners = connection_manager.get_room_users(room_id)
+            if not listeners:
+                logger.debug(f"No listeners in room {room_id}")
                 return
-            
-            # Step 5: Send translated audio to room
-            send_start_time = time.time()
-            await self._send_translated_audio(room_id, user_id, translated_audio, translated_text)
-            send_latency = (time.time() - send_start_time) * 1000
+
+            translations_cache: Dict[str, Dict[str, Any]] = {}
+            tts_total_latency = 0.0
+            send_latency = 0.0
+            processed_count = 0
+
+            for target_user_id in listeners:
+                # Skip sending to self
+                if target_user_id == user_id:
+                    continue
+
+                # Get listener's preferred language (what they want to HEAR)
+                listener_prefs = self.user_languages.get(target_user_id, {})
+                target_language = listener_prefs.get('output', 'en')
+                
+                # Handle 'auto' - use their input language as fallback
+                if target_language == 'auto':
+                    target_language = listener_prefs.get('input', 'en')
+                    if target_language == 'auto':
+                        target_language = 'en'
+                
+                logger.debug(f"📢 Processing for listener {target_user_id}: {input_lang} → {target_language}")
+
+                # Check if we already processed this language
+                cache_entry = translations_cache.get(target_language)
+
+                if not cache_entry:
+                    translation_start = time.time()
+                    
+                    # Translate text from speaker's language to listener's language
+                    target_text = await self._translate_text(
+                        transcribed_text,
+                        input_lang or detected_lang or 'en',
+                        target_language
+                    )
+                    translation_latency = (time.time() - translation_start) * 1000
+                    mt_latency += translation_latency
+
+                    logger.info(f"🌐 Translated to {target_language}: '{target_text}'")
+
+                    # Synthesize audio in target language with speaker's voice
+                    tts_start_time = time.time()
+                    target_audio = await self._text_to_speech(target_text, target_language, user_id)
+                    tts_latency = (time.time() - tts_start_time) * 1000
+                    tts_total_latency += tts_latency
+
+                    if not target_audio:
+                        logger.warning(
+                            f"⚠️ No translated audio generated for {input_lang} → {target_language}"
+                        )
+                        continue
+
+                    cache_entry = {
+                        'text': target_text,
+                        'audio': target_audio
+                    }
+                    translations_cache[target_language] = cache_entry
+
+                # Send translated audio to listener
+                send_start_time = time.time()
+                await self._send_translated_audio(
+                    room_id=room_id,
+                    source_user_id=user_id,
+                    target_user_id=target_user_id,
+                    audio_data=cache_entry['audio'],
+                    text=cache_entry['text'],
+                    target_language=target_language
+                )
+                send_latency += (time.time() - send_start_time) * 1000
+                processed_count += 1
             
             # Calculate and log latency
             total_processing_time = (time.time() - start_time) * 1000
-            logger.info(
-                f"User {user_id} processed in {total_processing_time:.1f}ms "
-                f"(ASR: {asr_latency:.1f}ms, MT: {mt_latency:.1f}ms, TTS: {tts_latency:.1f}ms, Send: {send_latency:.1f}ms): "
-                f"'{transcribed_text}' → '{translated_text}'"
-            )
+            target_languages = list(translations_cache.keys())
+            
+            if processed_count > 0:
+                logger.info(
+                    f"✅ User {user_id} audio processed in {total_processing_time:.1f}ms "
+                    f"(ASR: {asr_latency:.1f}ms, MT: {mt_latency:.1f}ms, TTS: {tts_total_latency:.1f}ms, Send: {send_latency:.1f}ms) | "
+                    f"Sent to {processed_count} listener(s) | "
+                    f"'{transcribed_text}' → languages {target_languages}"
+                )
+            else:
+                logger.debug(
+                    f"⚠️ User {user_id} spoke but no listeners needed translation: '{transcribed_text}'"
+                )
             
             if total_processing_time > self.latency_target_ms:
-                logger.warning(f"Latency exceeded target: {total_processing_time:.1f}ms > {self.latency_target_ms}ms")
+                logger.warning(f"⚠️ Latency exceeded target: {total_processing_time:.1f}ms > {self.latency_target_ms}ms")
                 
         except Exception as e:
-            logger.error(f"Error processing audio chunk for user {user_id}: {e}", exc_info=True)
+            logger.error(f"❌ Error processing audio chunk for user {user_id}: {e}", exc_info=True)
     
     def _bytes_to_audio_array(self, audio_data: bytes) -> np.ndarray:
         """Convert raw PCM bytes to normalized float32 numpy array"""
@@ -264,8 +336,16 @@ class AudioStreamProcessor:
             # Fallback to mock audio
             return b""
     
-    async def _send_translated_audio(self, room_id: str, source_user_id: UUID, audio_data: bytes, text: str):
-        """Send translated audio to all room participants except source"""
+    async def _send_translated_audio(
+        self,
+        room_id: str,
+        source_user_id: UUID,
+        target_user_id: UUID,
+        audio_data: bytes,
+        text: str,
+        target_language: str
+    ):
+        """Send translated audio to a specific participant"""
         if not audio_data:
             return
 
@@ -280,17 +360,20 @@ class AudioStreamProcessor:
             },
             'audio_data': encoded_audio,
             'text': text,
+             'language': target_language,
             'timestamp': time.time()
         }
         
-        await connection_manager.send_audio_to_room(room_id, audio_message, exclude_user=source_user_id)
+        await connection_manager.send_personal_message(target_user_id, audio_message)
     
     def update_user_language(self, user_id: UUID, input_lang: str, output_lang: str):
         """Update user's language preferences"""
         if user_id in self.user_languages:
             self.user_languages[user_id]['input'] = input_lang
             self.user_languages[user_id]['output'] = output_lang
-            logger.info(f"Updated languages for user {user_id}: {input_lang}→{output_lang}")
+            logger.info(f"🔄 Updated languages for user {user_id}: speaks={input_lang}, wants_to_hear={output_lang}")
+        else:
+            logger.warning(f"⚠️ Cannot update languages for user {user_id}: user not in processing queue")
 
 
 # Global instance

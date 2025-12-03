@@ -118,11 +118,27 @@ async def websocket_audio_endpoint(websocket: WebSocket, room_id: str):
             "participants": participant_list
         }, exclude_user=None)
         
+        # Get user's language preferences from database
+        from backend.db.session import SessionLocal
+        db = SessionLocal()
+        try:
+            user_with_langs = db.query(User).filter(User.id == user_id).first()
+            if user_with_langs:
+                # Get first language from arrays, or use defaults
+                input_lang = user_with_langs.speaks_languages[0] if user_with_langs.speaks_languages else "auto"
+                output_lang = user_with_langs.understands_languages[0] if user_with_langs.understands_languages else "en"
+                logger.info(f"🌐 Loaded user languages from DB: speaks={input_lang}, wants_to_hear={output_lang}")
+            else:
+                input_lang = "auto"
+                output_lang = "en"
+        finally:
+            db.close()
+        
         # Start audio processing for this user
         await audio_stream_processor.start_processing(
             user_id, room_id, 
-            input_lang="auto",  # Auto-detect language
-            output_lang="en"    # Default output
+            input_lang=input_lang,
+            output_lang=output_lang
         )
         
         # Main message loop
@@ -156,6 +172,7 @@ async def handle_websocket_message(user_id: UUID, room_id: str, data: dict):
         input_lang = data.get("input_language", "auto")
         output_lang = data.get("output_language", "en")
 
+        # Update user language preferences
         audio_stream_processor.update_user_language(user_id, input_lang, output_lang)
 
         await connection_manager.send_personal_message(user_id, {
@@ -165,7 +182,7 @@ async def handle_websocket_message(user_id: UUID, room_id: str, data: dict):
             "message": "Initial language preferences applied"
         })
         logger.info(
-            "Initial language settings received for user %s: %s→%s",
+            "✅ Initial language settings for user %s: speaks=%s, wants_to_hear=%s",
             user_id,
             input_lang,
             output_lang
@@ -192,7 +209,7 @@ async def handle_websocket_message(user_id: UUID, room_id: str, data: dict):
         await handle_ice_candidate(user_id, room_id, data)
     
     else:
-        logger.warning(f"Unknown message type: {message_type}")
+        logger.warning(f"⚠️ Unknown message type: {message_type}")
 
 
 async def handle_audio_chunk(user_id: UUID, data: dict):
@@ -237,6 +254,7 @@ async def handle_language_update(user_id: UUID, data: dict):
         input_lang = data.get("input_language", "auto")
         output_lang = data.get("output_language", "en")
         
+        # Update user language preferences
         audio_stream_processor.update_user_language(user_id, input_lang, output_lang)
         
         # Send confirmation
@@ -247,10 +265,12 @@ async def handle_language_update(user_id: UUID, data: dict):
             "message": "Language preferences updated"
         })
         
-        logger.info(f"User {user_id} updated languages: {input_lang}→{output_lang}")
+        logger.info(
+            f"✅ User {user_id} updated languages: speaks={input_lang}, wants_to_hear={output_lang}"
+        )
         
     except Exception as e:
-        logger.error(f"Error updating languages for user {user_id}: {e}")
+        logger.error(f"❌ Error updating languages for user {user_id}: {e}")
 
 
 async def handle_control_message(user_id: UUID, room_id: str, data: dict):

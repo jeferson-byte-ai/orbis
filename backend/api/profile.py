@@ -161,6 +161,14 @@ async def update_languages(
     db.commit()
     db.refresh(current_user)
     
+    # Log with clear explanation
+    speaks = current_user.speaks_languages[0] if current_user.speaks_languages else "en"
+    understands = current_user.understands_languages[0] if current_user.understands_languages else "en"
+    logger.info(
+        f"🌐 User {current_user.id} language settings updated: "
+        f"speaks={speaks}, wants_to_hear={understands}"
+    )
+    
     return UserResponse(
         id=current_user.id,
         email=current_user.email,
