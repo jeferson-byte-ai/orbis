@@ -67,6 +67,7 @@ export const useTranslation = (): UseTranslationReturn => {
   const isProcessing = useRef(false);
   const voiceProfileExists = useRef(false); // New ref to store voice profile status
   const webrtcMessageHandler = useRef<((data: any) => void) | null>(null);
+  const pendingWebRTCMessages = useRef<TranslationMessage[]>([]);
 
   // Initialize audio context and check voice profile status
   useEffect(() => {
@@ -187,6 +188,13 @@ export const useTranslation = (): UseTranslationReturn => {
   // Set WebRTC message handler
   const setWebRTCMessageHandler = useCallback((handler: ((data: any) => void) | null) => {
     webrtcMessageHandler.current = handler;
+
+    if (handler && pendingWebRTCMessages.current.length > 0) {
+      pendingWebRTCMessages.current.forEach(message => {
+        handler(message);
+      });
+      pendingWebRTCMessages.current = [];
+    }
   }, []);
 
   // Handle incoming WebSocket messages
@@ -196,11 +204,13 @@ export const useTranslation = (): UseTranslationReturn => {
 
     // Check if this is a WebRTC signaling message
     const webrtcMessageTypes = ['connected', 'webrtc_offer', 'webrtc_answer', 'ice_candidate', 'participant_joined', 'participant_left'];
-    if (webrtcMessageTypes.includes(data.type) && webrtcMessageHandler.current) {
-      // Route WebRTC messages to the handler
-      webrtcMessageHandler.current(data);
-      
-      // Still process participant_joined/left for translation service
+    if (webrtcMessageTypes.includes(data.type)) {
+      if (webrtcMessageHandler.current) {
+        webrtcMessageHandler.current(data);
+      } else {
+        pendingWebRTCMessages.current.push(data);
+      }
+
       if (data.type !== 'participant_joined' && data.type !== 'participant_left') {
         return;
       }
@@ -232,9 +242,9 @@ export const useTranslation = (): UseTranslationReturn => {
 
       case 'participant_joined':
         console.log('👋 Participant joined:', data.user_id, (data as any).user_name);
-        // @ts-ignore - data.participants exists in backend response
+        // @ts-expect-error - backend includes participants array for join events
         if (data.participants) {
-          // @ts-ignore
+          // @ts-expect-error - participants payload is injected dynamically by backend
           const participantsList = data.participants as ParticipantInfo[];
           setParticipants(participantsList.map(p => p.id));
           
@@ -249,9 +259,9 @@ export const useTranslation = (): UseTranslationReturn => {
 
       case 'participant_left':
         console.log('👋 Participant left:', data.user_id);
-        // @ts-ignore
+        // @ts-expect-error - backend includes participants array for leave events
         if (data.participants) {
-          // @ts-ignore
+          // @ts-expect-error - participants payload is injected dynamically by backend
           const participantsList = data.participants as ParticipantInfo[];
           setParticipants(participantsList.map(p => p.id));
           
