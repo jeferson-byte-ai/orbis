@@ -32,6 +32,10 @@ interface ParticipantInfo {
   name: string;
 }
 
+interface SendAudioOptions {
+  isPCM16?: boolean;
+}
+
 interface UseTranslationReturn {
   isConnected: boolean;
   inputLanguage: string;
@@ -43,7 +47,7 @@ interface UseTranslationReturn {
   participantsInfo: Map<string, ParticipantInfo>;
   connect: (roomId: string, token: string) => void;
   disconnect: () => void;
-  sendAudioChunk: (audioData: ArrayBuffer) => Promise<void>;
+  sendAudioChunk: (audioData: ArrayBuffer, options?: SendAudioOptions) => Promise<void>;
   updateLanguages: (input: string, output: string) => void;
   mute: () => void;
   unmute: () => void;
@@ -63,7 +67,8 @@ export const useTranslation = (): UseTranslationReturn => {
 
   const ws = useRef<WebSocket | null>(null);
   const audioContext = useRef<AudioContext | null>(null);
-  const processingQueue = useRef<ArrayBuffer[]>([]);
+  type PendingChunk = { buffer: ArrayBuffer; isPCM16?: boolean };
+  const processingQueue = useRef<PendingChunk[]>([]);
   const isProcessing = useRef(false);
   const voiceProfileExists = useRef(false); // New ref to store voice profile status
   const webrtcMessageHandler = useRef<((data: any) => void) | null>(null);
@@ -288,13 +293,24 @@ export const useTranslation = (): UseTranslationReturn => {
   const processNextChunk = useCallback(async () => {
     if (isProcessing.current) return;
     const chunk = processingQueue.current.shift();
-    if (!chunk || !audioContext.current || !ws.current || ws.current.readyState !== WebSocket.OPEN) {
+    if (!chunk || !ws.current || ws.current.readyState !== WebSocket.OPEN) {
+      return;
+    }
+
+    if (!chunk.isPCM16 && !audioContext.current) {
       return;
     }
 
     isProcessing.current = true;
     try {
-      const pcm16 = await convertToPCM16(chunk, audioContext.current, 16000);
+      let pcm16: Int16Array | null = null;
+
+      if (chunk.isPCM16) {
+        pcm16 = new Int16Array(chunk.buffer.slice(0));
+      } else {
+        pcm16 = await convertToPCM16(chunk.buffer, audioContext.current as AudioContext, 16000);
+      }
+
       if (!pcm16 || pcm16.length === 0) {
         return;
       }
@@ -315,13 +331,13 @@ export const useTranslation = (): UseTranslationReturn => {
     }
   }, []);
 
-  const sendAudioChunk = useCallback(async (audioData: ArrayBuffer) => {
+  const sendAudioChunk = useCallback(async (audioData: ArrayBuffer, options?: SendAudioOptions) => {
     // Skip audio processing if translation is disabled
     if (!ENABLE_TRANSLATION) {
       return;
     }
 
-    processingQueue.current.push(audioData);
+    processingQueue.current.push({ buffer: audioData, isPCM16: options?.isPCM16 });
     await processNextChunk();
   }, [processNextChunk]);
 

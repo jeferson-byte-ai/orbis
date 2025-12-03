@@ -13,6 +13,45 @@ import Chat from './Chat';
 import { Copy, Check, Sparkles, Activity, Globe } from 'lucide-react';
 import { authenticatedFetch } from '../utils/api';
 
+const TARGET_SAMPLE_RATE = 16000;
+
+const downsampleBuffer = (buffer: Float32Array, inputSampleRate: number, targetSampleRate: number): Float32Array => {
+  if (targetSampleRate >= inputSampleRate) {
+    return buffer.slice();
+  }
+
+  const sampleRateRatio = inputSampleRate / targetSampleRate;
+  const newLength = Math.round(buffer.length / sampleRateRatio);
+  const result = new Float32Array(newLength);
+  let offsetResult = 0;
+  let offsetBuffer = 0;
+
+  while (offsetResult < result.length) {
+    const nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
+    let accum = 0;
+    let count = 0;
+    for (let i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
+      accum += buffer[i];
+      count++;
+    }
+    result[offsetResult] = count > 0 ? accum / count : 0;
+    offsetResult++;
+    offsetBuffer = nextOffsetBuffer;
+  }
+
+  return result;
+};
+
+const floatTo16BitPCM = (buffer: Float32Array): Int16Array => {
+  const output = new Int16Array(buffer.length);
+  for (let i = 0; i < buffer.length; i++) {
+    let sample = buffer[i];
+    sample = Math.max(-1, Math.min(1, sample));
+    output[i] = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
+  }
+  return output;
+};
+
 interface MeetingProps {
   roomId: string;
   token: string;
@@ -85,7 +124,6 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
     setWebRTCMessageHandler
   } = useTranslation();
 
-  const audioChunkInterval = useRef<number | null>(null);
   const webrtcStartedRef = useRef<boolean>(false);
 
   // Initialize call and translation on mount
@@ -109,9 +147,6 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
       }).catch(() => undefined);
       endCall();
       disconnectTranslation();
-      if (audioChunkInterval.current) {
-        clearInterval(audioChunkInterval.current);
-      }
       webrtcStartedRef.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -155,44 +190,44 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
     const audioTrack = localStream.getAudioTracks()[0];
     if (!audioTrack) return;
 
-    // Create media recorder to capture audio chunks
-    // Try to use the most compatible format
-    let mimeType = 'audio/webm';
+    const processingStream = new MediaStream([audioTrack]);
+    const context = new AudioContext();
+    const source = context.createMediaStreamSource(processingStream);
+    const processor = context.createScriptProcessor(4096, 1, 1);
+    const zeroGain = context.createGain();
+    zeroGain.gain.value = 0;
 
-    // Check for supported mimeTypes in order of preference
-    const mimeTypes = [
-      'audio/webm;codecs=opus',
-      'audio/webm',
-      'audio/ogg;codecs=opus',
-      'audio/mp4'
-    ];
-
-    for (const type of mimeTypes) {
-      if (MediaRecorder.isTypeSupported(type)) {
-        mimeType = type;
-        console.log('📹 Using audio format:', type);
-        break;
+    processor.onaudioprocess = (event) => {
+      if (!translationConnected) {
+        return;
       }
-    }
 
-    const mediaRecorder = new MediaRecorder(new MediaStream([audioTrack]), {
-      mimeType
-    });
-
-    mediaRecorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        // Convert blob to ArrayBuffer and send
-        event.data.arrayBuffer().then(buffer => {
-          sendAudioChunk(buffer);
-        });
+      const channelData = event.inputBuffer.getChannelData(0);
+      if (!channelData || channelData.length === 0) {
+        return;
       }
+
+      const downsampled = downsampleBuffer(channelData, context.sampleRate, TARGET_SAMPLE_RATE);
+      if (!downsampled || downsampled.length === 0) {
+        return;
+      }
+
+      const pcm16 = floatTo16BitPCM(downsampled);
+      sendAudioChunk(pcm16.buffer.slice(0), { isPCM16: true }).catch(err => {
+        console.warn('Failed to send audio chunk for translation', err);
+      });
     };
 
-    // Capture audio every 500ms for low latency
-    mediaRecorder.start(500);
+    source.connect(processor);
+    processor.connect(zeroGain);
+    zeroGain.connect(context.destination);
+    void context.resume().catch(() => undefined);
 
     return () => {
-      mediaRecorder.stop();
+      processor.disconnect();
+      source.disconnect();
+      zeroGain.disconnect();
+      context.close().catch(() => undefined);
     };
   }, [localStream, translationConnected, sendAudioChunk]);
 
