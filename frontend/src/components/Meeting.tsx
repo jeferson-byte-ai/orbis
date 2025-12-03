@@ -74,6 +74,7 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
   const [languageChanged, setLanguageChanged] = useState(false);
   const [speaksLanguages, setSpeaksLanguages] = useState<string[]>(['en']);
   const [understandsLanguages, setUnderstandsLanguages] = useState<string[]>(['en']);
+  const [languagesLoaded, setLanguagesLoaded] = useState(false);
   const [userName, setUserName] = useState<string>('');
   const [userId, setUserId] = useState<string>('');
   const [isHost, setIsHost] = useState<boolean>(false);
@@ -125,21 +126,10 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
   } = useTranslation();
 
   const webrtcStartedRef = useRef<boolean>(false);
+  const translationInitializedRef = useRef<boolean>(false);
 
-  // Initialize call and translation on mount
+  // Cleanup on unmount
   useEffect(() => {
-    const initialize = async () => {
-      // Connect translation WebSocket first
-      try {
-        connectTranslation(roomId, token);
-      } catch (err) {
-        console.error('Failed to connect translation service:', err);
-      }
-    };
-
-    initialize();
-
-    // Cleanup ONLY on unmount (not on re-renders)
     return () => {
       console.log('🧹 Meeting component unmounting, cleaning up...');
       void authenticatedFetch(`/api/rooms/${roomId}/leave`, {
@@ -148,9 +138,30 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
       endCall();
       disconnectTranslation();
       webrtcStartedRef.current = false;
+      translationInitializedRef.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // ✅ Empty deps = run only on mount/unmount
+
+  // Connect translation WebSocket once languages are known
+  useEffect(() => {
+    if (translationInitializedRef.current) {
+      return;
+    }
+    if (!languagesLoaded) {
+      return;
+    }
+
+    const initialInput = speaksLanguages[0] || 'auto';
+    const initialOutput = understandsLanguages[0] || 'en';
+
+    try {
+      connectTranslation(roomId, token, initialInput, initialOutput);
+      translationInitializedRef.current = true;
+    } catch (err) {
+      console.error('Failed to connect translation service:', err);
+    }
+  }, [languagesLoaded, speaksLanguages, understandsLanguages, roomId, token, connectTranslation]);
 
   // Connect WebRTC to the translation WebSocket once it's ready
   useEffect(() => {
@@ -244,6 +255,8 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
   // Handle language change
   const handleLanguageChange = (input: string, output: string) => {
     console.log('🔄 Meeting: Language change requested', { input, output });
+    setSpeaksLanguages([input]);
+    setUnderstandsLanguages([output]);
     updateLanguages(input, output);
     setShowLanguageSelector(false);
     setLanguageChanged(true);
@@ -452,14 +465,14 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
 
   // Load user's language preferences and profile info
   useEffect(() => {
+    let cancelled = false;
+
     const loadUserInfo = async () => {
       try {
-        const token = localStorage.getItem('auth_token');
-        if (!token) return;
-
+        setLanguagesLoaded(false);
         const response = await authenticatedFetch('/api/profile/me');
 
-        if (response.ok) {
+        if (!cancelled && response.ok) {
           const data = await response.json();
           setSpeaksLanguages(data.speaks_languages || ['en']);
           setUnderstandsLanguages(data.understands_languages || ['en']);
@@ -467,7 +480,13 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
           setUserId(data.id);
         }
       } catch (error) {
-        console.error('Error loading user info:', error);
+        if (!cancelled) {
+          console.error('Error loading user info:', error);
+        }
+      } finally {
+        if (!cancelled) {
+          setLanguagesLoaded(true);
+        }
       }
     };
 
@@ -496,6 +515,10 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
 
     loadUserInfo();
     checkIsHost();
+
+    return () => {
+      cancelled = true;
+    };
   }, [roomId]);
 
   // Handle save language preferences
