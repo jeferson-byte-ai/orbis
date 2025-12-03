@@ -1,0 +1,54 @@
+⚠️ Nenhuma variável VITE_API_* definida. Usando fallback padrão.
+Yg @ config.ts:93Understand this warning
+config.ts:125 ⚠️ Nenhuma variável VITE_WS_* definida. Derivando URL do WebSocket a partir da API.
+qg @ config.ts:125Understand this warning
+config.ts:142 🔧 Orbis Config: Object
+manifest.json:1 Manifest: Line: 1, column: 1, Syntax error.Understand this error
+LanguageContext.tsx:26 🌐 Loaded language from localStorage: en
+8The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.Understand this warning
+LanguageContext.tsx:26 🌐 Loaded language from localStorage: en
+useTranslation.ts:124 🔌 Attempting WebSocket connection to: wss://convolutionary-staminal-caren.ngrok-free.dev/api/ws/audio/86ef1f1d-0ada-4a29-91f2-ab3978c811d0?token=TOKEN_HIDDEN
+useTranslation.ts:125 🎯 Room ID: 86ef1f1d-0ada-4a29-91f2-ab3978c811d0
+useTranslation.ts:126 🔑 Token present: true Length: 187
+Chat.tsx:114 Chat WebSocket connected
+useTranslation.ts:86 ✅ Voice profile status: true
+useTranslation.ts:131 ✅ WebSocket connected successfully for translation
+Meeting.tsx:123 🔗 Connecting WebRTC to shared WebSocket
+useWebRTC.ts:368 🚀 Starting WebRTC call in room: 86ef1f1d-0ada-4a29-91f2-ab3978c811d0
+useWebRTC.ts:259 👤 Our user ID: e10438f8-4759-4467-95f4-a12d7c15ae6d
+useWebRTC.ts:320 👤 Ignoring self join
+useTranslation.ts:234 👋 Participant joined: e10438f8-4759-4467-95f4-a12d7c15ae6d jeferson
+useTranslation.ts:273 Unknown message type: language_updated
+Meeting.tsx:437 🔍 Host check: Object
+useWebRTC.ts:379 ✅ WebRTC using shared WebSocket for signaling
+useWebRTC.ts:380 📹 Local stream ready with tracks: audio, video
+useWebRTC.ts:383 🔄 Checking for existing peer connections to add tracks to...
+useWebRTC.ts:424 🛑 Ending WebRTC call
+useWebRTC.ts:452 🎥 LocalStream is now available, checking existing peer connections...
+Meeting.tsx:161 📹 Using audio format: audio/webm;codecs=opus
+useTranslation.ts:473 ⚠️ Failed to convert audio chunk to PCM16: EncodingError: Unable to decode audio data
+Ia @ useTranslation.ts:473Understand this error
+useTranslation.ts:474 ℹ️ This may be normal if audio format is not yet supported. Audio translation may not work.
+useWebRTC.ts:88 🎤 Audio toggled: muted
+useTranslation.ts:273 Unknown message type: mute_status
+useWebRTC.ts:129 📹 Video toggled: off
+useWebRTC.ts:324 👋 Participant joined, creating offer for: 702de09d-3da9-4f47-8fde-73a42fdd0457 Has localStream: false
+useWebRTC.ts:166 🔗 Creating peer connection for: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:167 📹 Current localStream status: NOT READY
+useWebRTC.ts:178 ⚠️ Creating peer connection WITHOUT local stream tracks!
+(anonymous) @ useWebRTC.ts:178Understand this warning
+useWebRTC.ts:179    This will be fixed when localStream becomes available
+(anonymous) @ useWebRTC.ts:179Understand this warning
+useTranslation.ts:234 👋 Participant joined: 702de09d-3da9-4f47-8fde-73a42fdd0457 jeffer
+useWebRTC.ts:344 👋 Participant left: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useTranslation.ts:251 👋 Participant left: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:324 👋 Participant joined, creating offer for: 702de09d-3da9-4f47-8fde-73a42fdd0457 Has localStream: false
+useWebRTC.ts:166 🔗 Creating peer connection for: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:167 📹 Current localStream status: NOT READY
+useWebRTC.ts:178 ⚠️ Creating peer connection WITHOUT local stream tracks!
+(anonymous) @ useWebRTC.ts:178Understand this warning
+useWebRTC.ts:179    This will be fixed when localStream becomes available
+(anonymous) @ useWebRTC.ts:179Understand this warning
+useTranslation.ts:234 👋 Participant joined: 702de09d-3da9-4f47-8fde-73a42fdd0457 jeffer
+useWebRTC.ts:129 📹 Video toggled: on
+useWebRTC.ts:88 🎤 Audio toggled: unmuted

@@ -101,8 +101,9 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
 
     initialize();
 
-    // Cleanup on unmount
+    // Cleanup ONLY on unmount (not on re-renders)
     return () => {
+      console.log('🧹 Meeting component unmounting, cleaning up...');
       void authenticatedFetch(`/api/rooms/${roomId}/leave`, {
         method: 'POST'
       }).catch(() => undefined);
@@ -111,10 +112,10 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
       if (audioChunkInterval.current) {
         clearInterval(audioChunkInterval.current);
       }
-      webrtcStartedRef.current = false; // Reset for potential remounts
+      webrtcStartedRef.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId, token]); // Only re-run if roomId or token changes
+  }, []); // ✅ Empty deps = run only on mount/unmount
 
   // Connect WebRTC to the translation WebSocket once it's ready
   useEffect(() => {
@@ -130,11 +131,12 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
 
       // Start WebRTC with the existing WebSocket
       startCall(roomId, translationWebSocket).catch(err => {
-        console.error('Failed to start WebRTC call:', err);
+        console.error('❌ Failed to start WebRTC call:', err);
         webrtcStartedRef.current = false; // Reset on error to allow retry
       });
     }
-  }, [translationWebSocket, translationConnected, rtcConnected]);
+    // No cleanup function here - let the main useEffect handle cleanup
+  }, [translationWebSocket, translationConnected, rtcConnected, startCall, roomId, handleWebRTCMessage, setWebRTCMessageHandler]);
 
   // Process audio chunks for translation
   useEffect(() => {

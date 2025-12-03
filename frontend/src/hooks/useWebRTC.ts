@@ -50,6 +50,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
   const signalingWs = useRef<WebSocket | null>(null);
   const currentUserId = useRef<string | null>(null);
   const roomId = useRef<string | null>(null);
+  const pendingParticipants = useRef<Set<string>>(new Set()); // Track participants waiting for localStream
 
   // Get user media (camera + microphone)
   const getUserMedia = async (): Promise<MediaStream> => {
@@ -323,8 +324,20 @@ export const useWebRTC = (): UseWebRTCReturn => {
 
         console.log('👋 Participant joined, creating offer for:', joinedUserId, 'Has localStream:', !!localStream);
 
+        // If we don't have localStream yet, mark participant as pending
+        if (!localStream) {
+          console.warn('⏳ LocalStream not ready yet, adding participant to pending list');
+          pendingParticipants.current.add(joinedUserId);
+          // The useEffect that monitors localStream will handle creating connections
+          return;
+        }
+
         // Create peer connection and send offer
         const pc = createPeerConnection(joinedUserId);
+
+        // Verify tracks were added
+        const senders = pc.getSenders();
+        console.log('📊 Peer connection has', senders.length, 'senders after creation');
 
         // Create and send offer
         const offer = await pc.createOffer();
@@ -368,16 +381,24 @@ export const useWebRTC = (): UseWebRTCReturn => {
       console.log('🚀 Starting WebRTC call in room:', roomIdParam);
       roomId.current = roomIdParam;
 
-      // Get local media first
-      const stream = await getUserMedia();
-      setIsConnected(true);
-      setError(null);
-
       // Use the existing WebSocket for signaling (shared with translation)
       signalingWs.current = existingWs;
 
-      console.log('✅ WebRTC using shared WebSocket for signaling');
+      // Get local media first - this is critical!
+      console.log('📹 Requesting user media (camera + microphone)...');
+      const stream = await getUserMedia();
+      console.log('✅ User media obtained successfully');
       console.log('📹 Local stream ready with tracks:', stream.getTracks().map(t => t.kind).join(', '));
+      
+      // Verify stream is valid before proceeding
+      if (!stream || stream.getTracks().length === 0) {
+        throw new Error('Failed to get valid media stream');
+      }
+
+      setIsConnected(true);
+      setError(null);
+
+      console.log('✅ WebRTC using shared WebSocket for signaling');
 
       // Add tracks to any existing peer connections that were created before localStream was ready
       console.log('🔄 Checking for existing peer connections to add tracks to...');
@@ -415,7 +436,8 @@ export const useWebRTC = (): UseWebRTCReturn => {
 
     } catch (err) {
       setError(`Failed to start call: ${err}`);
-      console.error('Call start error:', err);
+      console.error('❌ Call start error:', err);
+      throw err; // Re-throw to let caller handle
     }
   }, [getUserMedia]);
 
@@ -447,10 +469,45 @@ export const useWebRTC = (): UseWebRTCReturn => {
 
   // Add tracks to existing peer connections when localStream becomes available
   useEffect(() => {
-    if (!localStream) return;
+    if (!localStream || !signalingWs.current) return;
 
-    console.log('🎥 LocalStream is now available, checking existing peer connections...');
+    console.log('🎥 LocalStream is now available, processing pending connections...');
     
+    // First, handle pending participants who joined before localStream was ready
+    if (pendingParticipants.current.size > 0) {
+      console.log(`📋 Creating connections for ${pendingParticipants.current.size} pending participants`);
+      
+      pendingParticipants.current.forEach(async (userId) => {
+        try {
+          console.log(`🔗 Creating delayed peer connection for ${userId}`);
+          const pc = createPeerConnection(userId);
+          
+          // Verify tracks were added
+          const senders = pc.getSenders();
+          console.log(`📊 Peer connection has ${senders.length} senders for ${userId}`);
+          
+          // Create and send offer
+          const offer = await pc.createOffer();
+          await pc.setLocalDescription(offer);
+          
+          if (signalingWs.current?.readyState === WebSocket.OPEN) {
+            signalingWs.current.send(JSON.stringify({
+              type: 'webrtc_offer',
+              target_user_id: userId,
+              offer: offer
+            }));
+            console.log(`📤 Sent delayed WebRTC offer to ${userId}`);
+          }
+        } catch (err) {
+          console.error(`❌ Failed to create delayed connection for ${userId}:`, err);
+        }
+      });
+      
+      // Clear pending list
+      pendingParticipants.current.clear();
+    }
+    
+    // Then, handle existing peer connections that were created without tracks
     peerConnections.current.forEach((pc, userId) => {
       const senders = pc.getSenders();
       
@@ -471,11 +528,12 @@ export const useWebRTC = (): UseWebRTCReturn => {
         console.log(`  ⏳ Waiting for automatic renegotiation with ${userId}...`);
       }
     });
-  }, [localStream]);
+  }, [localStream, createPeerConnection]);
 
-  // Cleanup on unmount
+  // Cleanup on unmount ONLY
   useEffect(() => {
     return () => {
+      console.log('🧹 useWebRTC unmounting, cleaning up...');
       endCall();
     };
   }, [endCall]);
