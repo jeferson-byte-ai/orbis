@@ -47,6 +47,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
   const [signalingConnected, setSignalingConnected] = useState(false);
 
   const peerConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
+  const remoteStreams = useRef<Map<string, MediaStream>>(new Map());
   const signalingWs = useRef<WebSocket | null>(null);
   const currentUserId = useRef<string | null>(null);
   const roomId = useRef<string | null>(null);
@@ -184,7 +185,27 @@ export const useWebRTC = (): UseWebRTCReturn => {
     // Handle incoming remote stream
     pc.ontrack = (event) => {
       console.log('📥 Received remote track:', event.track.kind, 'from:', remoteUserId);
-      const remoteStream = event.streams[0];
+
+      let remoteStream = event.streams[0];
+
+      if (!remoteStream) {
+        const existingStream = remoteStreams.current.get(remoteUserId) ?? new MediaStream();
+
+        const trackAlreadyPresent = existingStream.getTracks().some(track => track.id === event.track.id);
+        if (!trackAlreadyPresent) {
+          try {
+            existingStream.addTrack(event.track);
+            console.log('  ➕ Added track to synthesized stream for', remoteUserId);
+          } catch (err) {
+            console.error('  ❌ Failed to add track to synthesized stream:', err);
+          }
+        }
+
+        remoteStreams.current.set(remoteUserId, existingStream);
+        remoteStream = existingStream;
+      } else {
+        remoteStreams.current.set(remoteUserId, remoteStream);
+      }
 
       setParticipants(prev => {
         const updated = new Map(prev);
@@ -388,6 +409,11 @@ export const useWebRTC = (): UseWebRTCReturn => {
           peerConnections.current.delete(leftUserId);
         }
 
+        if (remoteStreams.current.has(leftUserId)) {
+          remoteStreams.current.get(leftUserId)?.getTracks().forEach(track => track.stop());
+          remoteStreams.current.delete(leftUserId);
+        }
+
         // Remove from participants
         setParticipants(prev => {
           const updated = new Map(prev);
@@ -480,6 +506,10 @@ export const useWebRTC = (): UseWebRTCReturn => {
       pc.close();
     });
     peerConnections.current.clear();
+    remoteStreams.current.forEach(stream => {
+      stream.getTracks().forEach(track => track.stop());
+    });
+    remoteStreams.current.clear();
 
     // Stop local stream tracks
     setLocalStream(prev => {
@@ -582,6 +612,10 @@ export const useWebRTC = (): UseWebRTCReturn => {
       }
       peerConnections.current.forEach(pc => pc.close());
       peerConnections.current.clear();
+      remoteStreams.current.forEach(stream => {
+        stream.getTracks().forEach(track => track.stop());
+      });
+      remoteStreams.current.clear();
       setParticipants(new Map());
       setIsConnected(false);
       signalingWs.current = null;
