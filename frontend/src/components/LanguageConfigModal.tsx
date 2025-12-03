@@ -13,6 +13,10 @@ interface Language {
   flag: string;
 }
 
+const LANG_CACHE_TTL_MS = 1000 * 60 * 60; // 1 hour
+let cachedLanguages: Language[] | null = null;
+let cachedLanguagesFetchedAt = 0;
+
 interface LanguageConfigModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -32,18 +36,25 @@ const LanguageConfigModal: React.FC<LanguageConfigModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [speaksLanguages, setSpeaksLanguages] = useState<string[]>(currentSpeaksLanguages);
-  const [understandsLanguages, setUnderstandsLanguages] = useState<string[]>(currentUnderstandsLanguages);
+  const [selectedSpeaks, setSelectedSpeaks] = useState<string>(currentSpeaksLanguages?.[0] ?? 'en');
+  const [selectedUnderstands, setSelectedUnderstands] = useState<string>(currentUnderstandsLanguages?.[0] ?? 'en');
 
   useEffect(() => {
     if (isOpen) {
       loadLanguages();
-      setSpeaksLanguages(currentSpeaksLanguages);
-      setUnderstandsLanguages(currentUnderstandsLanguages);
+      setSelectedSpeaks(currentSpeaksLanguages?.[0] ?? 'en');
+      setSelectedUnderstands(currentUnderstandsLanguages?.[0] ?? 'en');
     }
   }, [isOpen, currentSpeaksLanguages, currentUnderstandsLanguages]);
 
   const loadLanguages = async () => {
+    const now = Date.now();
+    if (cachedLanguages && now - cachedLanguagesFetchedAt < LANG_CACHE_TTL_MS) {
+      setLanguages(cachedLanguages);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       // Endpoint público - não precisa de autenticação
@@ -58,6 +69,8 @@ const LanguageConfigModal: React.FC<LanguageConfigModalProps> = ({
       
       if (data.languages && data.languages.length > 0) {
         setLanguages(data.languages);
+        cachedLanguages = data.languages;
+        cachedLanguagesFetchedAt = Date.now();
       } else {
         console.error('❌ No languages returned from API');
       }
@@ -76,35 +89,33 @@ const LanguageConfigModal: React.FC<LanguageConfigModalProps> = ({
     }
   };
 
-  const toggleSpeaks = (code: string) => {
-    setSpeaksLanguages(prev =>
-      prev.includes(code)
-        ? prev.filter(c => c !== code)
-        : [...prev, code]
-    );
+  const selectSpeaks = (code: string) => {
+    setSelectedSpeaks(code);
   };
 
-  const toggleUnderstands = (code: string) => {
-    setUnderstandsLanguages(prev =>
-      prev.includes(code)
-        ? prev.filter(c => c !== code)
-        : [...prev, code]
-    );
+  const selectUnderstands = (code: string) => {
+    setSelectedUnderstands(code);
+  };
+
+  const resolveLanguageLabel = (code: string | undefined) => {
+    if (!code) return 'None selected';
+    const found = languages.find(lang => lang.code === code);
+    return found ? found.name : code.toUpperCase();
   };
 
   const handleSave = async () => {
-    if (speaksLanguages.length === 0) {
-      alert('Please select at least one language you speak');
+    if (!selectedSpeaks) {
+      alert('Please select a language you speak');
       return;
     }
-    if (understandsLanguages.length === 0) {
-      alert('Please select at least one language you understand');
+    if (!selectedUnderstands) {
+      alert('Please select a language you want to understand');
       return;
     }
 
     setSaving(true);
     try {
-      await onSave(speaksLanguages, understandsLanguages);
+      await onSave([selectedSpeaks], [selectedUnderstands]);
       onClose();
     } catch (error) {
       console.error('Error saving languages:', error);
@@ -207,7 +218,7 @@ const LanguageConfigModal: React.FC<LanguageConfigModalProps> = ({
                       </p>
                     </div>
                     <div className="text-sm text-red-400 font-medium">
-                      ✓ Selected: {understandsLanguages.length} language{understandsLanguages.length !== 1 ? 's' : ''}
+                      ✓ Selected: {resolveLanguageLabel(selectedUnderstands)}
                     </div>
                   </div>
                 </div>
@@ -230,7 +241,7 @@ const LanguageConfigModal: React.FC<LanguageConfigModalProps> = ({
                       </p>
                     </div>
                     <div className="text-sm text-purple-400 font-medium">
-                      ✓ Selected: {speaksLanguages.length} language{speaksLanguages.length !== 1 ? 's' : ''}
+                      ✓ Selected: {resolveLanguageLabel(selectedSpeaks)}
                     </div>
                   </div>
                 </div>
@@ -256,16 +267,16 @@ const LanguageConfigModal: React.FC<LanguageConfigModalProps> = ({
                       <div className="flex gap-3">
                         {/* Understands checkbox (Vermelho - ícone ouvido) */}
                         <button
-                          onClick={() => toggleUnderstands(lang.code)}
+                          onClick={() => selectUnderstands(lang.code)}
                           className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all relative group ${
-                            understandsLanguages.includes(lang.code)
+                            selectedUnderstands === lang.code
                               ? 'bg-gradient-to-r from-red-600 to-red-500 text-white shadow-lg shadow-red-500/30 hover:from-red-700 hover:to-red-600'
                               : 'bg-gray-800/50 text-gray-400 hover:bg-gray-700/70 border border-white/10'
                           }`}
                           title="I want to UNDERSTAND this language"
                         >
                           <Ear className="w-4 h-4" />
-                          {understandsLanguages.includes(lang.code) && <Check className="w-4 h-4" />}
+                          {selectedUnderstands === lang.code && <Check className="w-4 h-4" />}
                           {/* Tooltip */}
                           <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-red-500/30">
                             Understand
@@ -274,16 +285,16 @@ const LanguageConfigModal: React.FC<LanguageConfigModalProps> = ({
 
                         {/* Speaks checkbox (Roxo - ícone microfone) */}
                         <button
-                          onClick={() => toggleSpeaks(lang.code)}
+                          onClick={() => selectSpeaks(lang.code)}
                           className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all relative group ${
-                            speaksLanguages.includes(lang.code)
+                            selectedSpeaks === lang.code
                               ? 'bg-gradient-to-r from-purple-600 to-purple-500 text-white shadow-lg shadow-purple-500/30 hover:from-purple-700 hover:to-purple-600'
                               : 'bg-gray-800/50 text-gray-400 hover:bg-gray-700/70 border border-white/10'
                           }`}
                           title="I will SPEAK this language"
                         >
                           <Mic className="w-4 h-4" />
-                          {speaksLanguages.includes(lang.code) && <Check className="w-4 h-4" />}
+                          {selectedSpeaks === lang.code && <Check className="w-4 h-4" />}
                           {/* Tooltip */}
                           <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-purple-500/30">
                             Speak
@@ -316,7 +327,7 @@ const LanguageConfigModal: React.FC<LanguageConfigModalProps> = ({
             </button>
             <button
               onClick={handleSave}
-              disabled={saving || speaksLanguages.length === 0 || understandsLanguages.length === 0}
+              disabled={saving || !selectedSpeaks || !selectedUnderstands}
               className="px-6 py-3 bg-gradient-to-r from-red-600 to-purple-600 text-white rounded-lg hover:from-red-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {saving ? (

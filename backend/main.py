@@ -64,6 +64,7 @@ logger = logging.getLogger(__name__)
 # Reduce SQLAlchemy logging verbosity (only show warnings and errors)
 logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
 logging.getLogger('sqlalchemy.pool').setLevel(logging.WARNING)
+logging.getLogger('faster_whisper').setLevel(logging.WARNING)
 
 # Create FastAPI app
 app = FastAPI(
