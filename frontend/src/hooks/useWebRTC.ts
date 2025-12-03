@@ -164,6 +164,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
   // Create peer connection for a remote user
   const createPeerConnection = useCallback((remoteUserId: string): RTCPeerConnection => {
     console.log('🔗 Creating peer connection for:', remoteUserId);
+    console.log('📹 Current localStream status:', localStream ? `Ready with ${localStream.getTracks().length} tracks` : 'NOT READY');
 
     const pc = new RTCPeerConnection(ICE_SERVERS);
 
@@ -171,8 +172,11 @@ export const useWebRTC = (): UseWebRTCReturn => {
     if (localStream) {
       localStream.getTracks().forEach(track => {
         pc.addTrack(track, localStream);
-        console.log('➕ Added local track:', track.kind);
+        console.log('➕ Added local track:', track.kind, 'to', remoteUserId);
       });
+    } else {
+      console.warn('⚠️ Creating peer connection WITHOUT local stream tracks!');
+      console.warn('   This will be fixed when localStream becomes available');
     }
 
     // Handle incoming remote stream
@@ -219,6 +223,26 @@ export const useWebRTC = (): UseWebRTCReturn => {
 
     pc.oniceconnectionstatechange = () => {
       console.log(`❄️ ICE state with ${remoteUserId}:`, pc.iceConnectionState);
+    };
+
+    // Handle negotiation needed (for adding tracks later)
+    pc.onnegotiationneeded = async () => {
+      console.log(`🔄 Negotiation needed with ${remoteUserId}`);
+      try {
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        
+        if (signalingWs.current?.readyState === WebSocket.OPEN) {
+          signalingWs.current.send(JSON.stringify({
+            type: 'webrtc_offer',
+            target_user_id: remoteUserId,
+            offer: offer
+          }));
+          console.log(`📤 Sent renegotiation offer to ${remoteUserId}`);
+        }
+      } catch (err) {
+        console.error(`❌ Negotiation failed with ${remoteUserId}:`, err);
+      }
     };
 
     peerConnections.current.set(remoteUserId, pc);
@@ -353,6 +377,41 @@ export const useWebRTC = (): UseWebRTCReturn => {
       signalingWs.current = existingWs;
 
       console.log('✅ WebRTC using shared WebSocket for signaling');
+      console.log('📹 Local stream ready with tracks:', stream.getTracks().map(t => t.kind).join(', '));
+
+      // Add tracks to any existing peer connections that were created before localStream was ready
+      console.log('🔄 Checking for existing peer connections to add tracks to...');
+      peerConnections.current.forEach((pc, userId) => {
+        const senders = pc.getSenders();
+        console.log(`👤 Peer ${userId} has ${senders.length} senders`);
+        
+        // Check if this peer connection has any tracks
+        if (senders.length === 0) {
+          console.log(`➕ Adding tracks to existing peer connection for ${userId}`);
+          stream.getTracks().forEach(track => {
+            pc.addTrack(track, stream);
+            console.log(`  ✅ Added ${track.kind} track to ${userId}`);
+          });
+
+          // Renegotiate by creating a new offer
+          console.log(`🔄 Renegotiating connection with ${userId}...`);
+          pc.createOffer()
+            .then(offer => pc.setLocalDescription(offer))
+            .then(() => {
+              if (signalingWs.current?.readyState === WebSocket.OPEN) {
+                signalingWs.current.send(JSON.stringify({
+                  type: 'webrtc_offer',
+                  target_user_id: userId,
+                  offer: pc.localDescription
+                }));
+                console.log(`📤 Sent renegotiation offer to ${userId}`);
+              }
+            })
+            .catch(err => {
+              console.error(`❌ Failed to renegotiate with ${userId}:`, err);
+            });
+        }
+      });
 
     } catch (err) {
       setError(`Failed to start call: ${err}`);
@@ -384,6 +443,34 @@ export const useWebRTC = (): UseWebRTCReturn => {
     setSignalingConnected(false);
     currentUserId.current = null;
     roomId.current = null;
+  }, [localStream]);
+
+  // Add tracks to existing peer connections when localStream becomes available
+  useEffect(() => {
+    if (!localStream) return;
+
+    console.log('🎥 LocalStream is now available, checking existing peer connections...');
+    
+    peerConnections.current.forEach((pc, userId) => {
+      const senders = pc.getSenders();
+      
+      // Only add tracks if peer connection has no senders (tracks not added yet)
+      if (senders.length === 0) {
+        console.log(`➕ Adding tracks to peer connection for ${userId} (delayed stream)`);
+        
+        localStream.getTracks().forEach(track => {
+          try {
+            pc.addTrack(track, localStream);
+            console.log(`  ✅ Added ${track.kind} track to ${userId}`);
+          } catch (err) {
+            console.error(`  ❌ Failed to add ${track.kind} track to ${userId}:`, err);
+          }
+        });
+        
+        // The onnegotiationneeded event will automatically trigger renegotiation
+        console.log(`  ⏳ Waiting for automatic renegotiation with ${userId}...`);
+      }
+    });
   }, [localStream]);
 
   // Cleanup on unmount
