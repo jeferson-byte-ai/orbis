@@ -3,7 +3,7 @@ Yg @ config.ts:93
 config.ts:125 ⚠️ Nenhuma variável VITE_WS_* definida. Derivando URL do WebSocket a partir da API.
 qg @ config.ts:125
 config.ts:142 🔧 Orbis Config: Object
-/manifest.json:1 Manifest: Line: 1, column: 1, Syntax error.
+manifest.json:1 Manifest: Line: 1, column: 1, Syntax error.
 LanguageContext.tsx:26 🌐 Loaded language from localStorage: en
 The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
 The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
@@ -14,53 +14,94 @@ The resource <URL> was preloaded using link preload but not used within a few se
 The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
 The resource <URL> was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
 LanguageContext.tsx:26 🌐 Loaded language from localStorage: en
-useTranslation.ts:124 🔌 Attempting WebSocket connection to: wss://convolutionary-staminal-caren.ngrok-free.dev/api/ws/audio/9bcd6d49-0c5f-4747-8532-4651aac2cc58?token=TOKEN_HIDDEN
-useTranslation.ts:125 🎯 Room ID: 9bcd6d49-0c5f-4747-8532-4651aac2cc58
+useTranslation.ts:124 🔌 Attempting WebSocket connection to: wss://convolutionary-staminal-caren.ngrok-free.dev/api/ws/audio/216f7011-bc57-4618-ba79-07d9bd2efc7a?token=TOKEN_HIDDEN
+useTranslation.ts:125 🎯 Room ID: 216f7011-bc57-4618-ba79-07d9bd2efc7a
 useTranslation.ts:126 🔑 Token present: true Length: 187
 Chat.tsx:114 Chat WebSocket connected
 useTranslation.ts:131 ✅ WebSocket connected successfully for translation
 Meeting.tsx:124 🔗 Connecting WebRTC to shared WebSocket
-useWebRTC.ts:381 🚀 Starting WebRTC call in room: 9bcd6d49-0c5f-4747-8532-4651aac2cc58
-useWebRTC.ts:388 📹 Requesting user media (camera + microphone)...
+useWebRTC.ts:383 🚀 Starting WebRTC call in room: 216f7011-bc57-4618-ba79-07d9bd2efc7a
+useWebRTC.ts:390 📹 Requesting user media (camera + microphone)...
+Meeting.tsx:144 🔄 Updating WebRTC message handler with latest localStream state
 useWebRTC.ts:260 👤 Our user ID: e10438f8-4759-4467-95f4-a12d7c15ae6d
 useWebRTC.ts:321 👤 Ignoring self join
 useTranslation.ts:234 👋 Participant joined: e10438f8-4759-4467-95f4-a12d7c15ae6d jeferson
 useTranslation.ts:273 Unknown message type: language_updated
+Meeting.tsx:449 🔍 Host check: Object
 useTranslation.ts:86 ✅ Voice profile status: true
-Meeting.tsx:439 🔍 Host check: Object
-useWebRTC.ts:390 ✅ User media obtained successfully
-useWebRTC.ts:391 📹 Local stream ready with tracks: audio, video
-useWebRTC.ts:401 ✅ WebRTC using shared WebSocket for signaling
-useWebRTC.ts:404 🔄 Checking for existing peer connections to add tracks to...
-useWebRTC.ts:483 🎥 LocalStream is now available, processing pending connections...
-Meeting.tsx:163 📹 Using audio format: audio/webm;codecs=opus
+useWebRTC.ts:392 ✅ User media obtained successfully
+useWebRTC.ts:393 📹 Local stream ready with tracks: audio, video
+useWebRTC.ts:403 ✅ WebRTC using shared WebSocket for signaling
+useWebRTC.ts:406 🔄 Checking for existing peer connections to add tracks to...
+useWebRTC.ts:485 🎥 LocalStream is now available, processing pending connections...
+Meeting.tsx:144 🔄 Updating WebRTC message handler with latest localStream state
+Meeting.tsx:173 📹 Using audio format: audio/webm;codecs=opus
 useTranslation.ts:473 ⚠️ Failed to convert audio chunk to PCM16: EncodingError: Unable to decode audio data
 Ia @ useTranslation.ts:473
 useTranslation.ts:474 ℹ️ This may be normal if audio format is not yet supported. Audio translation may not work.
-useWebRTC.ts:325 👋 Participant joined, creating offer for: 702de09d-3da9-4f47-8fde-73a42fdd0457 Has localStream: false
-useWebRTC.ts:329 ⏳ LocalStream not ready yet, adding participant to pending list
-(anonymous) @ useWebRTC.ts:329
+useWebRTC.ts:327 👋 Participant joined, creating offer for: 702de09d-3da9-4f47-8fde-73a42fdd0457 Has localStream: true
+useWebRTC.ts:167 🔗 Creating peer connection for: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:168 📹 Current localStream status: Ready with 2 tracks
+useWebRTC.ts:176 ➕ Added local track: audio to 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:176 ➕ Added local track: video to 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:342 📊 Peer connection has 2 senders after creation
 useTranslation.ts:234 👋 Participant joined: 702de09d-3da9-4f47-8fde-73a42fdd0457 jeffer
-useWebRTC.ts:357 👋 Participant left: 702de09d-3da9-4f47-8fde-73a42fdd0457
-useTranslation.ts:251 👋 Participant left: 702de09d-3da9-4f47-8fde-73a42fdd0457
-useWebRTC.ts:325 👋 Participant joined, creating offer for: 702de09d-3da9-4f47-8fde-73a42fdd0457 Has localStream: false
-useWebRTC.ts:329 ⏳ LocalStream not ready yet, adding participant to pending list
-(anonymous) @ useWebRTC.ts:329
-(anonymous) @ Meeting.tsx:129
-S @ useTranslation.ts:201
-_.current.onmessage @ useTranslation.ts:148
-useTranslation.ts:234 👋 Participant joined: 702de09d-3da9-4f47-8fde-73a42fdd0457 jeffer
+useWebRTC.ts:231 🔄 Negotiation needed with 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:354 📤 Sent WebRTC offer to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:245 ❌ Negotiation failed with 702de09d-3da9-4f47-8fde-73a42fdd0457: InvalidAccessError: Failed to execute 'setLocalDescription' on 'RTCPeerConnection': Failed to set local offer sdp: The order of m-lines in subsequent offer doesn't match order from previous offer/answer.
+P.onnegotiationneeded @ useWebRTC.ts:245
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:206 🧊 Sending ICE candidate to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:297 📨 Received WebRTC answer from: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:302 ✅ Set remote description for: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:309 🧊 Received ICE candidate from: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:309 🧊 Received ICE candidate from: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:309 🧊 Received ICE candidate from: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:226 ❄️ ICE state with 702de09d-3da9-4f47-8fde-73a42fdd0457: checking
+useWebRTC.ts:217 🔌 Connection state with 702de09d-3da9-4f47-8fde-73a42fdd0457: connecting
+useWebRTC.ts:309 🧊 Received ICE candidate from: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:226 ❄️ ICE state with 702de09d-3da9-4f47-8fde-73a42fdd0457: connected
+useWebRTC.ts:217 🔌 Connection state with 702de09d-3da9-4f47-8fde-73a42fdd0457: connected
+useWebRTC.ts:219 ✅ WebRTC connected to: 702de09d-3da9-4f47-8fde-73a42fdd0457
+useWebRTC.ts:309 🧊 Received ICE candidate from: 702de09d-3da9-4f47-8fde-73a42fdd0457
 useWebRTC.ts:130 📹 Video toggled: off
 useWebRTC.ts:130 📹 Video toggled: on
+useWebRTC.ts:130 📹 Video toggled: off
 useWebRTC.ts:89 🎤 Audio toggled: muted
 useTranslation.ts:273 Unknown message type: mute_status
-useWebRTC.ts:130 📹 Video toggled: off
-useWebRTC.ts:357 👋 Participant left: 702de09d-3da9-4f47-8fde-73a42fdd0457
-useTranslation.ts:251 👋 Participant left: 702de09d-3da9-4f47-8fde-73a42fdd0457
-useWebRTC.ts:325 👋 Participant joined, creating offer for: 702de09d-3da9-4f47-8fde-73a42fdd0457 Has localStream: false
-useWebRTC.ts:329 ⏳ LocalStream not ready yet, adding participant to pending list
-(anonymous) @ useWebRTC.ts:329
-(anonymous) @ Meeting.tsx:129
-S @ useTranslation.ts:201
-_.current.onmessage @ useTranslation.ts:148
-useTranslation.ts:234 👋 Participant joined: 702de09d-3da9-4f47-8fde-73a42fdd0457 jeffer
+useWebRTC.ts:89 🎤 Audio toggled: unmuted
+useTranslation.ts:273 Unknown message type: mute_status
+useWebRTC.ts:89 🎤 Audio toggled: muted
+useTranslation.ts:273 Unknown message type: mute_status
+useWebRTC.ts:89 🎤 Audio toggled: unmuted
+useTranslation.ts:273 Unknown message type: mute_status
+useWebRTC.ts:89 🎤 Audio toggled: muted
+useTranslation.ts:273 Unknown message type: mute_status
+useWebRTC.ts:89 🎤 Audio toggled: unmuted
+useTranslation.ts:273 Unknown message type: mute_status

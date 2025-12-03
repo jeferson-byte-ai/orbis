@@ -51,6 +51,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
   const currentUserId = useRef<string | null>(null);
   const roomId = useRef<string | null>(null);
   const pendingParticipants = useRef<Set<string>>(new Set()); // Track participants waiting for localStream
+  const negotiatingPeers = useRef<Set<string>>(new Set()); // Track peers currently negotiating
 
   // Get user media (camera + microphone)
   const getUserMedia = async (): Promise<MediaStream> => {
@@ -228,8 +229,19 @@ export const useWebRTC = (): UseWebRTCReturn => {
 
     // Handle negotiation needed (for adding tracks later)
     pc.onnegotiationneeded = async () => {
+      // Prevent negotiation if we're already negotiating or during initial setup
+      if (negotiatingPeers.current.has(remoteUserId)) {
+        console.log(`⏭️ Skipping negotiation with ${remoteUserId} - already in progress`);
+        return;
+      }
+
       console.log(`🔄 Negotiation needed with ${remoteUserId}`);
+      negotiatingPeers.current.add(remoteUserId);
+      
       try {
+        // Wait a bit to batch multiple track additions
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
         
@@ -243,6 +255,11 @@ export const useWebRTC = (): UseWebRTCReturn => {
         }
       } catch (err) {
         console.error(`❌ Negotiation failed with ${remoteUserId}:`, err);
+      } finally {
+        // Remove from negotiating set after a delay
+        setTimeout(() => {
+          negotiatingPeers.current.delete(remoteUserId);
+        }, 1000);
       }
     };
 
@@ -300,6 +317,9 @@ export const useWebRTC = (): UseWebRTCReturn => {
         if (pc) {
           await pc.setRemoteDescription(new RTCSessionDescription(answer));
           console.log('✅ Set remote description for:', fromUserId);
+          
+          // Clear negotiating flag after answer is received
+          negotiatingPeers.current.delete(fromUserId);
         }
       }
       else if (messageType === 'ice_candidate') {
@@ -340,6 +360,9 @@ export const useWebRTC = (): UseWebRTCReturn => {
         // Verify tracks were added
         const senders = pc.getSenders();
         console.log('📊 Peer connection has', senders.length, 'senders after creation');
+
+        // Mark as negotiating to prevent onnegotiationneeded from interfering
+        negotiatingPeers.current.add(joinedUserId);
 
         // Create and send offer
         const offer = await pc.createOffer();
@@ -499,6 +522,9 @@ export const useWebRTC = (): UseWebRTCReturn => {
           // Verify tracks were added
           const senders = pc.getSenders();
           console.log(`📊 Peer connection has ${senders.length} senders for ${userId}`);
+          
+          // Mark as negotiating to prevent onnegotiationneeded from interfering
+          negotiatingPeers.current.add(userId);
           
           // Create and send offer
           const offer = await pc.createOffer();
