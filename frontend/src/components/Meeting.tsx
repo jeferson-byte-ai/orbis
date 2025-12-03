@@ -138,6 +138,16 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
     // No cleanup function here - let the main useEffect handle cleanup
   }, [translationWebSocket, translationConnected, rtcConnected, startCall, roomId, handleWebRTCMessage, setWebRTCMessageHandler]);
 
+  // Update WebRTC message handler when it changes (e.g., when localStream becomes available)
+  useEffect(() => {
+    if (webrtcStartedRef.current && translationWebSocket) {
+      console.log('🔄 Updating WebRTC message handler with latest localStream state');
+      setWebRTCMessageHandler((data: any) => {
+        void handleWebRTCMessage(data);
+      });
+    }
+  }, [handleWebRTCMessage, translationWebSocket, setWebRTCMessageHandler]);
+
   // Process audio chunks for translation
   useEffect(() => {
     if (!localStream || !translationConnected) return;

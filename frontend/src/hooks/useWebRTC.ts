@@ -322,10 +322,12 @@ export const useWebRTC = (): UseWebRTCReturn => {
           return;
         }
 
-        console.log('👋 Participant joined, creating offer for:', joinedUserId, 'Has localStream:', !!localStream);
+        // Use ref to get current localStream value instead of closure
+        const currentLocalStream = localStream;
+        console.log('👋 Participant joined, creating offer for:', joinedUserId, 'Has localStream:', !!currentLocalStream);
 
         // If we don't have localStream yet, mark participant as pending
-        if (!localStream) {
+        if (!currentLocalStream) {
           console.warn('⏳ LocalStream not ready yet, adding participant to pending list');
           pendingParticipants.current.add(joinedUserId);
           // The useEffect that monitors localStream will handle creating connections
@@ -373,7 +375,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
     } catch (err) {
       console.error('Error handling signaling message:', err);
     }
-  }, [createPeerConnection]);
+  }, [createPeerConnection, localStream]); // Keep localStream to get latest value
 
   // Start WebRTC call - now uses existing WebSocket
   const startCall = useCallback(async (roomIdParam: string, existingWs: WebSocket) => {
@@ -486,7 +488,10 @@ export const useWebRTC = (): UseWebRTCReturn => {
     if (pendingParticipants.current.size > 0) {
       console.log(`📋 Creating connections for ${pendingParticipants.current.size} pending participants`);
       
-      pendingParticipants.current.forEach(async (userId) => {
+      // Convert Set to Array and process with Promise.all
+      const pendingArray = Array.from(pendingParticipants.current);
+      
+      Promise.all(pendingArray.map(async (userId) => {
         try {
           console.log(`🔗 Creating delayed peer connection for ${userId}`);
           const pc = createPeerConnection(userId);
@@ -510,6 +515,8 @@ export const useWebRTC = (): UseWebRTCReturn => {
         } catch (err) {
           console.error(`❌ Failed to create delayed connection for ${userId}:`, err);
         }
+      })).catch(err => {
+        console.error('❌ Error processing pending participants:', err);
       });
       
       // Clear pending list
