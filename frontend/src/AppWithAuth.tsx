@@ -424,6 +424,7 @@ const App: React.FC = () => {
               <Route path="/" element={
                 appState === 'meeting' && meetingData ? (
                   <Meeting
+                    key={`meeting-${meetingData.roomId}`}
                     roomId={meetingData.roomId}
                     token={meetingData.token}
                     participants={meetingData.participants}

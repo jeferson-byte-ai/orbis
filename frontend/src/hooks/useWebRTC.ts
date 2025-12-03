@@ -445,15 +445,24 @@ export const useWebRTC = (): UseWebRTCReturn => {
   const endCall = useCallback(() => {
     console.log('🛑 Ending WebRTC call');
 
-    // Stop all tracks
-    if (localStream) {
-      localStream.getTracks().forEach(track => track.stop());
-      setLocalStream(null);
-    }
-
-    // Close all peer connections
-    peerConnections.current.forEach(pc => pc.close());
+    // Stop all tracks using ref to avoid dependency
+    peerConnections.current.forEach(pc => {
+      pc.getSenders().forEach(sender => {
+        if (sender.track) {
+          sender.track.stop();
+        }
+      });
+      pc.close();
+    });
     peerConnections.current.clear();
+
+    // Stop local stream tracks
+    setLocalStream(prev => {
+      if (prev) {
+        prev.getTracks().forEach(track => track.stop());
+      }
+      return null;
+    });
 
     // Don't close the WebSocket - it's shared with translation service
     signalingWs.current = null;
@@ -465,7 +474,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
     setSignalingConnected(false);
     currentUserId.current = null;
     roomId.current = null;
-  }, [localStream]);
+  }, []); // No dependencies!
 
   // Add tracks to existing peer connections when localStream becomes available
   useEffect(() => {
@@ -534,9 +543,18 @@ export const useWebRTC = (): UseWebRTCReturn => {
   useEffect(() => {
     return () => {
       console.log('🧹 useWebRTC unmounting, cleaning up...');
-      endCall();
+      // Call cleanup directly instead of using endCall to avoid dependency issues
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+      }
+      peerConnections.current.forEach(pc => pc.close());
+      peerConnections.current.clear();
+      setParticipants(new Map());
+      setIsConnected(false);
+      signalingWs.current = null;
     };
-  }, [endCall]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps = only run on unmount
 
   return {
     localStream,

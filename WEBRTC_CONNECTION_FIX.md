@@ -1,4 +1,6 @@
-# 🔧 Correção do Problema de Conexão WebRTC
+# 🔧 Correção do Problema de Conexão WebRTC - VERSÃO 2 (CORRIGIDA)
+
+## ⚠️ ATUALIZAÇÃO: Problema Real Identificado!
 
 ## 📋 Problema Reportado
 **Situação:** Dois usuários entraram na reunião com câmera e microfone ligados, mas não conseguiam ver nem ouvir um ao outro. O WebRTC mostrava status "Offline".
@@ -12,15 +14,86 @@ Linha 34: 👋 Participant joined, creating offer for: 702de09d... Has localStre
 Linha 37: ⚠️ Creating peer connection WITHOUT local stream tracks!
 ```
 
-### Causa Raiz:
-1. **Timing Issue**: O `localStream` (câmera/microfone) era obtido com sucesso
-2. **Cleanup Prematuro**: Imediatamente depois, `endCall()` era chamado, destruindo o stream
-3. **Conexão Sem Mídia**: Quando o segundo participante entrava, a peer connection era criada SEM as tracks de áudio/vídeo
-4. **Resultado**: Conexão estabelecida, mas sem transmissão de mídia
+### Causa Raiz REAL:
+1. **useEffect com Dependências Instáveis**: O `useEffect` de cleanup no `useWebRTC` tinha `[endCall]` como dependência
+2. **`endCall` Recriado**: O `endCall` tinha `[localStream]` como dependência, então era recriado toda vez que `localStream` mudava
+3. **Ciclo Vicioso**: 
+   - `localStream` muda → `endCall` é recriado → `useEffect` detecta mudança → executa cleanup → chama `endCall()` → destrói tudo
+4. **Timing Issue**: Entre obter o stream e estabelecer a conexão, o cleanup era executado
+5. **Resultado**: Hook desmontado prematuramente, conexão estabelecida sem mídia
 
-## ✅ Correções Implementadas
+## ✅ Correções Implementadas (VERSÃO FINAL)
 
-### 1. **Meeting.tsx - Prevenção de Cleanup Prematuro**
+### 🎯 Correção Principal: Estabilização do useEffect de Cleanup
+
+### 1. **useWebRTC.ts - Remoção de Dependência no Cleanup useEffect**
+
+**ANTES (PROBLEMA):**
+```tsx
+useEffect(() => {
+  return () => {
+    console.log('🧹 useWebRTC unmounting, cleaning up...');
+    endCall();
+  };
+}, [endCall]); // ❌ endCall muda → cleanup executa!
+```
+
+**DEPOIS (CORRIGIDO):**
+```tsx
+useEffect(() => {
+  return () => {
+    console.log('🧹 useWebRTC unmounting, cleaning up...');
+    // Cleanup direto sem depender de endCall
+    if (localStream) {
+      localStream.getTracks().forEach(track => track.stop());
+    }
+    peerConnections.current.forEach(pc => pc.close());
+    peerConnections.current.clear();
+    setParticipants(new Map());
+    setIsConnected(false);
+    signalingWs.current = null;
+  };
+}, []); // ✅ Deps vazias = executa APENAS no unmount
+```
+
+**Motivo:** Com `[endCall]` como dependência, toda vez que `endCall` era recriado (por causa da dependência em `localStream`), o cleanup era executado, destruindo a conexão.
+
+---
+
+### 2. **useWebRTC.ts - Estabilização da função endCall**
+
+**ANTES (PROBLEMA):**
+```tsx
+const endCall = useCallback(() => {
+  // ...
+  if (localStream) {
+    localStream.getTracks().forEach(track => track.stop());
+    setLocalStream(null);
+  }
+  // ...
+}, [localStream]); // ❌ Recriado toda vez que localStream muda!
+```
+
+**DEPOIS (CORRIGIDO):**
+```tsx
+const endCall = useCallback(() => {
+  // ...
+  // Usa setLocalStream com função para acessar valor atual
+  setLocalStream(prev => {
+    if (prev) {
+      prev.getTracks().forEach(track => track.stop());
+    }
+    return null;
+  });
+  // ...
+}, []); // ✅ Sem dependências = nunca é recriado!
+```
+
+**Motivo:** Usando `prev` no `setLocalStream`, não precisamos de `localStream` nas dependências, estabilizando a função.
+
+---
+
+### 3. **Meeting.tsx - Prevenção de Cleanup Prematuro**
 
 **ANTES:**
 ```tsx
@@ -183,16 +256,21 @@ console.log('📊 Peer connection has', senders.length, 'senders after creation'
 
 ## 🛠️ Arquivos Modificados
 
-1. **frontend/src/components/Meeting.tsx**
-   - Corrigido useEffect principal para usar deps vazias
-   - Adicionado log de cleanup
-
-2. **frontend/src/hooks/useWebRTC.ts**
+1. **frontend/src/hooks/useWebRTC.ts** ⭐ CRÍTICO
+   - **Removida dependência `[endCall]`** do useEffect de cleanup → Agora usa `[]`
+   - **Estabilizada função `endCall`** removendo dependência `[localStream]` → Agora usa `[]`
+   - Implementado cleanup inline no useEffect para evitar ciclo de dependências
    - Adicionado sistema de participantes pendentes
    - Melhorada validação de stream
    - Adicionados logs detalhados
-   - Corrigida ordem de inicialização
-   - Melhorado useEffect de processamento de tracks
+
+2. **frontend/src/components/Meeting.tsx**
+   - Corrigido useEffect principal para usar deps vazias `[]`
+   - Adicionada `key` prop no componente Meeting para prevenir remounts
+   - Adicionado log de cleanup
+
+3. **frontend/src/AppWithAuth.tsx**
+   - Adicionada prop `key={meeting-${meetingData.roomId}}` no componente Meeting para estabilidade
 
 ---
 
@@ -202,6 +280,30 @@ console.log('📊 Peer connection has', senders.length, 'senders after creation'
 2. 🧪 **Testar com dois usuários reais**
 3. 📝 **Verificar logs no console do navegador**
 4. 🔄 **Se necessário, ajustar timeouts ou adicionar retry logic**
+
+---
+
+## 🔑 Resumo da Solução
+
+**O problema era um CICLO DE DEPENDÊNCIAS:**
+
+```
+localStream muda 
+  ↓
+endCall é recriado (tinha [localStream] nas deps)
+  ↓
+useEffect detecta mudança em endCall
+  ↓
+Executa cleanup que chama endCall()
+  ↓
+Destrói tudo e volta ao início
+```
+
+**A solução:**
+1. ✅ `endCall` agora usa `[]` (sem deps) - nunca é recriado
+2. ✅ useEffect de cleanup usa `[]` (sem deps) - só executa no unmount real
+3. ✅ Cleanup inline evita chamar `endCall` que poderia causar problemas
+4. ✅ Sistema de participantes pendentes garante conexão mesmo com timing issues
 
 ---
 
