@@ -168,7 +168,13 @@ async def update_languages(
     understands = current_user.understands_languages[0] if current_user.understands_languages else "en"
 
     # Propagate to active audio sessions so translations switch immediately
-    audio_stream_processor.update_user_language(current_user.id, speaks, understands)
+    audio_stream_processor.update_user_language(
+        current_user.id,
+        speaks,
+        understands,
+        speaks_pref=current_user.speaks_languages,
+        understands_pref=current_user.understands_languages
+    )
 
     if current_user.id in connection_manager.active_connections:
         await connection_manager.send_personal_message(current_user.id, {

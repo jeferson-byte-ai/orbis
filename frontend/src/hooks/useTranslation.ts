@@ -59,6 +59,8 @@ export const useTranslation = (): UseTranslationReturn => {
   const [isConnected, setIsConnected] = useState(false);
   const [inputLanguage, setInputLanguage] = useState('auto');
   const [outputLanguage, setOutputLanguage] = useState('en');
+  const [speaksLanguages, setSpeaksLanguages] = useState<string[]>(['en']);
+  const [understandsLanguages, setUnderstandsLanguages] = useState<string[]>(['en']);
   const [lastTranslation, setLastTranslation] = useState<string | null>(null);
   const [latency, setLatency] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -111,7 +113,7 @@ export const useTranslation = (): UseTranslationReturn => {
   }, []);
 
   // Connect to WebSocket
-  const connect = useCallback((roomId: string, token: string, initialInputLang: string = 'auto', initialOutputLang: string = 'en') => {
+  const connect = useCallback((roomId: string, token: string, initialInputLang: string = 'auto', initialOutputLang: string = 'en', initialSpeaks: string[] = [], initialUnderstands: string[] = []) => {
     try {
       // Close existing connection if any
       if (ws.current) {
@@ -122,6 +124,12 @@ export const useTranslation = (): UseTranslationReturn => {
 
       setInputLanguage(initialInputLang);
       setOutputLanguage(initialOutputLang);
+      if (initialSpeaks.length > 0) {
+        setSpeaksLanguages(initialSpeaks);
+      }
+      if (initialUnderstands.length > 0) {
+        setUnderstandsLanguages(initialUnderstands);
+      }
 
       const wsUrl = buildBackendWebSocketUrl(`/api/ws/audio/${roomId}`, { token });
       const maskedUrl = wsUrl
@@ -144,6 +152,8 @@ export const useTranslation = (): UseTranslationReturn => {
           type: 'init_settings',
           input_language: initialInputLang,
           output_language: initialOutputLang,
+          speaks_languages: initialSpeaks,
+          understands_languages: initialUnderstands,
           voice_profile_exists: voiceProfileExists.current // Send voice profile status
         }));
       };
@@ -348,16 +358,24 @@ export const useTranslation = (): UseTranslationReturn => {
   }, [processNextChunk]);
 
   // Update language preferences
-  const updateLanguages = useCallback((input: string, output: string) => {
+  const updateLanguages = useCallback((input: string, output: string, speaks?: string[], understands?: string[]) => {
     console.log('🌐 Updating languages:', { from: inputLanguage, to: input }, { from: outputLanguage, to: output });
     setInputLanguage(input);
     setOutputLanguage(output);
+    if (speaks) {
+      setSpeaksLanguages(speaks);
+    }
+    if (understands) {
+      setUnderstandsLanguages(understands);
+    }
 
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify({
         type: 'language_update',
         input_language: input,
-        output_language: output
+        output_language: output,
+        speaks_languages: speaks,
+        understands_languages: understands
       }));
       console.log('✅ Language update sent to server');
     } else {
@@ -434,6 +452,8 @@ export const useTranslation = (): UseTranslationReturn => {
     disconnect,
     sendAudioChunk,
     updateLanguages,
+    speaksLanguages,
+    understandsLanguages,
     mute,
     unmute,
     websocket: ws.current,

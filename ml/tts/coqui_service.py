@@ -11,6 +11,11 @@ from typing import Optional
 import numpy as np
 import torch
 
+try:
+    from torch.serialization import add_safe_globals
+except (ImportError, AttributeError):  # pragma: no cover - older torch versions
+    add_safe_globals = None
+
 logger = logging.getLogger(__name__)
 
 
@@ -38,7 +43,36 @@ class CoquiTTSService:
         """Load TTS model"""
         try:
             from TTS.api import TTS
-            
+
+            # PyTorch 2.6+ loads checkpoints with weights_only=True by default.
+            # Register XTTS config class as safe so torch.load can reconstruct it.
+            if add_safe_globals is not None:
+                try:
+                    from TTS.tts.configs.xtts_config import XttsConfig
+                    safe_globals = [XttsConfig]
+                    try:
+                        from TTS.tts.models.xtts import XttsAudioConfig
+                        safe_globals.append(XttsAudioConfig)
+                    except Exception:  # noqa: BLE001
+                        pass
+                    try:
+                        from TTS.tts.models.xtts import XttsArgs
+                        safe_globals.append(XttsArgs)
+                    except Exception:  # noqa: BLE001
+                        pass
+                    try:
+                        from TTS.config.shared_configs import BaseDatasetConfig
+                        safe_globals.append(BaseDatasetConfig)
+                    except Exception:  # noqa: BLE001
+                        pass
+                    add_safe_globals(safe_globals)
+                    logger.info(
+                        "✅ Registered XTTS safe globals for deserialization: %s",
+                        ", ".join(cls.__name__ for cls in safe_globals)
+                    )
+                except Exception as safe_err:  # noqa: BLE001
+                    logger.warning("⚠️ Could not register XTTS safe globals: %s", safe_err)
+
             self.tts = TTS(self.model_name, gpu=(self.device == "cuda"))
             logger.info("✅ Coqui TTS model loaded successfully")
             

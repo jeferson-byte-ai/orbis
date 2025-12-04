@@ -1,442 +1,524 @@
-PS C:\Users\Jeferson\Documents\orbis> & c:/Users/Jeferson/Documents/orbis/venv/Scripts/Activate.ps1
-
-(venv) PS C:\Users\Jeferson\Documents\orbis> uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
->> 
-INFO:     Will watch for changes in these directories: ['C:\\Users\\Jeferson\\Documents\\orbis']
-INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [23804] using WatchFiles
-INFO:     Started server process [5612]
-INFO:     Waiting for application startup.
-2025-12-04 09:02:46,068 - backend.main - INFO - 🚀 Starting Orbis Backend v2.0...
-2025-12-04 09:02:48,546 - backend.main - INFO - ✅ Database tables created/verified
-2025-12-04 09:02:48,550 - backend.main - INFO - ✅ Storage directories created/verified
-2025-12-04 09:02:48,701 - backend.core.cache - WARNING - ⚠️  Redis connection failed: Connection cllosed by server.
-2025-12-04 09:02:48,702 - backend.core.cache - WARNING - ⚠️  Sistema funcionará com cache in-memoryy (limitado)
-2025-12-04 09:02:48,702 - backend.core.cache - WARNING - ⚠️  Para melhor performance, inicie Redis:
-2025-12-04 09:02:48,702 - backend.core.cache - WARNING -    • Docker: docker-compose up -d
-2025-12-04 09:02:48,703 - backend.core.cache - WARNING -    • Windows: .\install_redis_windows.ps1 
-2025-12-04 09:02:48,703 - backend.main - INFO - ✅ Redis connected
-2025-12-04 09:02:48,703 - backend.main - INFO - 🔍 Initializing Lazy Loading System...
-2025-12-04 09:02:48,703 - backend.services.hardware_detection - INFO - 🔍 Detecting hardware capabilities...
-2025-12-04 09:02:48,808 - backend.services.hardware_detection - INFO - ============================================================
-2025-12-04 09:02:48,808 - backend.services.hardware_detection - INFO - 🔍 HARDWARE DETECTION RESULTS
-2025-12-04 09:02:48,808 - backend.services.hardware_detection - INFO - ============================================================
-2025-12-04 09:02:48,809 - backend.services.hardware_detection - INFO - 💻 CPU: 12 cores @ 2688 MHz 
-2025-12-04 09:02:48,809 - backend.services.hardware_detection - INFO - 🧠 RAM: 0.8GB available / 7.8GB total (89.7% used)
-2025-12-04 09:02:48,810 - backend.services.hardware_detection - INFO - 🎮 GPU: Not available (using CPU)
-2025-12-04 09:02:48,810 - backend.services.hardware_detection - INFO - 📊 Profile: LOW
-2025-12-04 09:02:48,811 - backend.services.hardware_detection - INFO -
-2025-12-04 09:02:48,811 - backend.services.hardware_detection - INFO - 🎯 RECOMMENDED CONFIGURATION:
-2025-12-04 09:02:48,812 - backend.services.hardware_detection - INFO -    • Whisper Model: base    
-2025-12-04 09:02:48,812 - backend.services.hardware_detection - INFO -    • NLLB Model: facebook/nllb-200-distilled-600M
-2025-12-04 09:02:48,812 - backend.services.hardware_detection - INFO -    • Device: CPU
-2025-12-04 09:02:48,812 - backend.services.hardware_detection - INFO -    • Compute Type: int8     
-2025-12-04 09:02:48,812 - backend.services.hardware_detection - INFO - ============================================================
-2025-12-04 09:02:48,812 - backend.main - INFO - ✅ Hardware auto-configuration applied:
-2025-12-04 09:02:48,812 - backend.main - INFO -    Device: cpu
-2025-12-04 09:02:48,812 - backend.main - INFO -    Whisper: base
-2025-12-04 09:02:48,812 - backend.main - INFO -    NLLB: facebook/nllb-200-distilled-600M
-2025-12-04 09:02:48,815 - backend.services.lazy_loader - INFO - 📝 Registered whisper for lazy loading
-2025-12-04 09:02:48,815 - backend.main - INFO - 📝 Registered Whisper for lazy loading
-2025-12-04 09:02:48,816 - backend.services.lazy_loader - INFO - 📝 Registered nllb for lazy loading
-2025-12-04 09:02:48,816 - backend.main - INFO - 📝 Registered NLLB for lazy loading
-2025-12-04 09:02:48,817 - backend.services.lazy_loader - INFO - 📝 Registered coqui for lazy loading
-2025-12-04 09:02:48,817 - backend.main - INFO - 📝 Registered Coqui TTS for lazy loading
-2025-12-04 09:02:48,817 - backend.services.lazy_loader - INFO - 🔄 Started auto-unload task (check every 300s, timeout: 3600s)
-2025-12-04 09:02:48,818 - backend.main - INFO - ✅ Auto-unload enabled (idle: 3600s)
-2025-12-04 09:02:48,818 - backend.main - INFO - ✅ Lazy loading enabled - models will load on first use
-2025-12-04 09:02:48,818 - backend.main - INFO - 🚀 Initializing advanced services...
-2025-12-04 09:02:48,887 - backend.core.enterprise_features - WARNING - ⚠️ Enterprise service Redis  connection failed: Connection closed by server.
-2025-12-04 09:02:48,888 - backend.main - INFO - ✅ Enterprise service initialized
-2025-12-04 09:02:48,888 - backend.services.advanced_voice_cloning - INFO - ✅ TTS model loaded for quality: fast
-2025-12-04 09:02:48,888 - backend.services.advanced_voice_cloning - INFO - ✅ TTS model loaded for quality: balanced
-2025-12-04 09:02:48,889 - backend.services.advanced_voice_cloning - INFO - ✅ TTS model loaded for quality: high
-2025-12-04 09:02:48,889 - backend.services.advanced_voice_cloning - INFO - ✅ TTS model loaded for quality: ultra
-2025-12-04 09:02:48,889 - backend.services.advanced_voice_cloning - INFO - ✅ Advanced Voice Cloning Service initialized
-2025-12-04 09:02:48,889 - backend.main - INFO - ✅ Advanced voice cloning service initialized      
-2025-12-04 09:02:48,968 - backend.services.ultra_low_latency_webrtc - ERROR - ❌ Failed to initialize Ultra-Low Latency WebRTC Service: Connection closed by server.
-2025-12-04 09:02:48,968 - backend.main - INFO - ✅ Ultra-low latency WebRTC service initialized
-2025-12-04 09:02:48,968 - backend.services.ai_meeting_assistant - WARNING - ⚠️ OpenAI API key not cconfigured - AI features disabled
-2025-12-04 09:02:48,968 - backend.main - INFO - ✅ AI meeting assistant initialized
-2025-12-04 09:02:49,040 - backend.services.voice_marketplace - WARNING - ⚠️ Voice Marketplace Rediss connection failed: Connection closed by server.
-2025-12-04 09:02:49,040 - backend.main - INFO - ✅ Voice marketplace service initialized
-2025-12-04 09:02:49,109 - backend.services.advanced_analytics - ERROR - ❌ Failed to initialize Advanced Analytics Service: Connection closed by server.
-2025-12-04 09:02:49,109 - backend.main - INFO - ✅ Advanced analytics service initialized
-2025-12-04 09:02:49,183 - backend.services.gamification_system - ERROR - ❌ Failed to initialize Gamification System: Connection closed by server.
-2025-12-04 09:02:49,183 - backend.main - INFO - ✅ Gamification system initialized
-Device set to use cpu
-C:\Users\Jeferson\Documents\orbis\venv\lib\site-packages\transformers\pipelines\text_classification.py:111: UserWarning: `return_all_scores` is now deprecated,  if want a similar functionality use `top_k=None` instead of `return_all_scores=True` or `top_k=1` instead of `return_all_scores=False`. 
-  warnings.warn(
-Some weights of the model checkpoint at cardiffnlp/twitter-roberta-base-sentiment-latest were not used when initializing RobertaForSequenceClassification: ['roberta.pooler.dense.bias', 'roberta.pooler.dense.weight']
-- This IS expected if you are initializing RobertaForSequenceClassification from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing RobertaForSequenceClassification from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-Device set to use cpu
-Some weights of GPT2ForSequenceClassification were not initialized from the model checkpoint at microsoft/DialoGPT-medium and are newly initialized: ['score.weight']
-You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
-Device set to use cpu
-2025-12-04 09:02:56,408 - backend.services.advanced_ai_features - INFO - ✅ Advanced AI Features Service initialized
-2025-12-04 09:02:56,408 - backend.main - INFO - ✅ Advanced AI features service initialized        
-2025-12-04 09:02:56,550 - backend.services.social_networking - ERROR - ❌ Failed to initialize Social Networking Service: Connection closed by server.
-2025-12-04 09:02:56,551 - backend.main - INFO - ✅ Social networking service initialized
-2025-12-04 09:02:56,551 - backend.main - INFO - 🎯 All advanced services initialized successfully! 
-2025-12-04 09:02:56,552 - backend.main - INFO - 🌍 Environment: development
-2025-12-04 09:02:56,552 - backend.main - INFO - 🔧 Debug mode: False
-2025-12-04 09:02:56,552 - backend.main - INFO - 🎯 Target latency: <800ms
-2025-12-04 09:02:56,552 - backend.main - INFO - 🔐 Security features enabled: False
-2025-12-04 09:02:56,552 - backend.main - INFO - 📊 Metrics enabled: False
-2025-12-04 09:02:56,552 - backend.main - INFO - ✨ Orbis Backend ready!
-INFO:     Application startup complete.
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/voices/profile HTTP/1.1" 200 OK
-2025-12-04 09:06:11,037 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:06:11,039 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:06:11,043 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:06:11,111 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
-2025-12-04 09:06:11,542 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "GET /api/voices/profile HTTP/1.1" 200 OK
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/rooms HTTP/1.1" 200 OK
-2025-12-04 09:06:11,865 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:06:11,865 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:06:11,867 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:06:11,867 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
-2025-12-04 09:06:11,987 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "POST /api/rooms HTTP/1.1" 201 Created
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/rooms/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1/join HTTP/1.1" 200 OK
-2025-12-04 09:06:12,934 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:06:12,935 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:06:12,935 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:06:12,935 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
-2025-12-04 09:06:13,053 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "POST /api/rooms/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1/join HTTP/1.1" 200 OK
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/chat/messages/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1?limit=100 HTTP/1.1" 200 OK
-2025-12-04 09:06:13,684 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:06:13,684 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:06:13,688 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:06:13,689 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/rooms/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1 HTTP/1.1" 200 OK
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/profile/me HTTP/1.1" 200 OK
-INFO:     ('2a09:bac1:1100:97e8::3ea:35', 0) - "WebSocket /api/chat/ws/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1" [accepted]
-2025-12-04 09:06:13,792 - backend.api.chat - INFO - Client connected to room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1. Total: 1
-INFO:     connection open
-2025-12-04 09:06:13,827 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
-2025-12-04 09:06:13,835 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:06:13,835 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:06:13,837 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:06:13,839 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
-2025-12-04 09:06:13,901 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:06:13,901 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:06:13,901 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:06:13,902 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "GET /api/voices/profile HTTP/1.1" 200 OK
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "GET /api/rooms/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1 HTTP/1.1" 200 OK
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "GET /api/chat/messages/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1?limit=100 HTTP/1.1" 200 OK
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "GET /api/profile/me HTTP/1.1" 200 OK
-2025-12-04 09:06:15,129 - backend.api.websocket - INFO - 🔌 WebSocket connection attempt to room: d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1
-2025-12-04 09:06:15,129 - backend.api.websocket - INFO - Query params: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlMTA0MzhmOC00NzU5LTQ0NjctOTVmNC1hMTJkN2MxNWFlNmQiLCJleHAiOjE3NjUyODM3NjcsInR5cGUiOiJhY2Nlc3MifQ.WEYpkriVODkK8rvCWC_m2vdx24_FXFSblMxNV1Wp5Eg
-2025-12-04 09:06:15,131 - backend.api.websocket - INFO - Headers: {'host': 'convolutionary-staminal-caren.ngrok-free.dev', 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7', 'cache-control': 'no-cache', 'connection': 'Upgrade', 'origin': 'https://orbis-omega.vercel.app', 'pragma': 'no-cache', 'sec-websocket-extensions': 'permessage-deflate; client_max_window_bits', 'sec-websocket-key': 'raPOuoXHGcWG8X/gFQZipw==', 'sec-websocket-version': '13', 'upgrade': 'websocket', 'x-forwarded-for': '2a09:bac1:1100:97e8::3ea:35', 'x-forwarded-host': 'convolutionary-staminal-caren.ngrok-free.dev', 'x-forwarded-proto': 'https'}
-2025-12-04 09:06:15,131 - backend.api.websocket - INFO - Origin: https://orbis-omega.vercel.app    
-2025-12-04 09:06:15,133 - backend.api.websocket - INFO - 📍 WebSocket connection from origin: https://orbis-omega.vercel.app
-INFO:     ('2a09:bac1:1100:97e8::3ea:35', 0) - "WebSocket /api/ws/audio/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlMTA0MzhmOC00NzU5LTQ0NjctOTVmNC1hMTJkN2MxNWFlNmQiLCJleHAiOjE3NjUyODM3NjcsInR5cGUiOiJhY2Nlc3MifQ.WEYpkriVODkK8rvCWC_m2vdx24_FXFSblMxNV1Wp5Eg" [accepted]
-2025-12-04 09:06:15,134 - backend.api.websocket - INFO - ✅ WebSocket connection accepted
-2025-12-04 09:06:15,134 - backend.api.websocket - INFO - 🔐 Attempting to authenticate WebSocket user...
-2025-12-04 09:06:15,138 - backend.api.deps - INFO - 🔑 Token from query params: Present
-2025-12-04 09:06:15,139 - backend.api.deps - INFO - 🔓 Decoding token (length: 187)
-2025-12-04 09:06:15,140 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:06:15,140 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
-2025-12-04 09:06:15,142 - backend.api.deps - INFO - ✅ Token decoded successfully: {'sub': 'e10438f8-4759-4467-95f4-a12d7c15ae6d', 'exp': 1765283767, 'type': 'access'}
-2025-12-04 09:06:15,143 - backend.api.deps - INFO - 👤 User ID from token: e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:06:15,143 - backend.api.deps - INFO - ✅ Converted user_id to UUID: e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:06:15,269 - backend.api.deps - INFO - ✅ User found in database: jefersonservices4@gmail.com
-2025-12-04 09:06:15,313 - backend.api.websocket - INFO - ✅ User authenticated: e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:06:15,315 - backend.api.websocket - INFO - User e10438f8-4759-4467-95f4-a12d7c15ae6d connected to room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1
-INFO:     connection open
-2025-12-04 09:06:15,597 - backend.api.websocket - INFO - 🌐 Loaded user languages from DB: speaks=en, wants_to_hear=en
-2025-12-04 09:06:15,643 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d (en→en)
-2025-12-04 09:06:15,645 - backend.services.audio_pipeline.stream_processor - INFO - 🔄 Updated languages for user e10438f8-4759-4467-95f4-a12d7c15ae6d: speaks=en, wants_to_hear=en
-2025-12-04 09:06:15,646 - backend.api.websocket - INFO - ✅ Initial language settings for user e10438f8-4759-4467-95f4-a12d7c15ae6d: speaks=en, wants_to_hear=en
-2025-12-04 09:06:19,011 - backend.services.lazy_loader - INFO - ⏳ Loading whisper model...
-2025-12-04 09:06:20,693 - backend.services.audio_pipeline.stream_processor - INFO - Audio processing stopped for user e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:06:20,693 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:06:23,305 - ml.asr.whisper_service - INFO - ✅ Whisper base loaded in 2.35s
-2025-12-04 09:06:23,307 - ml.asr.whisper_service - INFO - 🔥 Warming up Whisper model...
-2025-12-04 09:06:34,870 - ml.asr.whisper_service - INFO - ✅ Model warmed up
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "OPTIONS /api/voices/profile HTTP/1.1" 200 OK
-2025-12-04 09:06:47,058 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:06:47,059 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:06:47,060 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:06:47,067 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
-2025-12-04 09:06:47,270 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "GET /api/voices/profile HTTP/1.1" 200 OK
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "OPTIONS /api/rooms/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1/join HTTP/1.1" 200 OK
-2025-12-04 09:06:47,572 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:06:47,573 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:06:47,574 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:06:47,574 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
-2025-12-04 09:06:47,730 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "POST /api/rooms/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1/join HTTP/1.1" 200 OK
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "OPTIONS /api/chat/messages/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1?limit=100 HTTP/1.1" 200 OK
-INFO:     ('2804:5e44:11c4:6301:15a4:74a0:6515:a2b3', 0) - "WebSocket /api/chat/ws/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1" [accepted]
-2025-12-04 09:06:49,150 - backend.api.chat - INFO - Client connected to room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1. Total: 2
-INFO:     connection open
-2025-12-04 09:06:49,167 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:06:49,167 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:06:49,168 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:06:49,169 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
-2025-12-04 09:06:49,183 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:06:49,185 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:06:49,187 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "OPTIONS /api/rooms/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1 HTTP/1.1" 200 OK
-2025-12-04 09:06:49,189 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "OPTIONS /api/profile/me HTTP/1.1" 200 OK
-2025-12-04 09:06:49,323 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:06:49,325 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:06:49,325 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:06:49,327 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
-2025-12-04 09:06:49,370 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "GET /api/voices/profile HTTP/1.1" 200 OK
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "GET /api/chat/messages/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1?limit=100 HTTP/1.1" 200 OK
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "GET /api/rooms/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1 HTTP/1.1" 200 OK
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "GET /api/profile/me HTTP/1.1" 200 OK
-2025-12-04 09:06:50,074 - backend.api.websocket - INFO - 🔌 WebSocket connection attempt to room: d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1
-2025-12-04 09:06:50,074 - backend.api.websocket - INFO - Query params: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3MDJkZTA5ZC0zZGE5LTRmNDctOGZkZS03M2E0MmZkZDA0NTciLCJleHAiOjE3NjUzNjc1OTgsInR5cGUiOiJhY2Nlc3MifQ.EfiiZMyoFeM1tMSElShWlbwL019JMbQVbebEdxyGIvU
-2025-12-04 09:06:50,075 - backend.api.websocket - INFO - Headers: {'host': 'convolutionary-staminal-caren.ngrok-free.dev', 'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Mobile Safari/537.36', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'en-US,en;q=0.6', 'cache-control': 'no-cache', 'connection': 'Upgrade', 'origin': 'https://orbis-omega.vercel.app', 'pragma': 'no-cache', 'sec-websocket-extensions': 'permessage-deflate; client_max_window_bits', 'sec-websocket-key': 'ykdDyEhS59nLkvAluy6ILQ==', 'sec-websocket-version': '13', 'upgrade': 'websocket', 'x-forwarded-for': '2804:5e44:11c4:6301:15a4:74a0:6515:a2b3', 'x-forwarded-host': 'convolutionary-staminal-caren.ngrok-free.dev', 'x-forwarded-proto': 'https'}
-2025-12-04 09:06:50,075 - backend.api.websocket - INFO - Origin: https://orbis-omega.vercel.app    
-2025-12-04 09:06:50,075 - backend.api.websocket - INFO - 📍 WebSocket connection from origin: https://orbis-omega.vercel.app
-INFO:     ('2804:5e44:11c4:6301:15a4:74a0:6515:a2b3', 0) - "WebSocket /api/ws/audio/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3MDJkZTA5ZC0zZGE5LTRmNDctOGZkZS03M2E0MmZkZDA0NTciLCJleHAiOjE3NjUzNjc1OTgsInR5cGUiOiJhY2Nlc3MifQ.EfiiZMyoFeM1tMSElShWlbwL019JMbQVbebEdxyGIvU" [accepted]
-2025-12-04 09:06:50,077 - backend.api.websocket - INFO - ✅ WebSocket connection accepted
-2025-12-04 09:06:50,077 - backend.api.websocket - INFO - 🔐 Attempting to authenticate WebSocket user...
-2025-12-04 09:06:50,079 - backend.api.deps - INFO - 🔑 Token from query params: Present
-2025-12-04 09:06:50,079 - backend.api.deps - INFO - 🔓 Decoding token (length: 187)
-2025-12-04 09:06:50,080 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:06:50,081 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
-2025-12-04 09:06:50,081 - backend.api.deps - INFO - ✅ Token decoded successfully: {'sub': '702de09d-3da9-4f47-8fde-73a42fdd0457', 'exp': 1765367598, 'type': 'access'}
-2025-12-04 09:06:50,081 - backend.api.deps - INFO - 👤 User ID from token: 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-04 09:06:50,083 - backend.api.deps - INFO - ✅ Converted user_id to UUID: 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-04 09:06:50,203 - backend.api.deps - INFO - ✅ User found in database: jefersonservices6@gmail.com
-2025-12-04 09:06:50,240 - backend.api.websocket - INFO - ✅ User authenticated: 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-04 09:06:50,242 - backend.api.websocket - INFO - User 702de09d-3da9-4f47-8fde-73a42fdd0457 connected to room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1
-INFO:     connection open
-2025-12-04 09:06:50,632 - backend.api.websocket - INFO - 🌐 Loaded user languages from DB: speaks=pt, wants_to_hear=pt
-2025-12-04 09:06:50,669 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457 (pt→pt)
-2025-12-04 09:06:50,673 - backend.services.audio_pipeline.stream_processor - INFO - 🔄 Updated languages for user 702de09d-3da9-4f47-8fde-73a42fdd0457: speaks=pt, wants_to_hear=pt
-2025-12-04 09:06:50,674 - backend.api.websocket - INFO - ✅ Initial language settings for user 702de09d-3da9-4f47-8fde-73a42fdd0457: speaks=pt, wants_to_hear=pt
-2025-12-04 09:06:50,726 - backend.api.websocket - INFO - Forwarded WebRTC offer from e10438f8-4759-4467-95f4-a12d7c15ae6d to 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-04 09:06:53,162 - backend.api.websocket - INFO - Forwarded WebRTC answer from 702de09d-3da9-4f47-8fde-73a42fdd0457 to e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:06:53,483 - backend.services.lazy_loader - INFO - ⏳ whisper is already loading, waiting...
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/profile/languages/supported HTTP/1.1" 200 OK
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "GET /api/profile/languages/supported HTTP/1.1" 200 OK
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/profile/languages HTTP/1.1" 200 OK
-2025-12-04 09:07:24,301 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:07:24,304 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:07:24,305 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:07:24,305 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
-2025-12-04 09:07:24,742 - backend.services.audio_pipeline.stream_processor - WARNING - ⚠️ Cannot uppdate languages for user e10438f8-4759-4467-95f4-a12d7c15ae6d: user not in processing queue
-2025-12-04 09:07:24,751 - backend.api.profile - INFO - 🌐 User e10438f8-4759-4467-95f4-a12d7c15ae6d language settings updated: speaks=en, wants_to_hear=en
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "PUT /api/profile/languages HTTP/1.1" 200 OK
-2025-12-04 09:07:24,963 - backend.services.audio_pipeline.stream_processor - WARNING - ⚠️ Cannot uppdate languages for user e10438f8-4759-4467-95f4-a12d7c15ae6d: user not in processing queue
-2025-12-04 09:07:24,964 - backend.api.websocket - INFO - ✅ User e10438f8-4759-4467-95f4-a12d7c15ae6d updated languages: speaks=en, wants_to_hear=en
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "OPTIONS /api/profile/languages/supported HTTP/1.1" 200 OK
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "GET /api/profile/languages/supported HTTP/1.1" 200 OK
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "OPTIONS /api/profile/languages HTTP/1.1" 200 OK
-2025-12-04 09:07:46,409 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:07:46,409 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:07:46,409 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:07:46,411 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
-2025-12-04 09:07:46,747 - backend.services.audio_pipeline.stream_processor - INFO - 🔄 Updated languages for user 702de09d-3da9-4f47-8fde-73a42fdd0457: speaks=pt, wants_to_hear=pt
-2025-12-04 09:07:46,747 - backend.api.profile - INFO - 🌐 User 702de09d-3da9-4f47-8fde-73a42fdd0457 language settings updated: speaks=pt, wants_to_hear=pt
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "PUT /api/profile/languages HTTP/1.1" 200 OK
-2025-12-04 09:07:46,928 - backend.services.audio_pipeline.stream_processor - INFO - 🔄 Updated languages for user 702de09d-3da9-4f47-8fde-73a42fdd0457: speaks=pt, wants_to_hear=pt
-2025-12-04 09:07:46,929 - backend.api.websocket - INFO - ✅ User 702de09d-3da9-4f47-8fde-73a42fdd0457 updated languages: speaks=pt, wants_to_hear=pt
-2025-12-04 09:08:24,135 - backend.services.audio_pipeline.stream_processor - INFO - Audio processing stopped for user 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-04 09:08:24,135 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-04 09:08:27,024 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d (auto→en)
-2025-12-04 09:08:27,143 - backend.services.lazy_loader - INFO - ⏳ whisper is already loading, waiting...
-2025-12-04 09:08:39,646 - backend.services.audio_pipeline.stream_processor - INFO - Audio processing stopped for user e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:08:39,647 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:08:41,642 - backend.api.websocket - INFO - WebSocket disconnected for user e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:08:41,642 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:08:41,645 - backend.services.audio_pipeline.websocket_manager - INFO - User e10438f8-4759-4467-95f4-a12d7c15ae6d disconnected
-2025-12-04 09:08:41,869 - backend.api.chat - INFO - Client disconnected from room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1
-2025-12-04 09:08:41,869 - backend.api.chat - INFO - Client disconnected from room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1
+874178275}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874178838}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874178375}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874178931}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874178471}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179027}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874178555}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179126}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874178646}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179208}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874178741}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179305}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874178850}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179400}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874178927}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179496}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179592}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179023}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179130}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179688}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179209}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179773}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179298}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179868}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179397}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179968}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179488}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180065}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179586}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180144}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179692}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180241}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179777}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180338}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179863}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180433}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874179948}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180529}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180041}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180626}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180136}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180235}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180710}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180806}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180319}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180903}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180416}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180999}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181084}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180577}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180598}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181178}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180693}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181274}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180786}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181375}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180877}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181454}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874180970}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181553}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181062}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181646}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181155}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181732}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181249}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181827}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181341}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181923}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181435}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181528}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874182025}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874182103}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181620}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874182200}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181714}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181806}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874182296}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874182392}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181899}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874182496}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874181995}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874182572}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"control","action":"unmute"}' [36 bytes]
+2025-12-04 15:49:42,673 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457 (auto→en)
+DEBUG:    > TEXT '{"type":"mute_status","muted":false,"message":"...o translation unmuted"}' [74 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874182202}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874182205}' [4028 bytes]
+2025-12-04 15:49:44,114 - ml.asr.whisper_service - INFO - ✅ Transcribed [1334ms]: '...' (lang: en)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874182668}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874182769}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874182853}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874182949}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874183041}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874183138}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874183221}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874183317}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874183415}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874183535}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874183619}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874183728}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874183822}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874183919}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874184004}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874182297}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874182365}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AwAEAAIAAAA...mestamp":1764874182459}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"/v8CAOz//v8...mestamp":1764874182548}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AgAJAPz/CQD...mestamp":1764874182650}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AgAAAAAAAAA...mestamp":1764874182734}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874182828}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874182922}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874183012}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874183108}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874183200}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874183291}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"CgD///T/AgA...mestamp":1764874183389}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"BQD8//r/BAA...mestamp":1764874183478}' [4028 bytes]
+DEBUG:    % sending keepalive ping
+DEBUG:    > PING b1 32 09 18 [binary, 4 bytes]
+DEBUG:    % sending keepalive ping
+DEBUG:    > PING b2 b7 04 3f [binary, 4 bytes]
+DEBUG:    % sending keepalive ping
+DEBUG:    > PING '\uf288~' [text, 4 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAP3/AAA...mestamp":1764874183569}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874184100}' [4028 bytes]
+2025-12-04 15:49:45,575 - ml.asr.whisper_service - INFO - ✅ Transcribed [1350ms]: '...' (lang: en)
+DEBUG:    < PONG b2 b7 04 3f [binary, 4 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874184195}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874184291}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874184382}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874184472}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874184568}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874184663}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874184749}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874184845}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874184953}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185048}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185146}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185229}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185327}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185422}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185519}' [4028 bytes]
+DEBUG:    < PONG b1 32 09 18 [binary, 4 bytes]
+DEBUG:    < PONG '\uf288~' [text, 4 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAABAPz///8...mestamp":1764874183663}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAD8//j//P8...mestamp":1764874183755}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"Kf8X/+r9D/6...mestamp":1764874183850}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"gPp1/7EENgb...mestamp":1764874183942}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"owGyA2YDJwK...mestamp":1764874184035}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"vuYh7eTzbvN...mestamp":1764874184128}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"sQGuAf8B1AH...mestamp":1764874184220}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"SPaP9SL40Pg...mestamp":1764874184314}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"Eva196L4s/g...mestamp":1764874184406}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"WEqiOuMcqf+...mestamp":1764874184500}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"Nv6OAawEUgV...mestamp":1764874184595}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"qAoHBpgBmv1...mestamp":1764874184687}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"qgCz//H+4/1...mestamp":1764874184790}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"UQBrAHYAbQB...mestamp":1764874184870}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"z//a/9r/2f/...mestamp":1764874184965}' [4028 bytes]
+DEBUG:    % received keepalive pong
+DEBUG:    % received keepalive pong
+DEBUG:    % received keepalive pong
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185601}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"BAD5//H/7//...mestamp":1764874185062}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"7f/u/+//7v/...mestamp":1764874185152}' [4028 bytes]
+2025-12-04 15:49:48,311 - ml.asr.whisper_service - INFO - ✅ Transcribed [2611ms]: '...' (lang: en)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185697}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185795}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185889}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185975}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874186069}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874186174}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874186263}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874186346}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874186442}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874186543}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874186635}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874186731}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874186829}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874186913}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874187007}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874187105}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874187200}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874187296}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874187381}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874187476}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874187572}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874187668}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874187766}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874187848}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874187946}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874188041}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874188141}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874188221}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185245}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185335}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185431}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185523}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185614}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185707}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185799}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185895}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874185986}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874186078}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874186171}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874186266}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874186357}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"C/9VAGcBlAF...mestamp":1764874186450}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"7v3Q/Fj7Nvr...mestamp":1764874186542}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"vPW7+e/8kv1...mestamp":1764874186635}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"uv+a/af9svx...mestamp":1764874186730}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"7u/H75vxYfL...mestamp":1764874186821}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"kgKWAsQCnQL...mestamp":1764874186915}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"pQ4C/rH39f9...mestamp":1764874187008}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"uvyZClf0qv7...mestamp":1764874187101}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"HwAv/vf+2f5...mestamp":1764874187204}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"IwBIAAsACAA...mestamp":1764874187289}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"b/Wv9sv20vf...mestamp":1764874187379}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"m/6B/nv+i/6...mestamp":1764874187473}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"KwXwA1gGpwb...mestamp":1764874187564}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"HQR2CNwJGga...mestamp":1764874187656}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"gQ5aClYOWwy...mestamp":1764874187752}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874188325}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"qvkx/skFMf6...mestamp":1764874187842}' [4028 bytes]
+2025-12-04 15:49:50,943 - ml.asr.whisper_service - INFO - ✅ Transcribed [2515ms]: 'Gracias....' (lang: es)
+2025-12-04 15:49:50,944 - backend.services.audio_pipeline.stream_processor - INFO - 🎤 User 702de09d-3da9-4f47-8fde-73a42fdd0457 spoke in es: 'Gracias.'
+2025-12-04 15:49:50,956 - ml.mt.nllb_service - ERROR - Translation error: NllbTokenizerFast has no attribute lang_code_to_id
+2025-12-04 15:49:50,957 - backend.services.audio_pipeline.stream_processor - INFO - 🌐 Translated to en: 'Gracias.'
+2025-12-04 15:49:50,958 - ml.tts.coqui_service - INFO - Synthesizing with cloned voice from: data\voices\702de09d-3da9-4f47-8fde-73a42fdd0457.wav
+ > Text splitted to sentences.
+['Gracias.']
+2025-12-04 15:49:52,080 - ml.tts.coqui_service - ERROR - ❌ TTS synthesis error: 'GPT2InferenceModel' object has no attribute 'generate'
+DEBUG:    > TEXT '{"type":"translated_audio","user_id":"702de09d-...mp":1764874192.0820684}' [117820 bytes]
+2025-12-04 15:49:52,085 - backend.services.audio_pipeline.stream_processor - INFO - ✅ User 702de09d-3da9-4f47-8fde-73a42fdd0457 audio processed in 3658.3ms (ASR: 2516.3ms, MT: 13.5ms, TTS: 1124.4ms, Send: 3.2ms) | Sent to 1 listener(s) | 'Gracias.' → languages ['en']
+2025-12-04 15:49:52,085 - backend.services.audio_pipeline.stream_processor - WARNING - ⚠️ Latency exceeded target: 3658.3ms > 200ms
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874188413}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874188509}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874188610}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874188691}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874188787}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874188882}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874188969}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189063}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189159}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189260}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189340}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189436}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189532}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189626}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189711}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189807}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189904}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189988}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190084}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190180}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190276}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190363}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190467}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190552}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190650}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190736}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190829}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190926}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191024}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191107}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191205}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191297}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191393}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"ZwhTBAwBIgD...mestamp":1764874187936}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"kvLy8s/0u/e...mestamp":1764874188032}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"6/qI/TH+cAB...mestamp":1764874188122}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"aACRAMgAlwC...mestamp":1764874188216}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"UAAaAAYAVQB...mestamp":1764874188309}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"GQAEAOX/7/8...mestamp":1764874188400}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"yvye/uz/MQD...mestamp":1764874188499}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"7f8aADgAMgA...mestamp":1764874188588}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874188679}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874188772}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874188866}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874188967}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAP//AAA...mestamp":1764874189055}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189145}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189235}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189451}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189454}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189514}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAFAAoABwA...mestamp":1764874189608}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189701}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189797}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189887}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874189979}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190074}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190164}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190258}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190350}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190443}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190536}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190632}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190721}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190816}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874190914}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191490}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191575}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191671}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191767}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191862}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191960}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192043}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191001}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191094}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191186}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191279}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191373}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191467}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191558}' [4028 bytes]
+INFO:     45.178.146.74:0 - "OPTIONS /api/rooms/2729207f-bfeb-43f9-b33e-30c5863437cc/leave HTTP/1.1" 200 OK
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192139}' [4028 bytes]
+2025-12-04 15:49:52,187 - ml.asr.whisper_service - INFO - ✅ Transcribed [9ms]: '...' (lang: es)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191653}' [4028 bytes]
+2025-12-04 15:49:52,313 - ml.asr.whisper_service - INFO - ✅ Transcribed [5ms]: '...' (lang: es)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191748}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192235}' [4028 bytes]
+2025-12-04 15:49:52,341 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-04 15:49:52,343 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-04 15:49:52,345 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 15:49:52,350 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598 
+2025-12-04 15:49:52,437 - ml.asr.whisper_service - INFO - ✅ Transcribed [7ms]: '...' (lang: es)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191842}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192332}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192428}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874191929}' [4028 bytes]
+2025-12-04 15:49:52,564 - ml.asr.whisper_service - INFO - ✅ Transcribed [8ms]: '...' (lang: es)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192027}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192523}' [4028 bytes]
+2025-12-04 15:49:52,673 - ml.asr.whisper_service - INFO - ✅ Transcribed [9ms]: '...' (lang: es)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192608}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192150}' [4028 bytes]
+2025-12-04 15:49:52,738 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-04 15:49:52,739 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-04 15:49:52,739 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 15:49:52,740 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598 
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192703}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192209}' [4028 bytes]
+2025-12-04 15:49:52,786 - ml.asr.whisper_service - INFO - ✅ Transcribed [10ms]: '...' (lang: es)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192799}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192302}' [4028 bytes]
+2025-12-04 15:49:52,903 - ml.asr.whisper_service - INFO - ✅ Transcribed [6ms]: '...' (lang: es)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"9//3//f/+P/...mestamp":1764874192394}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192895}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192979}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192488}' [4028 bytes]
+2025-12-04 15:49:53,124 - ml.asr.whisper_service - INFO - ✅ Transcribed [11ms]: '...' (lang: es)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192588}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874193078}' [4028 bytes]
+2025-12-04 15:49:53,237 - ml.asr.whisper_service - INFO - ✅ Transcribed [9ms]: '...' (lang: es)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192673}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874193172}' [4028 bytes]
+2025-12-04 15:49:53,366 - ml.asr.whisper_service - INFO - ✅ Transcribed [12ms]: '...' (lang: es)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874193269}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192765}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192861}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874193364}' [4028 bytes]
+2025-12-04 15:49:53,498 - ml.asr.whisper_service - INFO - ✅ Transcribed [22ms]: '...' (lang: es)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874192950}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874193449}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874193044}' [4028 bytes]
+2025-12-04 15:49:53,612 - ml.asr.whisper_service - INFO - ✅ Transcribed [10ms]: '...' (lang: es)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874193546}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874193640}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874193140}' [4028 bytes]
+2025-12-04 15:49:53,717 - ml.asr.whisper_service - INFO - ✅ Transcribed [5ms]: '...' (lang: es)
+2025-12-04 15:49:53,750 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
+2025-12-04 15:49:53,750 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
+2025-12-04 15:49:53,861 - ml.asr.whisper_service - INFO - ✅ Transcribed [9ms]: '...' (lang: es)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874193736}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874193236}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874193835}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874193322}' [4028 bytes]
+2025-12-04 15:49:53,977 - ml.asr.whisper_service - INFO - ✅ Transcribed [6ms]: '...' (lang: es)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874193415}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874193918}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874194017}' [4028 bytes]
+2025-12-04 15:49:54,076 - ml.asr.whisper_service - INFO - ✅ Transcribed [12ms]: '...' (lang: es)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874193509}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874194110}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"BAACAPv//P8...mestamp":1764874193600}' [4028 bytes]
+2025-12-04 15:49:54,183 - ml.asr.whisper_service - INFO - ✅ Transcribed [6ms]: '...' (lang: es)
+2025-12-04 15:49:54,285 - ml.asr.whisper_service - INFO - ✅ Transcribed [10ms]: '...' (lang: es)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"7f8DACoAOAA...mestamp":1764874193700}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874194193}' [4028 bytes]
+INFO:     45.178.146.74:0 - "POST /api/rooms/2729207f-bfeb-43f9-b33e-30c5863437cc/leave HTTP/1.1" 200 OK
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874194291}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"LwAEAAUAJQA...mestamp":1764874193788}' [4028 bytes]
+2025-12-04 15:49:54,385 - ml.asr.whisper_service - INFO - ✅ Transcribed [10ms]: '...' (lang: es)
+INFO:     45.178.146.74:0 - "POST /api/rooms/2729207f-bfeb-43f9-b33e-30c5863437cc/leave HTTP/1.1" 200 OK
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"BQARAPr/5v8...mestamp":1764874193880}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874194386}' [4028 bytes]
+2025-12-04 15:49:54,588 - ml.asr.whisper_service - INFO - ✅ Transcribed [7ms]: '...' (lang: es)
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874194482}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874194580}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874194664}' [4028 bytes]
+DEBUG:    < CLOSE 1005 (no status received [internal]) [0 bytes]
+DEBUG:    = connection is CLOSING
+DEBUG:    > CLOSE 1005 (no status received [internal]) [0 bytes]
+DEBUG:    x half-closing TCP connection
+DEBUG:    = connection is CLOSED
+2025-12-04 15:49:54,728 - backend.api.websocket - INFO - WebSocket disconnected for user 702de09d-3da9-4f47-8fde-73a42fdd0457
 INFO:     connection closed
+2025-12-04 15:49:54,731 - backend.services.audio_pipeline.stream_processor - INFO - Audio processing stopped for user 702de09d-3da9-4f47-8fde-73a42fdd0457        
+2025-12-04 15:49:54,732 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457        
+2025-12-04 15:49:54,732 - backend.services.audio_pipeline.websocket_manager - INFO - User 702de09d-3da9-4f47-8fde-73a42fdd0457 disconnected
+DEBUG:    > TEXT '{"type":"participant_left","user_id":"702de09d-...n","name":"jeferson"}]}' [199 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874194759}' [4028 bytes]
+2025-12-04 15:49:54,894 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-04 15:49:54,896 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-04 15:49:54,896 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 15:49:54,898 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598 
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874194855}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874194957}' [4028 bytes]
+2025-12-04 15:49:55,013 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
+INFO:     45.178.146.74:0 - "POST /api/rooms/2729207f-bfeb-43f9-b33e-30c5863437cc/leave HTTP/1.1" 404 Not Found
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874195039}' [4028 bytes]
+2025-12-04 15:49:55,144 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-04 15:49:55,145 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-04 15:49:55,145 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 15:49:55,146 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598 
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874195132}' [4028 bytes]
+2025-12-04 15:49:55,255 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874195228}' [4028 bytes]
+INFO:     45.178.146.74:0 - "POST /api/rooms/2729207f-bfeb-43f9-b33e-30c5863437cc/leave HTTP/1.1" 404 Not Found
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874195324}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874195408}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874195505}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874195600}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874195696}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874195780}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874195879}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874195974}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874196060}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874196152}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874196248}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874196345}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874196430}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874196526}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874196621}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874196719}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874196802}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874196897}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874196994}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874197077}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874197174}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874197271}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874197367}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874197463}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874197547}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874197644}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874197743}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874197836}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874197920}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"ping"}' [15 bytes]
+DEBUG:    > TEXT '{"type":"pong"}' [15 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874198015}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874198111}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874198196}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874198299}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874198388}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874198485}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874198570}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874198666}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874198765}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874198857}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874198953}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874199054}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874199136}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874199229}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874199326}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874199422}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874199508}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874199603}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874199699}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874199795}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874199879}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874199980}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874200071}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874200166}' [4028 bytes]
+INFO:     2a09:bac5:630:274b::3ea:33:0 - "OPTIONS /api/rooms/2729207f-bfeb-43f9-b33e-30c5863437cc/leave HTTP/1.1" 200 OK
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874200251}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874200347}' [4028 bytes]
+2025-12-04 15:50:00,428 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-04 15:50:00,428 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-04 15:50:00,429 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 15:50:00,432 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767 
+2025-12-04 15:50:00,547 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874200445}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874200543}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874200624}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874200719}' [4028 bytes]
+INFO:     2a09:bac5:630:274b::3ea:33:0 - "POST /api/rooms/2729207f-bfeb-43f9-b33e-30c5863437cc/leave HTTP/1.1" 200 OK
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874200816}' [4028 bytes]
+DEBUG:    < TEXT '{"type":"audio_chunk","audio_data":"AAAAAAAAAAA...mestamp":1764874200911}' [4028 bytes]
+DEBUG:    < CLOSE 1005 (no status received [internal]) [0 bytes]
+DEBUG:    = connection is CLOSING
+DEBUG:    > CLOSE 1005 (no status received [internal]) [0 bytes]
+DEBUG:    x half-closing TCP connection
+DEBUG:    = connection is CLOSED
+2025-12-04 15:50:01,081 - backend.api.websocket - INFO - WebSocket disconnected for user e10438f8-4759-4467-95f4-a12d7c15ae6d
+2025-12-04 15:50:01,083 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d        
+2025-12-04 15:50:01,083 - backend.services.audio_pipeline.websocket_manager - INFO - User e10438f8-4759-4467-95f4-a12d7c15ae6d disconnected
+2025-12-04 15:50:01,084 - backend.services.audio_pipeline.websocket_manager - WARNING - Cannot broadcast to room 2729207f-bfeb-43f9-b33e-30c5863437cc: room not found
 INFO:     connection closed
-2025-12-04 09:08:44,550 - backend.api.websocket - INFO - WebSocket disconnected for user 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-04 09:08:44,551 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-04 09:08:44,551 - backend.services.audio_pipeline.websocket_manager - INFO - User 702de09d-3da9-4f47-8fde-73a42fdd0457 disconnected
-2025-12-04 09:08:44,551 - backend.services.audio_pipeline.websocket_manager - WARNING - Cannot broadcast to room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1: room not found
-2025-12-04 09:08:44,551 - backend.api.chat - INFO - Client disconnected from room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1
-2025-12-04 09:08:44,551 - backend.api.chat - INFO - Client disconnected from room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1
+DEBUG:    < CLOSE 1005 (no status received [internal]) [0 bytes]
+DEBUG:    = connection is CLOSING
+DEBUG:    > CLOSE 1005 (no status received [internal]) [0 bytes]
+DEBUG:    x half-closing TCP connection
+DEBUG:    = connection is CLOSED
+2025-12-04 15:50:01,125 - backend.api.chat - INFO - Client disconnected from room 2729207f-bfeb-43f9-b33e-30c5863437cc
+2025-12-04 15:50:01,125 - backend.api.chat - INFO - Client disconnected from room 2729207f-bfeb-43f9-b33e-30c5863437cc
 INFO:     connection closed
-INFO:     connection closed
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/voices/profile HTTP/1.1" 200 OK
-2025-12-04 09:38:27,885 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:38:27,887 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:38:27,889 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:38:27,907 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
-2025-12-04 09:38:29,261 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "GET /api/voices/profile HTTP/1.1" 200 OK
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/rooms HTTP/1.1" 200 OK
-2025-12-04 09:38:29,665 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:38:29,667 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:38:29,667 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:38:29,667 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
-2025-12-04 09:38:30,092 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "POST /api/rooms HTTP/1.1" 201 Created
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/rooms/df149130-6c66-4368-bb4c-4d4654f30825/join HTTP/1.1" 200 OK
-2025-12-04 09:38:31,153 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:38:31,153 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:38:31,153 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:38:31,154 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
-2025-12-04 09:38:31,520 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "POST /api/rooms/df149130-6c66-4368-bb4c-4d4654f30825/join HTTP/1.1" 200 OK
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/chat/messages/df149130-6c66-4368-bb4c-4d4654f30825?limit=100 HTTP/1.1" 200 OK
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/rooms/df149130-6c66-4368-bb4c-4d4654f30825 HTTP/1.1" 200 OK
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/profile/me HTTP/1.1" 200 OK
-2025-12-04 09:38:32,008 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:38:32,010 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:38:32,010 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:38:32,013 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
-INFO:     ('2a09:bac1:1100:97e8::3ea:35', 0) - "WebSocket /api/chat/ws/df149130-6c66-4368-bb4c-4d4654f30825" [accepted]
-2025-12-04 09:38:32,067 - backend.api.chat - INFO - Client connected to room df149130-6c66-4368-bb4c-4d4654f30825. Total: 1
-INFO:     connection open
-2025-12-04 09:38:32,129 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:38:32,132 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:38:32,132 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:38:32,133 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
-2025-12-04 09:38:32,184 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:38:32,184 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:38:32,184 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:38:32,189 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
-2025-12-04 09:38:32,211 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "GET /api/voices/profile HTTP/1.1" 200 OK
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "GET /api/chat/messages/df149130-6c66-4368-bb4c-4d4654f30825?limit=100 HTTP/1.1" 200 OK
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "GET /api/rooms/df149130-6c66-4368-bb4c-4d4654f30825 HTTP/1.1" 200 OK
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "GET /api/profile/me HTTP/1.1" 200 OK
-2025-12-04 09:38:32,887 - backend.api.websocket - INFO - 🔌 WebSocket connection attempt to room: df149130-6c66-4368-bb4c-4d4654f30825
-2025-12-04 09:38:32,888 - backend.api.websocket - INFO - Query params: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlMTA0MzhmOC00NzU5LTQ0NjctOTVmNC1hMTJkN2MxNWFlNmQiLCJleHAiOjE3NjUyODM3NjcsInR5cGUiOiJhY2Nlc3MifQ.WEYpkriVODkK8rvCWC_m2vdx24_FXFSblMxNV1Wp5Eg
-2025-12-04 09:38:32,889 - backend.api.websocket - INFO - Headers: {'host': 'convolutionary-staminal-caren.ngrok-free.dev', 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7', 'cache-control': 'no-cache', 'connection': 'Upgrade', 'origin': 'https://orbis-omega.vercel.app', 'pragma': 'no-cache', 'sec-websocket-extensions': 'permessage-deflate; client_max_window_bits', 'sec-websocket-key': '3r+K47AVxpCtoMhA8O8QSw==', 'sec-websocket-version': '13', 'upgrade': 'websocket', 'x-forwarded-for': '2a09:bac1:1100:97e8::3ea:35', 'x-forwarded-host': 'convolutionary-staminal-caren.ngrok-free.dev', 'x-forwarded-proto': 'https'}
-2025-12-04 09:38:32,890 - backend.api.websocket - INFO - Origin: https://orbis-omega.vercel.app    
-2025-12-04 09:38:32,892 - backend.api.websocket - INFO - 📍 WebSocket connection from origin: https://orbis-omega.vercel.app
-INFO:     ('2a09:bac1:1100:97e8::3ea:35', 0) - "WebSocket /api/ws/audio/df149130-6c66-4368-bb4c-4d4654f30825?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlMTA0MzhmOC00NzU5LTQ0NjctOTVmNC1hMTJkN2MxNWFlNmQiLCJleHAiOjE3NjUyODM3NjcsInR5cGUiOiJhY2Nlc3MifQ.WEYpkriVODkK8rvCWC_m2vdx24_FXFSblMxNV1Wp5Eg" [accepted]
-2025-12-04 09:38:32,893 - backend.api.websocket - INFO - ✅ WebSocket connection accepted
-2025-12-04 09:38:32,893 - backend.api.websocket - INFO - 🔐 Attempting to authenticate WebSocket user...
-2025-12-04 09:38:32,895 - backend.api.deps - INFO - 🔑 Token from query params: Present
-2025-12-04 09:38:32,896 - backend.api.deps - INFO - 🔓 Decoding token (length: 187)
-2025-12-04 09:38:32,897 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:38:32,898 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
-2025-12-04 09:38:32,899 - backend.api.deps - INFO - ✅ Token decoded successfully: {'sub': 'e10438f8-4759-4467-95f4-a12d7c15ae6d', 'exp': 1765283767, 'type': 'access'}
-2025-12-04 09:38:32,899 - backend.api.deps - INFO - 👤 User ID from token: e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:38:32,899 - backend.api.deps - INFO - ✅ Converted user_id to UUID: e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:38:33,086 - backend.api.deps - INFO - ✅ User found in database: jefersonservices4@gmail.com
-2025-12-04 09:38:33,121 - backend.api.websocket - INFO - ✅ User authenticated: e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:38:33,123 - backend.api.websocket - INFO - User e10438f8-4759-4467-95f4-a12d7c15ae6d connected to room df149130-6c66-4368-bb4c-4d4654f30825
-INFO:     connection open
-2025-12-04 09:38:33,386 - backend.api.websocket - INFO - 🌐 Loaded user languages from DB: speaks=en, wants_to_hear=en
-2025-12-04 09:38:33,426 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d (en→en)
-2025-12-04 09:38:33,430 - backend.services.audio_pipeline.stream_processor - INFO - 🔄 Updated languages for user e10438f8-4759-4467-95f4-a12d7c15ae6d: speaks=en, wants_to_hear=en
-2025-12-04 09:38:33,431 - backend.api.websocket - INFO - ✅ Initial language settings for user e10438f8-4759-4467-95f4-a12d7c15ae6d: speaks=en, wants_to_hear=en
-2025-12-04 09:38:35,806 - backend.services.lazy_loader - INFO - ⏳ whisper is already loading, waiting...
-2025-12-04 09:38:38,020 - backend.services.audio_pipeline.stream_processor - INFO - Audio processing stopped for user e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:38:38,022 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/profile/languages/supported HTTP/1.1" 200 OK
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "GET /api/profile/languages/supported HTTP/1.1" 200 OK
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/profile/languages HTTP/1.1" 200 OK
-2025-12-04 09:39:15,883 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:39:15,884 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:39:15,884 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:39:15,885 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
-2025-12-04 09:39:16,141 - backend.services.audio_pipeline.stream_processor - WARNING - ⚠️ Cannot uppdate languages for user e10438f8-4759-4467-95f4-a12d7c15ae6d: user not in processing queue
-2025-12-04 09:39:16,143 - backend.api.profile - INFO - 🌐 User e10438f8-4759-4467-95f4-a12d7c15ae6d language settings updated: speaks=en, wants_to_hear=en
-INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "PUT /api/profile/languages HTTP/1.1" 200 OK
-2025-12-04 09:39:16,358 - backend.services.audio_pipeline.stream_processor - WARNING - ⚠️ Cannot uppdate languages for user e10438f8-4759-4467-95f4-a12d7c15ae6d: user not in processing queue
-2025-12-04 09:39:16,359 - backend.api.websocket - INFO - ✅ User e10438f8-4759-4467-95f4-a12d7c15ae6d updated languages: speaks=en, wants_to_hear=en
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "OPTIONS /api/voices/profile HTTP/1.1" 200 OK
-2025-12-04 09:39:49,424 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:39:49,424 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:39:49,425 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:39:49,425 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
-2025-12-04 09:39:49,527 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "GET /api/voices/profile HTTP/1.1" 200 OK
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "OPTIONS /api/rooms/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1/join HTTP/1.1" 200 OK
-2025-12-04 09:39:49,847 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:39:49,847 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:39:49,847 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:39:49,850 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
-2025-12-04 09:39:50,030 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "POST /api/rooms/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1/join HTTP/1.1" 200 OK
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "OPTIONS /api/chat/messages/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1?limit=100 HTTP/1.1" 200 OK
-INFO:     ('2804:5e44:11c4:6301:15a4:74a0:6515:a2b3', 0) - "WebSocket /api/chat/ws/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1" [accepted]
-2025-12-04 09:39:50,808 - backend.api.chat - INFO - Client connected to room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1. Total: 1
-INFO:     connection open
-2025-12-04 09:39:50,811 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:39:50,813 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:39:50,813 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:39:50,813 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
-2025-12-04 09:39:50,815 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:39:50,816 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:39:50,816 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:39:50,816 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "OPTIONS /api/profile/me HTTP/1.1" 200 OK    
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "OPTIONS /api/rooms/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1 HTTP/1.1" 200 OK
-2025-12-04 09:39:50,917 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
-2025-12-04 09:39:50,936 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-04 09:39:50,938 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-04 09:39:50,939 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:39:50,939 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "GET /api/voices/profile HTTP/1.1" 200 OK    
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "GET /api/chat/messages/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1?limit=100 HTTP/1.1" 200 OK
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "GET /api/profile/me HTTP/1.1" 200 OK
-INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "GET /api/rooms/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1 HTTP/1.1" 200 OK
-2025-12-04 09:39:51,337 - backend.api.websocket - INFO - 🔌 WebSocket connection attempt to room: d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1
-2025-12-04 09:39:51,337 - backend.api.websocket - INFO - Query params: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3MDJkZTA5ZC0zZGE5LTRmNDctOGZkZS03M2E0MmZkZDA0NTciLCJleHAiOjE3NjUzNjc1OTgsInR5cGUiOiJhY2Nlc3MifQ.EfiiZMyoFeM1tMSElShWlbwL019JMbQVbebEdxyGIvU
-2025-12-04 09:39:51,337 - backend.api.websocket - INFO - Headers: {'host': 'convolutionary-staminal-caren.ngrok-free.dev', 'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Mobile Safari/537.36', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'en-US,en;q=0.6', 'cache-control': 'no-cache', 'connection': 'Upgrade', 'origin': 'https://orbis-omega.vercel.app', 'pragma': 'no-cache', 'sec-websocket-extensions': 'permessage-deflate; client_max_window_bits', 'sec-websocket-key': 'RC5tsubZrGJT1FOO87ErXQ==', 'sec-websocket-version': '13', 'upgrade': 'websocket', 'x-forwarded-for': '2804:5e44:11c4:6301:15a4:74a0:6515:a2b3', 'x-forwarded-host': 'convolutionary-staminal-caren.ngrok-free.dev', 'x-forwarded-proto': 'https'}
-2025-12-04 09:39:51,337 - backend.api.websocket - INFO - Origin: https://orbis-omega.vercel.app    
-2025-12-04 09:39:51,337 - backend.api.websocket - INFO - 📍 WebSocket connection from origin: https://orbis-omega.vercel.app
-INFO:     ('2804:5e44:11c4:6301:15a4:74a0:6515:a2b3', 0) - "WebSocket /api/ws/audio/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3MDJkZTA5ZC0zZGE5LTRmNDctOGZkZS03M2E0MmZkZDA0NTciLCJleHAiOjE3NjUzNjc1OTgsInR5cGUiOiJhY2Nlc3MifQ.EfiiZMyoFeM1tMSElShWlbwL019JMbQVbebEdxyGIvU" [accepted]
-2025-12-04 09:39:51,337 - backend.api.websocket - INFO - ✅ WebSocket connection accepted
-2025-12-04 09:39:51,337 - backend.api.websocket - INFO - 🔐 Attempting to authenticate WebSocket user...
-2025-12-04 09:39:51,337 - backend.api.deps - INFO - 🔑 Token from query params: Present
-2025-12-04 09:39:51,337 - backend.api.deps - INFO - 🔓 Decoding token (length: 187)
-2025-12-04 09:39:51,337 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-04 09:39:51,337 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
-2025-12-04 09:39:51,339 - backend.api.deps - INFO - ✅ Token decoded successfully: {'sub': '702de09d-3da9-4f47-8fde-73a42fdd0457', 'exp': 1765367598, 'type': 'access'}
-2025-12-04 09:39:51,339 - backend.api.deps - INFO - 👤 User ID from token: 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-04 09:39:51,339 - backend.api.deps - INFO - ✅ Converted user_id to UUID: 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-04 09:39:51,439 - backend.api.deps - INFO - ✅ User found in database: jefersonservices6@gmail.com
-2025-12-04 09:39:51,473 - backend.api.websocket - INFO - ✅ User authenticated: 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-04 09:39:51,474 - backend.api.websocket - INFO - User 702de09d-3da9-4f47-8fde-73a42fdd0457 connected to room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1
-INFO:     connection open
-2025-12-04 09:39:51,713 - backend.api.websocket - INFO - 🌐 Loaded user languages from DB: speaks=pt, wants_to_hear=pt
-2025-12-04 09:39:51,745 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457 (pt→pt)
-2025-12-04 09:39:51,863 - backend.services.audio_pipeline.stream_processor - INFO - 🔄 Updated languages for user 702de09d-3da9-4f47-8fde-73a42fdd0457: speaks=pt, wants_to_hear=pt
-2025-12-04 09:39:51,863 - backend.api.websocket - INFO - ✅ Initial language settings for user 702de09d-3da9-4f47-8fde-73a42fdd0457: speaks=pt, wants_to_hear=pt
-2025-12-04 09:39:54,383 - backend.services.lazy_loader - INFO - ⏳ whisper is already loading, waiting...
-2025-12-04 09:40:06,372 - backend.services.audio_pipeline.stream_processor - INFO - Audio processing stopped for user 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-04 09:40:06,373 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-04 09:40:10,106 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457 (auto→en)
-2025-12-04 09:40:10,208 - backend.services.lazy_loader - INFO - ⏳ whisper is already loading, waiting...
-2025-12-04 09:40:14,381 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d (auto→en)
-2025-12-04 09:40:14,481 - backend.services.lazy_loader - INFO - ⏳ whisper is already loading, waiting...
-2025-12-04 09:40:27,761 - backend.services.audio_pipeline.stream_processor - INFO - Audio processing stopped for user e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:40:27,761 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:40:50,180 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d (auto→en)
-2025-12-04 09:40:50,294 - backend.services.lazy_loader - INFO - ⏳ whisper is already loading, waiting...
-2025-12-04 09:41:20,359 - backend.services.audio_pipeline.stream_processor - INFO - Audio processing stopped for user e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:41:20,360 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:41:41,901 - backend.services.audio_pipeline.stream_processor - INFO - Audio processing stopped for user 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-04 09:41:41,901 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-04 09:41:44,634 - backend.api.websocket - INFO - WebSocket disconnected for user 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-04 09:41:44,636 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-04 09:41:44,637 - backend.services.audio_pipeline.websocket_manager - INFO - User 702de09d-3da9-4f47-8fde-73a42fdd0457 disconnected
-2025-12-04 09:41:44,637 - backend.services.audio_pipeline.websocket_manager - WARNING - Cannot broadcast to room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1: room not found
-INFO:     connection closed
-2025-12-04 09:41:44,659 - backend.api.chat - INFO - Client disconnected from room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1
-2025-12-04 09:41:44,660 - backend.api.chat - INFO - Client disconnected from room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1
-INFO:     connection closed
-2025-12-04 09:41:52,912 - backend.api.chat - INFO - Client disconnected from room df149130-6c66-4368-bb4c-4d4654f30825
-2025-12-04 09:41:52,912 - backend.api.chat - INFO - Client disconnected from room df149130-6c66-4368-bb4c-4d4654f30825
-INFO:     connection closed
-2025-12-04 09:41:52,912 - backend.api.websocket - INFO - WebSocket disconnected for user e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:41:52,912 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-04 09:41:52,912 - backend.services.audio_pipeline.websocket_manager - INFO - User e10438f8-4759-4467-95f4-a12d7c15ae6d disconnected
-2025-12-04 09:41:52,912 - backend.services.audio_pipeline.websocket_manager - WARNING - Cannot broadcast to room df149130-6c66-4368-bb4c-4d4654f30825: room not found
-INFO:     connection closed
+2025-12-04 15:50:01,131 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-04 15:50:01,131 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-04 15:50:01,132 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 15:50:01,132 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767 
+2025-12-04 15:50:01,238 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
+INFO:     2a09:bac5:630:274b::3ea:33:0 - "POST /api/rooms/2729207f-bfeb-43f9-b33e-30c5863437cc/leave HTTP/1.1" 404 Not Found

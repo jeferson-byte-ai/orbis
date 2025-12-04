@@ -15,24 +15,55 @@ class NLLBService:
     # Language code mapping (ISO 639-1 to NLLB codes)
     LANG_CODES = {
         'en': 'eng_Latn',
-        'pt': 'por_Latn',
-        'es': 'spa_Latn',
-        'fr': 'fra_Latn',
-        'de': 'deu_Latn',
-        'it': 'ita_Latn',
-        'ja': 'jpn_Jpan',
-        'ko': 'kor_Hang',
         'zh': 'zho_Hans',
-        'ar': 'arb_Arab',
-        'ru': 'rus_Cyrl',
         'hi': 'hin_Deva',
-        'nl': 'nld_Latn',
-        'pl': 'pol_Latn',
+        'es': 'spa_Latn',
+        'ar': 'arb_Arab',
+        'bn': 'ben_Beng',
+        'pt': 'por_Latn',
+        'ru': 'rus_Cyrl',
+        'ja': 'jpn_Jpan',
+        'pa': 'pan_Guru',
+        'de': 'deu_Latn',
+        'jv': 'jav_Latn',
+        'ko': 'kor_Hang',
+        'fr': 'fra_Latn',
+        'te': 'tel_Telu',
+        'mr': 'mar_Deva',
         'tr': 'tur_Latn',
+        'ta': 'tam_Taml',
+        'vi': 'vie_Latn',
+        'ur': 'urd_Arab',
+        'it': 'ita_Latn',
+        'th': 'tha_Thai',
+        'gu': 'guj_Gujr',
+        'pl': 'pol_Latn',
+        'uk': 'ukr_Cyrl',
+        'ml': 'mal_Mlym',
+        'kn': 'kan_Knda',
+        'or': 'ori_Orya',
+        'fa': 'pes_Arab',
+        'my': 'mya_Mymr',
+        'nl': 'nld_Latn',
+        'ro': 'ron_Latn',
+        'cs': 'ces_Latn',
         'sv': 'swe_Latn',
-        'no': 'nob_Latn',
+        'el': 'ell_Grek',
+        'hu': 'hun_Latn',
+        'he': 'heb_Hebr',
+        'fi': 'fin_Latn',
         'da': 'dan_Latn',
-        'fi': 'fin_Latn'
+        'no': 'nob_Latn',
+        'id': 'ind_Latn',
+        'ms': 'msa_Latn',
+        'fil': 'tgl_Latn',
+        'sw': 'swa_Latn',
+        'bg': 'bul_Cyrl',
+        'sk': 'slk_Latn',
+        'hr': 'hrv_Latn',
+        'sr': 'srp_Cyrl',
+        'lt': 'lit_Latn',
+        'sl': 'slv_Latn'
     }
     
     def __init__(self, model_name: str = "facebook/nllb-200-distilled-600M", device: str = "cuda"):
@@ -113,15 +144,38 @@ class NLLBService:
             
             if self.device == "cuda":
                 inputs = {k: v.to(self.device) for k, v in inputs.items()}
+
+            forced_bos_token_id = None
+            lang_code_map = getattr(self.tokenizer, "lang_code_to_id", None)
+            if lang_code_map and tgt_code in lang_code_map:
+                forced_bos_token_id = lang_code_map[tgt_code]
+            else:
+                try:
+                    forced_bos_token_id = self.tokenizer.convert_tokens_to_ids(tgt_code)
+                    # Guard against unknown tokens returning the UNK id
+                    if forced_bos_token_id == self.tokenizer.unk_token_id:
+                        forced_bos_token_id = None
+                except Exception:
+                    forced_bos_token_id = None
+
+            generate_kwargs = {
+                "max_length": max_length,
+                "num_beams": 5,
+                "early_stopping": True
+            }
+            if forced_bos_token_id is not None:
+                generate_kwargs["forced_bos_token_id"] = forced_bos_token_id
+            else:
+                logger.warning(
+                    "forced_bos_token_id unavailable for %s with current tokenizer; using default BOS token",
+                    tgt_code
+                )
             
             # Generate translation
             with torch.no_grad():
                 translated_tokens = self.model.generate(
                     **inputs,
-                    forced_bos_token_id=self.tokenizer.lang_code_to_id[tgt_code],
-                    max_length=max_length,
-                    num_beams=5,
-                    early_stopping=True
+                    **generate_kwargs
                 )
             
             # Decode translation

@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from typing import Annotated
 from uuid import UUID
@@ -10,6 +11,7 @@ from sqlalchemy.orm import Session
 from backend.api.deps import get_current_active_user, get_db
 from backend.db.models import User, VoiceProfile, VoiceType
 from backend.config import settings
+from backend.services.voice_training_service import train_voice_profile
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +24,8 @@ class PresetVoiceRequest(BaseModel):
 @router.post("/upload-profile-voice", status_code=status.HTTP_201_CREATED)
 async def upload_profile_voice(
     file: Annotated[UploadFile, File(description="Audio file for voice cloning profile")],
-    current_user: Annotated[User, Depends(get_current_active_user)]
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    db: Session = Depends(get_db)
 ):
     """
     Uploads an audio file to create or update a user's voice cloning profile.
@@ -46,8 +49,45 @@ async def upload_profile_voice(
         with open(voice_profile_path, "wb") as f:
             f.write(contents)
         
+        # Upsert voice profile metadata so we can track training progress
+        voice_profile = (
+            db.query(VoiceProfile)
+            .filter(VoiceProfile.user_id == user_id, VoiceProfile.type == VoiceType.CLONED)
+            .order_by(VoiceProfile.created_at.desc())
+            .first()
+        )
+
+        primary_language = (current_user.speaks_languages or ["en"])[0]
+        voice_name = current_user.full_name or current_user.username or "Minha Voz"
+
+        if voice_profile is None:
+            voice_profile = VoiceProfile(
+                user_id=user_id,
+                type=VoiceType.CLONED,
+                name=f"{voice_name} (Cloned)",
+                language=primary_language,
+                is_default=True
+            )
+            db.add(voice_profile)
+        else:
+            voice_profile.language = primary_language
+
+        voice_profile.is_ready = False
+        voice_profile.training_progress = 0.0
+        voice_profile.model_path = None
+
+        db.commit()
+        db.refresh(voice_profile)
+
+        # Launch training asynchronously so the request returns quickly
+        asyncio.create_task(train_voice_profile(voice_profile.id, str(voice_profile_path)))
+
         logger.info(f"Voice profile for user {user_id} uploaded successfully to {voice_profile_path}")
-        return {"message": "Voice profile uploaded successfully", "file_path": str(voice_profile_path)}
+        return {
+            "message": "Voice profile uploaded successfully",
+            "file_path": str(voice_profile_path),
+            "voice_profile_id": str(voice_profile.id)
+        }
     except Exception as e:
         logger.error(f"Error uploading voice profile for user {user_id}: {e}", exc_info=True)
         raise HTTPException(

@@ -4,10 +4,11 @@ Handles ASR → MT → TTS pipeline with latency optimization
 """
 import asyncio
 import base64
+import json
 import logging
 import time
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 from uuid import UUID
 
 import numpy as np
@@ -16,6 +17,8 @@ from ml.asr.whisper_service import whisper_service
 from ml.mt.nllb_service import nllb_service
 from ml.tts.coqui_service import coqui_service
 from backend.config import settings
+from backend.db.session import SessionLocal
+from backend.db.models import VoiceProfile, VoiceType
 from backend.services.audio_pipeline.websocket_manager import connection_manager, audio_chunk_manager
 from backend.services.lazy_loader import lazy_loader, ModelType
 
@@ -26,7 +29,7 @@ class AudioStreamProcessor:
     """Processes audio streams in real-time with translation"""
     
     def __init__(self):
-        self.user_languages: Dict[UUID, Dict[str, str]] = {}  # {user_id: {'input': 'pt', 'output': 'en'}}
+        self.user_languages: Dict[UUID, Dict[str, Any]] = {}  # {user_id: {'input': 'pt', 'output': 'en'}}
         self.processing_tasks: Dict[UUID, asyncio.Task] = {}
         self.latency_target_ms = 200
         self.input_sample_rate = 16000
@@ -44,12 +47,22 @@ class AudioStreamProcessor:
         except Exception as exc:  # noqa: BLE001
             logger.error("Failed to notify user %s about translation error: %s", user_id, exc)
 
-    async def start_processing(self, user_id: UUID, room_id: str, input_lang: str = 'auto', output_lang: str = 'en'):
+    async def start_processing(
+        self,
+        user_id: UUID,
+        room_id: str,
+        input_lang: str = 'auto',
+        output_lang: str = 'en',
+        speaks_pref: Optional[List[str]] = None,
+        understands_pref: Optional[List[str]] = None
+    ):
         """Start processing audio for a user"""
         self.user_languages[user_id] = {
             'input': input_lang,
             'output': output_lang,
-            'room_id': room_id
+            'room_id': room_id,
+            'speaks_pref': list(speaks_pref or []),
+            'understands_pref': list(understands_pref or [])
         }
         
         # Start background processing task
@@ -150,7 +163,9 @@ class AudioStreamProcessor:
                 self.user_languages[user_id]['input'] = detected_lang
                 input_lang = detected_lang
             
-            logger.info(f"🎤 User {user_id} spoke in {input_lang}: '{transcribed_text}'")
+            speaker_language = self._determine_speaker_language(user_id, input_lang, detected_lang)
+
+            logger.info(f"🎤 User {user_id} spoke in {speaker_language}: '{transcribed_text}'")
             
             # Step 3: Machine Translation (Lazy Load)
             # Ensure NLLB is loaded
@@ -190,13 +205,7 @@ class AudioStreamProcessor:
 
                 # Get listener's preferred language (what they want to HEAR)
                 listener_prefs = self.user_languages.get(target_user_id, {})
-                target_language = listener_prefs.get('output', 'en')
-                
-                # Handle 'auto' - use their input language as fallback
-                if target_language == 'auto':
-                    target_language = listener_prefs.get('input', 'en')
-                    if target_language == 'auto':
-                        target_language = 'en'
+                target_language = self._resolve_target_language(listener_prefs, speaker_language)
                 
                 logger.debug(f"📢 Processing for listener {target_user_id}: {input_lang} → {target_language}")
 
@@ -209,7 +218,7 @@ class AudioStreamProcessor:
                     # Translate text from speaker's language to listener's language
                     target_text = await self._translate_text(
                         transcribed_text,
-                        input_lang or detected_lang or 'en',
+                        speaker_language,
                         target_language
                     )
                     translation_latency = (time.time() - translation_start) * 1000
@@ -313,9 +322,7 @@ class AudioStreamProcessor:
     async def _text_to_speech(self, text: str, language: str, user_id: UUID) -> bytes:
         """Convert text to speech with voice cloning"""
         try:
-            # Get user's voice profile path if available
-            voice_profile_path = Path(settings.voices_path) / f"{user_id}.wav"
-            speaker_wav = str(voice_profile_path) if voice_profile_path.exists() else None
+            speaker_wav = self._get_speaker_reference(user_id)
 
             audio_array = await coqui_service.synthesize(
                 text=text,
@@ -366,14 +373,126 @@ class AudioStreamProcessor:
         
         await connection_manager.send_personal_message(target_user_id, audio_message)
     
-    def update_user_language(self, user_id: UUID, input_lang: str, output_lang: str):
+    def update_user_language(
+        self,
+        user_id: UUID,
+        input_lang: Optional[str] = None,
+        output_lang: Optional[str] = None,
+        speaks_pref: Optional[List[str]] = None,
+        understands_pref: Optional[List[str]] = None
+    ):
         """Update user's language preferences"""
-        if user_id in self.user_languages:
-            self.user_languages[user_id]['input'] = input_lang
-            self.user_languages[user_id]['output'] = output_lang
-            logger.info(f"🔄 Updated languages for user {user_id}: speaks={input_lang}, wants_to_hear={output_lang}")
-        else:
-            logger.warning(f"⚠️ Cannot update languages for user {user_id}: user not in processing queue")
+        if user_id not in self.user_languages:
+            logger.debug(
+                f"Cannot update languages for user {user_id}: user not in processing queue"
+            )
+            return
+
+        config = self.user_languages[user_id]
+        if input_lang:
+            config['input'] = input_lang
+        if output_lang:
+            config['output'] = output_lang
+        if speaks_pref is not None:
+            config['speaks_pref'] = list(speaks_pref)
+        if understands_pref is not None:
+            config['understands_pref'] = list(understands_pref)
+
+        logger.info(
+            "🔄 Updated languages for user %s: speaks=%s, wants_to_hear=%s",
+            user_id,
+            config.get('input'),
+            config.get('output')
+        )
+
+    def _determine_speaker_language(
+        self,
+        user_id: UUID,
+        configured_input: str,
+        detected_lang: Optional[str]
+    ) -> str:
+        if configured_input and configured_input != 'auto':
+            return configured_input
+        if detected_lang:
+            return detected_lang
+
+        user_prefs = self.user_languages.get(user_id, {})
+        speaks_pref = user_prefs.get('speaks_pref', []) or []
+        fallback = self._first_valid_language(speaks_pref)
+        return fallback or 'en'
+
+    def _resolve_target_language(
+        self,
+        listener_prefs: Dict[str, Any],
+        speaker_language: str
+    ) -> str:
+        understands_pref = listener_prefs.get('understands_pref') or []
+        preferred_output = listener_prefs.get('output')
+
+        if speaker_language:
+            match = self._first_matching_language(understands_pref, speaker_language)
+            if match:
+                return match
+
+        if preferred_output and preferred_output != 'auto':
+            return preferred_output
+
+        fallback_understands = self._first_valid_language(understands_pref)
+        if fallback_understands:
+            return fallback_understands
+
+        fallback_input = listener_prefs.get('input')
+        if fallback_input and fallback_input != 'auto':
+            return fallback_input
+
+        return 'en'
+
+    @staticmethod
+    def _first_valid_language(languages: List[str]) -> Optional[str]:
+        for lang in languages:
+            if lang and lang != 'auto':
+                return lang
+        return None
+
+    @staticmethod
+    def _first_matching_language(languages: List[str], target: str) -> Optional[str]:
+        for lang in languages:
+            if lang == target:
+                return lang
+        return None
+
+    def _get_speaker_reference(self, user_id: UUID) -> Optional[str]:
+        """Resolve the best speaker reference wav for the user"""
+        fallback_wav = Path(settings.voices_path) / f"{user_id}.wav"
+        fallback_path = str(fallback_wav) if fallback_wav.exists() else None
+
+        session = SessionLocal()
+        try:
+            profile = (
+                session.query(VoiceProfile)
+                .filter(VoiceProfile.user_id == user_id, VoiceProfile.type == VoiceType.CLONED)
+                .order_by(VoiceProfile.is_default.desc(), VoiceProfile.created_at.desc())
+                .first()
+            )
+
+            if not profile or not profile.model_path:
+                return fallback_path
+
+            model_file = Path(profile.model_path)
+            if not model_file.exists():
+                return fallback_path
+
+            try:
+                metadata = json.loads(model_file.read_text())
+                speaker_wav = metadata.get("speaker_wav")
+                if speaker_wav and Path(speaker_wav).exists():
+                    return speaker_wav
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("Failed to parse voice profile metadata for %s: %s", user_id, exc)
+
+            return fallback_path
+        finally:
+            session.close()
 
 
 # Global instance

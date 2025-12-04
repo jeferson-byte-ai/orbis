@@ -123,22 +123,28 @@ async def websocket_audio_endpoint(websocket: WebSocket, room_id: str):
         db = SessionLocal()
         try:
             user_with_langs = db.query(User).filter(User.id == user_id).first()
-            if user_with_langs:
-                # Get first language from arrays, or use defaults
-                input_lang = user_with_langs.speaks_languages[0] if user_with_langs.speaks_languages else "auto"
-                output_lang = user_with_langs.understands_languages[0] if user_with_langs.understands_languages else "en"
-                logger.info(f"🌐 Loaded user languages from DB: speaks={input_lang}, wants_to_hear={output_lang}")
-            else:
-                input_lang = "auto"
-                output_lang = "en"
+            speaks_pref = (user_with_langs.speaks_languages or []) if user_with_langs else []
+            understands_pref = (user_with_langs.understands_languages or []) if user_with_langs else []
+            input_lang = speaks_pref[0] if speaks_pref else "auto"
+            output_lang = understands_pref[0] if understands_pref else "en"
+            logger.info(
+                "🌐 Loaded user languages from DB: speaks=%s (%s), wants_to_hear=%s (%s)",
+                input_lang,
+                speaks_pref,
+                output_lang,
+                understands_pref
+            )
         finally:
             db.close()
         
         # Start audio processing for this user
         await audio_stream_processor.start_processing(
-            user_id, room_id, 
+            user_id,
+            room_id,
             input_lang=input_lang,
-            output_lang=output_lang
+            output_lang=output_lang,
+            speaks_pref=speaks_pref,
+            understands_pref=understands_pref
         )
         
         # Main message loop
@@ -171,9 +177,17 @@ async def handle_websocket_message(user_id: UUID, room_id: str, data: dict):
     if message_type == "init_settings":
         input_lang = data.get("input_language", "auto")
         output_lang = data.get("output_language", "en")
+        speaks_pref = data.get("speaks_languages")
+        understands_pref = data.get("understands_languages")
 
         # Update user language preferences
-        audio_stream_processor.update_user_language(user_id, input_lang, output_lang)
+        audio_stream_processor.update_user_language(
+            user_id,
+            input_lang,
+            output_lang,
+            speaks_pref=speaks_pref,
+            understands_pref=understands_pref
+        )
 
         await connection_manager.send_personal_message(user_id, {
             "type": "language_updated",
@@ -218,7 +232,19 @@ async def handle_audio_chunk(user_id: UUID, data: dict):
         audio_data = data.get("audio_data")
         if not audio_data:
             return
-        
+
+        # Debug instrumentation to track incoming payloads
+        debug_counter = getattr(handle_audio_chunk, "_debug_counter", 0) + 1
+        handle_audio_chunk._debug_counter = debug_counter
+        if logger.isEnabledFor(logging.DEBUG) and debug_counter % 25 == 0:
+            logger.debug(
+                "[AudioDebug] Incoming chunk #%s from %s (payload_type=%s, payload_length=%s)",
+                debug_counter,
+                user_id,
+                type(audio_data).__name__,
+                len(audio_data) if hasattr(audio_data, "__len__") else "n/a"
+            )
+
         if isinstance(audio_data, str) and audio_data.startswith("data:"):
             _, _, audio_data = audio_data.partition(",")
 
@@ -237,6 +263,11 @@ async def handle_audio_chunk(user_id: UUID, data: dict):
         if not audio_bytes:
             return
 
+        if logger.isEnabledFor(logging.DEBUG) and debug_counter % 25 == 0:
+            logger.debug(
+                "[AudioDebug] Chunk #%s decoded bytes=%s", debug_counter, len(audio_bytes)
+            )
+
         # Add audio chunk to buffer for processing
         audio_chunk_manager.add_audio_chunk(user_id, audio_bytes)
         
@@ -253,9 +284,17 @@ async def handle_language_update(user_id: UUID, data: dict):
     try:
         input_lang = data.get("input_language", "auto")
         output_lang = data.get("output_language", "en")
+        speaks_pref = data.get("speaks_languages")
+        understands_pref = data.get("understands_languages")
         
         # Update user language preferences
-        audio_stream_processor.update_user_language(user_id, input_lang, output_lang)
+        audio_stream_processor.update_user_language(
+            user_id,
+            input_lang,
+            output_lang,
+            speaks_pref=speaks_pref,
+            understands_pref=understands_pref
+        )
         
         # Send confirmation
         await connection_manager.send_personal_message(user_id, {
