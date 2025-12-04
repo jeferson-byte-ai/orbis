@@ -297,10 +297,6 @@ export const useTranslation = (): UseTranslationReturn => {
       return;
     }
 
-    if (!chunk.isPCM16 && !audioContext.current) {
-      return;
-    }
-
     isProcessing.current = true;
     try {
       let pcm16: Int16Array | null = null;
@@ -308,7 +304,17 @@ export const useTranslation = (): UseTranslationReturn => {
       if (chunk.isPCM16) {
         pcm16 = new Int16Array(chunk.buffer.slice(0));
       } else {
-        pcm16 = await convertToPCM16(chunk.buffer, audioContext.current as AudioContext, 16000);
+        if (audioContext.current) {
+          pcm16 = await convertToPCM16(chunk.buffer, audioContext.current as AudioContext, 16000);
+        }
+
+        if (!pcm16) {
+          pcm16 = convertFloat32BufferToPCM16(chunk.buffer);
+          if (!pcm16 && !convertFloat32BufferToPCM16.hasLoggedWarning) {
+            console.warn('⚠️ Unable to decode audio chunk, dropping it. Ensure the client sends PCM16 data.');
+            convertFloat32BufferToPCM16.hasLoggedWarning = true;
+          }
+        }
       }
 
       if (!pcm16 || pcm16.length === 0) {
@@ -529,3 +535,27 @@ function int16ToFloat32(data: Int16Array): Float32Array {
   }
   return float32;
 }
+
+function convertFloat32BufferToPCM16(buffer: ArrayBuffer): Int16Array | null {
+  try {
+    if (!buffer || buffer.byteLength % 4 !== 0) {
+      return null;
+    }
+
+    const float32 = new Float32Array(buffer.slice(0));
+    const pcm16 = new Int16Array(float32.length);
+
+    for (let i = 0; i < float32.length; i++) {
+      let sample = float32[i];
+      sample = Math.max(-1, Math.min(1, sample));
+      pcm16[i] = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
+    }
+
+    return pcm16;
+  } catch (error) {
+    console.warn('Failed to fallback-convert Float32 buffer to PCM16:', error);
+    return null;
+  }
+}
+
+convertFloat32BufferToPCM16.hasLoggedWarning = false as boolean;
