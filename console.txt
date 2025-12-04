@@ -265,3 +265,178 @@ INFO:     connection closed
 2025-12-04 09:08:44,551 - backend.services.audio_pipeline.websocket_manager - WARNING - Cannot broadcast to room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1: room not found
 2025-12-04 09:08:44,551 - backend.api.chat - INFO - Client disconnected from room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1
 2025-12-04 09:08:44,551 - backend.api.chat - INFO - Client disconnected from room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1
+INFO:     connection closed
+INFO:     connection closed
+INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/voices/profile HTTP/1.1" 200 OK
+2025-12-04 09:38:27,885 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-04 09:38:27,887 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-04 09:38:27,889 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 09:38:27,907 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
+2025-12-04 09:38:29,261 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
+INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "GET /api/voices/profile HTTP/1.1" 200 OK
+INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/rooms HTTP/1.1" 200 OK
+2025-12-04 09:38:29,665 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-04 09:38:29,667 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-04 09:38:29,667 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 09:38:29,667 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
+2025-12-04 09:38:30,092 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
+INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "POST /api/rooms HTTP/1.1" 201 Created
+INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/rooms/df149130-6c66-4368-bb4c-4d4654f30825/join HTTP/1.1" 200 OK
+2025-12-04 09:38:31,153 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-04 09:38:31,153 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-04 09:38:31,153 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 09:38:31,154 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
+2025-12-04 09:38:31,520 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
+INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "POST /api/rooms/df149130-6c66-4368-bb4c-4d4654f30825/join HTTP/1.1" 200 OK
+INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/chat/messages/df149130-6c66-4368-bb4c-4d4654f30825?limit=100 HTTP/1.1" 200 OK
+INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/rooms/df149130-6c66-4368-bb4c-4d4654f30825 HTTP/1.1" 200 OK
+INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/profile/me HTTP/1.1" 200 OK
+2025-12-04 09:38:32,008 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-04 09:38:32,010 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-04 09:38:32,010 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 09:38:32,013 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
+INFO:     ('2a09:bac1:1100:97e8::3ea:35', 0) - "WebSocket /api/chat/ws/df149130-6c66-4368-bb4c-4d4654f30825" [accepted]
+2025-12-04 09:38:32,067 - backend.api.chat - INFO - Client connected to room df149130-6c66-4368-bb4c-4d4654f30825. Total: 1
+INFO:     connection open
+2025-12-04 09:38:32,129 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-04 09:38:32,132 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-04 09:38:32,132 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 09:38:32,133 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
+2025-12-04 09:38:32,184 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-04 09:38:32,184 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-04 09:38:32,184 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 09:38:32,189 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
+2025-12-04 09:38:32,211 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
+INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "GET /api/voices/profile HTTP/1.1" 200 OK
+INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "GET /api/chat/messages/df149130-6c66-4368-bb4c-4d4654f30825?limit=100 HTTP/1.1" 200 OK
+INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "GET /api/rooms/df149130-6c66-4368-bb4c-4d4654f30825 HTTP/1.1" 200 OK
+INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "GET /api/profile/me HTTP/1.1" 200 OK
+2025-12-04 09:38:32,887 - backend.api.websocket - INFO - 🔌 WebSocket connection attempt to room: df149130-6c66-4368-bb4c-4d4654f30825
+2025-12-04 09:38:32,888 - backend.api.websocket - INFO - Query params: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlMTA0MzhmOC00NzU5LTQ0NjctOTVmNC1hMTJkN2MxNWFlNmQiLCJleHAiOjE3NjUyODM3NjcsInR5cGUiOiJhY2Nlc3MifQ.WEYpkriVODkK8rvCWC_m2vdx24_FXFSblMxNV1Wp5Eg
+2025-12-04 09:38:32,889 - backend.api.websocket - INFO - Headers: {'host': 'convolutionary-staminal-caren.ngrok-free.dev', 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7', 'cache-control': 'no-cache', 'connection': 'Upgrade', 'origin': 'https://orbis-omega.vercel.app', 'pragma': 'no-cache', 'sec-websocket-extensions': 'permessage-deflate; client_max_window_bits', 'sec-websocket-key': '3r+K47AVxpCtoMhA8O8QSw==', 'sec-websocket-version': '13', 'upgrade': 'websocket', 'x-forwarded-for': '2a09:bac1:1100:97e8::3ea:35', 'x-forwarded-host': 'convolutionary-staminal-caren.ngrok-free.dev', 'x-forwarded-proto': 'https'}
+2025-12-04 09:38:32,890 - backend.api.websocket - INFO - Origin: https://orbis-omega.vercel.app    
+2025-12-04 09:38:32,892 - backend.api.websocket - INFO - 📍 WebSocket connection from origin: https://orbis-omega.vercel.app
+INFO:     ('2a09:bac1:1100:97e8::3ea:35', 0) - "WebSocket /api/ws/audio/df149130-6c66-4368-bb4c-4d4654f30825?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlMTA0MzhmOC00NzU5LTQ0NjctOTVmNC1hMTJkN2MxNWFlNmQiLCJleHAiOjE3NjUyODM3NjcsInR5cGUiOiJhY2Nlc3MifQ.WEYpkriVODkK8rvCWC_m2vdx24_FXFSblMxNV1Wp5Eg" [accepted]
+2025-12-04 09:38:32,893 - backend.api.websocket - INFO - ✅ WebSocket connection accepted
+2025-12-04 09:38:32,893 - backend.api.websocket - INFO - 🔐 Attempting to authenticate WebSocket user...
+2025-12-04 09:38:32,895 - backend.api.deps - INFO - 🔑 Token from query params: Present
+2025-12-04 09:38:32,896 - backend.api.deps - INFO - 🔓 Decoding token (length: 187)
+2025-12-04 09:38:32,897 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 09:38:32,898 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
+2025-12-04 09:38:32,899 - backend.api.deps - INFO - ✅ Token decoded successfully: {'sub': 'e10438f8-4759-4467-95f4-a12d7c15ae6d', 'exp': 1765283767, 'type': 'access'}
+2025-12-04 09:38:32,899 - backend.api.deps - INFO - 👤 User ID from token: e10438f8-4759-4467-95f4-a12d7c15ae6d
+2025-12-04 09:38:32,899 - backend.api.deps - INFO - ✅ Converted user_id to UUID: e10438f8-4759-4467-95f4-a12d7c15ae6d
+2025-12-04 09:38:33,086 - backend.api.deps - INFO - ✅ User found in database: jefersonservices4@gmail.com
+2025-12-04 09:38:33,121 - backend.api.websocket - INFO - ✅ User authenticated: e10438f8-4759-4467-95f4-a12d7c15ae6d
+2025-12-04 09:38:33,123 - backend.api.websocket - INFO - User e10438f8-4759-4467-95f4-a12d7c15ae6d connected to room df149130-6c66-4368-bb4c-4d4654f30825
+INFO:     connection open
+2025-12-04 09:38:33,386 - backend.api.websocket - INFO - 🌐 Loaded user languages from DB: speaks=en, wants_to_hear=en
+2025-12-04 09:38:33,426 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d (en→en)
+2025-12-04 09:38:33,430 - backend.services.audio_pipeline.stream_processor - INFO - 🔄 Updated languages for user e10438f8-4759-4467-95f4-a12d7c15ae6d: speaks=en, wants_to_hear=en
+2025-12-04 09:38:33,431 - backend.api.websocket - INFO - ✅ Initial language settings for user e10438f8-4759-4467-95f4-a12d7c15ae6d: speaks=en, wants_to_hear=en
+2025-12-04 09:38:35,806 - backend.services.lazy_loader - INFO - ⏳ whisper is already loading, waiting...
+2025-12-04 09:38:38,020 - backend.services.audio_pipeline.stream_processor - INFO - Audio processing stopped for user e10438f8-4759-4467-95f4-a12d7c15ae6d
+2025-12-04 09:38:38,022 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d
+INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/profile/languages/supported HTTP/1.1" 200 OK
+INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "GET /api/profile/languages/supported HTTP/1.1" 200 OK
+INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "OPTIONS /api/profile/languages HTTP/1.1" 200 OK
+2025-12-04 09:39:15,883 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-04 09:39:15,884 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-04 09:39:15,884 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 09:39:15,885 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1765283767
+2025-12-04 09:39:16,141 - backend.services.audio_pipeline.stream_processor - WARNING - ⚠️ Cannot uppdate languages for user e10438f8-4759-4467-95f4-a12d7c15ae6d: user not in processing queue
+2025-12-04 09:39:16,143 - backend.api.profile - INFO - 🌐 User e10438f8-4759-4467-95f4-a12d7c15ae6d language settings updated: speaks=en, wants_to_hear=en
+INFO:     2a09:bac1:1100:97e8::3ea:35:0 - "PUT /api/profile/languages HTTP/1.1" 200 OK
+2025-12-04 09:39:16,358 - backend.services.audio_pipeline.stream_processor - WARNING - ⚠️ Cannot uppdate languages for user e10438f8-4759-4467-95f4-a12d7c15ae6d: user not in processing queue
+2025-12-04 09:39:16,359 - backend.api.websocket - INFO - ✅ User e10438f8-4759-4467-95f4-a12d7c15ae6d updated languages: speaks=en, wants_to_hear=en
+INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "OPTIONS /api/voices/profile HTTP/1.1" 200 OK
+2025-12-04 09:39:49,424 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-04 09:39:49,424 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-04 09:39:49,425 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 09:39:49,425 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
+2025-12-04 09:39:49,527 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
+INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "GET /api/voices/profile HTTP/1.1" 200 OK
+INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "OPTIONS /api/rooms/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1/join HTTP/1.1" 200 OK
+2025-12-04 09:39:49,847 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-04 09:39:49,847 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-04 09:39:49,847 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 09:39:49,850 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
+2025-12-04 09:39:50,030 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
+INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "POST /api/rooms/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1/join HTTP/1.1" 200 OK
+INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "OPTIONS /api/chat/messages/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1?limit=100 HTTP/1.1" 200 OK
+INFO:     ('2804:5e44:11c4:6301:15a4:74a0:6515:a2b3', 0) - "WebSocket /api/chat/ws/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1" [accepted]
+2025-12-04 09:39:50,808 - backend.api.chat - INFO - Client connected to room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1. Total: 1
+INFO:     connection open
+2025-12-04 09:39:50,811 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-04 09:39:50,813 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-04 09:39:50,813 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 09:39:50,813 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
+2025-12-04 09:39:50,815 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-04 09:39:50,816 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-04 09:39:50,816 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 09:39:50,816 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
+INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "OPTIONS /api/profile/me HTTP/1.1" 200 OK    
+INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "OPTIONS /api/rooms/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1 HTTP/1.1" 200 OK
+2025-12-04 09:39:50,917 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
+2025-12-04 09:39:50,936 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-04 09:39:50,938 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-04 09:39:50,939 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 09:39:50,939 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
+INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "GET /api/voices/profile HTTP/1.1" 200 OK    
+INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "GET /api/chat/messages/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1?limit=100 HTTP/1.1" 200 OK
+INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "GET /api/profile/me HTTP/1.1" 200 OK
+INFO:     2804:5e44:11c4:6301:15a4:74a0:6515:a2b3:0 - "GET /api/rooms/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1 HTTP/1.1" 200 OK
+2025-12-04 09:39:51,337 - backend.api.websocket - INFO - 🔌 WebSocket connection attempt to room: d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1
+2025-12-04 09:39:51,337 - backend.api.websocket - INFO - Query params: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3MDJkZTA5ZC0zZGE5LTRmNDctOGZkZS03M2E0MmZkZDA0NTciLCJleHAiOjE3NjUzNjc1OTgsInR5cGUiOiJhY2Nlc3MifQ.EfiiZMyoFeM1tMSElShWlbwL019JMbQVbebEdxyGIvU
+2025-12-04 09:39:51,337 - backend.api.websocket - INFO - Headers: {'host': 'convolutionary-staminal-caren.ngrok-free.dev', 'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Mobile Safari/537.36', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'en-US,en;q=0.6', 'cache-control': 'no-cache', 'connection': 'Upgrade', 'origin': 'https://orbis-omega.vercel.app', 'pragma': 'no-cache', 'sec-websocket-extensions': 'permessage-deflate; client_max_window_bits', 'sec-websocket-key': 'RC5tsubZrGJT1FOO87ErXQ==', 'sec-websocket-version': '13', 'upgrade': 'websocket', 'x-forwarded-for': '2804:5e44:11c4:6301:15a4:74a0:6515:a2b3', 'x-forwarded-host': 'convolutionary-staminal-caren.ngrok-free.dev', 'x-forwarded-proto': 'https'}
+2025-12-04 09:39:51,337 - backend.api.websocket - INFO - Origin: https://orbis-omega.vercel.app    
+2025-12-04 09:39:51,337 - backend.api.websocket - INFO - 📍 WebSocket connection from origin: https://orbis-omega.vercel.app
+INFO:     ('2804:5e44:11c4:6301:15a4:74a0:6515:a2b3', 0) - "WebSocket /api/ws/audio/d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3MDJkZTA5ZC0zZGE5LTRmNDctOGZkZS03M2E0MmZkZDA0NTciLCJleHAiOjE3NjUzNjc1OTgsInR5cGUiOiJhY2Nlc3MifQ.EfiiZMyoFeM1tMSElShWlbwL019JMbQVbebEdxyGIvU" [accepted]
+2025-12-04 09:39:51,337 - backend.api.websocket - INFO - ✅ WebSocket connection accepted
+2025-12-04 09:39:51,337 - backend.api.websocket - INFO - 🔐 Attempting to authenticate WebSocket user...
+2025-12-04 09:39:51,337 - backend.api.deps - INFO - 🔑 Token from query params: Present
+2025-12-04 09:39:51,337 - backend.api.deps - INFO - 🔓 Decoding token (length: 187)
+2025-12-04 09:39:51,337 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-04 09:39:51,337 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1765367598
+2025-12-04 09:39:51,339 - backend.api.deps - INFO - ✅ Token decoded successfully: {'sub': '702de09d-3da9-4f47-8fde-73a42fdd0457', 'exp': 1765367598, 'type': 'access'}
+2025-12-04 09:39:51,339 - backend.api.deps - INFO - 👤 User ID from token: 702de09d-3da9-4f47-8fde-73a42fdd0457
+2025-12-04 09:39:51,339 - backend.api.deps - INFO - ✅ Converted user_id to UUID: 702de09d-3da9-4f47-8fde-73a42fdd0457
+2025-12-04 09:39:51,439 - backend.api.deps - INFO - ✅ User found in database: jefersonservices6@gmail.com
+2025-12-04 09:39:51,473 - backend.api.websocket - INFO - ✅ User authenticated: 702de09d-3da9-4f47-8fde-73a42fdd0457
+2025-12-04 09:39:51,474 - backend.api.websocket - INFO - User 702de09d-3da9-4f47-8fde-73a42fdd0457 connected to room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1
+INFO:     connection open
+2025-12-04 09:39:51,713 - backend.api.websocket - INFO - 🌐 Loaded user languages from DB: speaks=pt, wants_to_hear=pt
+2025-12-04 09:39:51,745 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457 (pt→pt)
+2025-12-04 09:39:51,863 - backend.services.audio_pipeline.stream_processor - INFO - 🔄 Updated languages for user 702de09d-3da9-4f47-8fde-73a42fdd0457: speaks=pt, wants_to_hear=pt
+2025-12-04 09:39:51,863 - backend.api.websocket - INFO - ✅ Initial language settings for user 702de09d-3da9-4f47-8fde-73a42fdd0457: speaks=pt, wants_to_hear=pt
+2025-12-04 09:39:54,383 - backend.services.lazy_loader - INFO - ⏳ whisper is already loading, waiting...
+2025-12-04 09:40:06,372 - backend.services.audio_pipeline.stream_processor - INFO - Audio processing stopped for user 702de09d-3da9-4f47-8fde-73a42fdd0457
+2025-12-04 09:40:06,373 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457
+2025-12-04 09:40:10,106 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457 (auto→en)
+2025-12-04 09:40:10,208 - backend.services.lazy_loader - INFO - ⏳ whisper is already loading, waiting...
+2025-12-04 09:40:14,381 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d (auto→en)
+2025-12-04 09:40:14,481 - backend.services.lazy_loader - INFO - ⏳ whisper is already loading, waiting...
+2025-12-04 09:40:27,761 - backend.services.audio_pipeline.stream_processor - INFO - Audio processing stopped for user e10438f8-4759-4467-95f4-a12d7c15ae6d
+2025-12-04 09:40:27,761 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d
+2025-12-04 09:40:50,180 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d (auto→en)
+2025-12-04 09:40:50,294 - backend.services.lazy_loader - INFO - ⏳ whisper is already loading, waiting...
+2025-12-04 09:41:20,359 - backend.services.audio_pipeline.stream_processor - INFO - Audio processing stopped for user e10438f8-4759-4467-95f4-a12d7c15ae6d
+2025-12-04 09:41:20,360 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d
+2025-12-04 09:41:41,901 - backend.services.audio_pipeline.stream_processor - INFO - Audio processing stopped for user 702de09d-3da9-4f47-8fde-73a42fdd0457
+2025-12-04 09:41:41,901 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457
+2025-12-04 09:41:44,634 - backend.api.websocket - INFO - WebSocket disconnected for user 702de09d-3da9-4f47-8fde-73a42fdd0457
+2025-12-04 09:41:44,636 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457
+2025-12-04 09:41:44,637 - backend.services.audio_pipeline.websocket_manager - INFO - User 702de09d-3da9-4f47-8fde-73a42fdd0457 disconnected
+2025-12-04 09:41:44,637 - backend.services.audio_pipeline.websocket_manager - WARNING - Cannot broadcast to room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1: room not found
+INFO:     connection closed
+2025-12-04 09:41:44,659 - backend.api.chat - INFO - Client disconnected from room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1
+2025-12-04 09:41:44,660 - backend.api.chat - INFO - Client disconnected from room d9b6f45d-4d2c-4f2a-865d-5ce9d995dcc1
+INFO:     connection closed
+2025-12-04 09:41:52,912 - backend.api.chat - INFO - Client disconnected from room df149130-6c66-4368-bb4c-4d4654f30825
+2025-12-04 09:41:52,912 - backend.api.chat - INFO - Client disconnected from room df149130-6c66-4368-bb4c-4d4654f30825
+INFO:     connection closed
+2025-12-04 09:41:52,912 - backend.api.websocket - INFO - WebSocket disconnected for user e10438f8-4759-4467-95f4-a12d7c15ae6d
+2025-12-04 09:41:52,912 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d
+2025-12-04 09:41:52,912 - backend.services.audio_pipeline.websocket_manager - INFO - User e10438f8-4759-4467-95f4-a12d7c15ae6d disconnected
+2025-12-04 09:41:52,912 - backend.services.audio_pipeline.websocket_manager - WARNING - Cannot broadcast to room df149130-6c66-4368-bb4c-4d4654f30825: room not found
+INFO:     connection closed

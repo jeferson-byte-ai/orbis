@@ -127,6 +127,7 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
 
   const webrtcStartedRef = useRef<boolean>(false);
   const translationInitializedRef = useRef<boolean>(false);
+  const audioChunkDebugCounter = useRef<number>(0);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -224,6 +225,10 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
       }
 
       const pcm16 = floatTo16BitPCM(downsampled);
+      const debugCount = ++audioChunkDebugCounter.current;
+      if (debugCount % 50 === 0) {
+        console.log('[AudioDebug] chunk', debugCount, 'downsampledSamples=', downsampled.length, 'pcmBytes=', pcm16.byteLength);
+      }
       sendAudioChunk(pcm16.buffer.slice(0), { isPCM16: true }).catch(err => {
         console.warn('Failed to send audio chunk for translation', err);
       });
