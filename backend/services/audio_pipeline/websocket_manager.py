@@ -112,14 +112,29 @@ class AudioChunkManager:
     def __init__(self, chunk_duration_ms: int = 500):
         self.chunk_duration_ms = chunk_duration_ms
         self.audio_buffers: Dict[UUID, List[bytes]] = {}
-    
+        self._debug_counters: Dict[UUID, int] = {}
+
     def add_audio_chunk(self, user_id: UUID, audio_data: bytes):
         """Add audio chunk to user's buffer"""
         if user_id not in self.audio_buffers:
             self.audio_buffers[user_id] = []
-        
+            self._debug_counters[user_id] = 0
+
         self.audio_buffers[user_id].append(audio_data)
-        
+        self._debug_counters[user_id] += 1
+
+        counter = self._debug_counters[user_id]
+        if counter % 50 == 0:
+            total_bytes = sum(len(chunk) for chunk in self.audio_buffers[user_id])
+            logger.debug(
+                "[AudioDebug] User %s buffered chunk #%s (chunk_bytes=%s, total_buffer_bytes=%s, buffer_len=%s)",
+                user_id,
+                counter,
+                len(audio_data),
+                total_bytes,
+                len(self.audio_buffers[user_id])
+            )
+
         # Keep only recent chunks (last 2 seconds)
         max_chunks = 2000 // self.chunk_duration_ms
         if len(self.audio_buffers[user_id]) > max_chunks:
