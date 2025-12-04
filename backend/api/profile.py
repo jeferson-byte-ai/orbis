@@ -20,6 +20,8 @@ from backend.models.user import (
 from backend.core.languages import validate_language_code, get_languages_for_api
 from backend.models.subscription import SubscriptionResponse, UsageStats
 from backend.api.deps import get_current_user
+from backend.services.audio_pipeline.stream_processor import audio_stream_processor
+from backend.services.audio_pipeline.websocket_manager import connection_manager
 
 logger = logging.getLogger(__name__)
 
@@ -160,10 +162,23 @@ async def update_languages(
     
     db.commit()
     db.refresh(current_user)
-    
-    # Log with clear explanation
-    speaks = current_user.speaks_languages[0] if current_user.speaks_languages else "en"
+
+    # Determine active languages for runtime services
+    speaks = current_user.speaks_languages[0] if current_user.speaks_languages else "auto"
     understands = current_user.understands_languages[0] if current_user.understands_languages else "en"
+
+    # Propagate to active audio sessions so translations switch immediately
+    audio_stream_processor.update_user_language(current_user.id, speaks, understands)
+
+    if current_user.id in connection_manager.active_connections:
+        await connection_manager.send_personal_message(current_user.id, {
+            "type": "language_updated",
+            "input_language": speaks,
+            "output_language": understands,
+            "message": "Language preferences updated"
+        })
+
+    # Log with clear explanation
     logger.info(
         f"🌐 User {current_user.id} language settings updated: "
         f"speaks={speaks}, wants_to_hear={understands}"
