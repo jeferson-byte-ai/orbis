@@ -137,27 +137,44 @@ class WhisperService:
             if np.abs(audio).max() > 1.0:
                 audio = audio / np.abs(audio).max()
             
-            # Transcribe with optimal settings
+            # Transcribe with optimal settings for real-time conversation
+            # ✅ DIAGNOSTIC MODE: Force Portuguese and disable VAD for testing
             segments, info = self.model.transcribe(
                 audio,
-                language=language,
-                vad_filter=vad_filter,
-                beam_size=1,  # Faster, slight quality tradeoff
-                best_of=1,
+                language=language or "pt",  # ✅ Force PT if no language specified
+                vad_filter=False,  # ✅ DISABLE VAD temporarily for testing
+                beam_size=5,  # ✅ Better quality for testing (was 1)
+                best_of=5,  # ✅ Better quality for testing (was 1)
                 temperature=0.0,
                 compression_ratio_threshold=2.4,
                 log_prob_threshold=-1.0,
-                no_speech_threshold=0.6,
-                condition_on_previous_text=False,  # Faster for real-time
+                no_speech_threshold=0.6,  # ✅ More strict to avoid false positives
+                condition_on_previous_text=True,  # ✅ Use context for better accuracy
             )
+            
+            # Log more details for debugging
+            if hasattr(info, 'language_probability'):
+                logger.info(
+                    f"🔍 Whisper detected language: {info.language} "
+                    f"(confidence: {info.language_probability:.2%})"
+                )
             
             # Collect all segments
             transcription = ""
+            segment_count = 0
             for segment in segments:
                 transcription += segment.text + " "
+                segment_count += 1
             
             transcription = transcription.strip()
             detected_lang = info.language if hasattr(info, 'language') else (language or "en")
+            
+            # ✅ Log warning if transcription is empty but audio was long enough
+            if not transcription and len(audio) > 8000:  # More than 0.5 seconds
+                logger.warning(
+                    f"⚠️ Empty transcription for {len(audio)/sample_rate:.2f}s of audio. "
+                    f"Detected lang: {detected_lang}, segments: {segment_count}"
+                )
             
             # Performance metrics
             elapsed = time.time() - start_time

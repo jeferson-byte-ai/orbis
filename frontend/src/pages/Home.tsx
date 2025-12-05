@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { Video, Globe, Mic2, Zap, Sparkles, Shield, ArrowRight, Settings } from 'lucide-react';
 import { useLanguageContext } from '../contexts/LanguageContext';
 import VoiceSetupModal from '../components/VoiceSetupModal';
+import VoicePreLoader from '../components/VoicePreLoader';
 import { authenticatedFetch, apiFetch } from '../utils/api';
 
 interface HomeProps {
@@ -93,8 +94,10 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
   const [roomId, setRoomId] = useState('');
   const [loading, setLoading] = useState(false);
   const [showVoiceSetup, setShowVoiceSetup] = useState(false);
+  const [showVoicePreloader, setShowVoicePreloader] = useState(false);
   const [pendingMeetingCreation, setPendingMeetingCreation] = useState(false);
   const [pendingRoomId, setPendingRoomId] = useState<string | null>(null);
+  const [voicePreloadTarget, setVoicePreloadTarget] = useState<{ type: 'create' | 'join', roomId?: string } | null>(null);
 
   // Auto-detect room ID from URL parameter (?room=)
   useEffect(() => {
@@ -205,7 +208,10 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
         return;
       }
 
-      await createMeetingRoom(token);
+      // If user has voice profile, show preloader before creating meeting
+      setLoading(false);
+      setVoicePreloadTarget({ type: 'create' });
+      setShowVoicePreloader(true);
     } catch (error) {
       console.error('Error checking voice profile:', error);
       // On error, still allow meeting creation
@@ -317,19 +323,16 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
         return;
       }
 
-      await joinRoomOnServer(targetRoomId, token);
-      if (typeof window !== 'undefined') {
-        sessionStorage.removeItem(PENDING_ROOM_STORAGE_KEY);
-      }
-      setPendingRoomId(null);
-      onJoinMeeting(targetRoomId, token);
+      // If user has voice profile, show preloader before joining
+      setLoading(false);
+      setVoicePreloadTarget({ type: 'join', roomId: targetRoomId });
+      setShowVoicePreloader(true);
     } catch (error) {
       console.error('Error checking voice profile:', error);
       const message = error instanceof Error
         ? error.message
         : 'Erro ao entrar na sala. Verifique o link e tente novamente.';
       alert(message);
-    } finally {
       setLoading(false);
     }
   };
@@ -600,6 +603,86 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
         onClose={handleVoiceSetupClose}
         onComplete={handleVoiceSetupComplete}
       />
+
+      {/* Voice Preloader - Shows before entering meeting */}
+      {showVoicePreloader && voicePreloadTarget && (
+        <div className="fixed inset-0 z-50">
+          <VoicePreLoader
+            onComplete={async () => {
+              console.log('✅ Voice preloaded successfully');
+              setShowVoicePreloader(false);
+
+              const token = localStorage.getItem('auth_token');
+              if (!token) {
+                alert('Session expired. Please login again.');
+                window.location.href = '/login';
+                return;
+              }
+
+              // After preload completes, proceed with meeting
+              if (voicePreloadTarget.type === 'create') {
+                await createMeetingRoom(token);
+              } else if (voicePreloadTarget.type === 'join' && voicePreloadTarget.roomId) {
+                try {
+                  await joinRoomOnServer(voicePreloadTarget.roomId, token);
+                  if (typeof window !== 'undefined') {
+                    sessionStorage.removeItem(PENDING_ROOM_STORAGE_KEY);
+                  }
+                  setPendingRoomId(null);
+                  onJoinMeeting(voicePreloadTarget.roomId, token);
+                } catch (error) {
+                  console.error('Error joining room after preload:', error);
+                  const message = error instanceof Error ? error.message : 'Failed to join room';
+                  alert(message);
+                }
+              }
+
+              setVoicePreloadTarget(null);
+            }}
+            onError={(error) => {
+              console.error('❌ Voice preload failed:', error);
+              setShowVoicePreloader(false);
+
+              // Ask user if they want to continue without voice cloning
+              const continueAnyway = confirm(
+                'Failed to load your cloned voice. Would you like to continue without voice cloning?\n\n' +
+                'You can still join the meeting, but translations will use a generic voice.'
+              );
+
+              if (continueAnyway) {
+                const token = localStorage.getItem('auth_token');
+                if (!token) {
+                  alert('Session expired. Please login again.');
+                  window.location.href = '/login';
+                  return;
+                }
+
+                // Continue without voice cloning
+                if (voicePreloadTarget?.type === 'create') {
+                  createMeetingRoom(token);
+                } else if (voicePreloadTarget?.type === 'join' && voicePreloadTarget.roomId) {
+                  joinRoomOnServer(voicePreloadTarget.roomId, token)
+                    .then(() => {
+                      if (typeof window !== 'undefined') {
+                        sessionStorage.removeItem(PENDING_ROOM_STORAGE_KEY);
+                      }
+                      setPendingRoomId(null);
+                      if (voicePreloadTarget.roomId) {
+                        onJoinMeeting(voicePreloadTarget.roomId, token);
+                      }
+                    })
+                    .catch((err) => {
+                      console.error('Error joining room:', err);
+                      alert('Failed to join room. Please try again.');
+                    });
+                }
+              }
+
+              setVoicePreloadTarget(null);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };

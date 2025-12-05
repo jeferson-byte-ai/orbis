@@ -106,6 +106,9 @@ const Settings: React.FC<SettingsProps> = ({
 
   // Preferences
   const [language] = useState(currentLanguage); // Read-only, auto-detected from browser
+  const [speaksLanguage, setSpeaksLanguage] = useState(user.preferences?.speaks_language || 'en');
+  const [understandsLanguage, setUnderstandsLanguage] = useState(user.preferences?.understands_language || 'en');
+  const [useClonedVoice, setUseClonedVoice] = useState(user.preferences?.use_cloned_voice ?? true);
   const [autoDetectInput, setAutoDetectInput] = useState(user.preferences?.auto_detect_input ?? true);
   const [autoDetectOutput, setAutoDetectOutput] = useState(user.preferences?.auto_detect_output ?? true);
 
@@ -291,6 +294,9 @@ const Settings: React.FC<SettingsProps> = ({
         try {
           const preferences = {
             primary_language: language, // Save auto-detected language
+            speaks_language: speaksLanguage,
+            understands_language: understandsLanguage,
+            use_cloned_voice: useClonedVoice,
             auto_detect_input: autoDetectInput,
             auto_detect_output: autoDetectOutput
           };
@@ -315,6 +321,9 @@ const Settings: React.FC<SettingsProps> = ({
         console.log('💾 Saving preferences to localStorage (not logged in)');
         localStorage.setItem('orbis_preferences', JSON.stringify({
           primary_language: language,
+          speaks_language: speaksLanguage,
+          understands_language: understandsLanguage,
+          use_cloned_voice: useClonedVoice,
           auto_detect_input: autoDetectInput,
           auto_detect_output: autoDetectOutput
         }));
@@ -671,6 +680,120 @@ const Settings: React.FC<SettingsProps> = ({
                       <option value="th">🇹🇭 ภาษาไทย</option>
                       <option value="vi">🇻🇳 Tiếng Việt</option>
                     </select>
+                  </div>
+
+                  {/* Translation Settings */}
+                  <div className="pt-6 border-t border-white/10">
+                    <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <Globe size={20} className="text-blue-400" />
+                      Real-Time Translation
+                    </h4>
+                    <p className="text-sm text-gray-400 mb-6">
+                      Configure how you want to communicate in meetings with automatic translation.
+                    </p>
+
+                    {/* I Speak */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        I speak (Input Language)
+                      </label>
+                      <select
+                        value={speaksLanguage}
+                        onChange={(e) => setSpeaksLanguage(e.target.value)}
+                        className="w-full px-4 py-3 bg-black/60 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 hover:border-white/20 transition-all"
+                      >
+                        <option value="en">🇺🇸 English</option>
+                        <option value="pt">🇧🇷 Português</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                        <option value="it">🇮🇹 Italiano</option>
+                        <option value="ja">🇯🇵 日本語</option>
+                        <option value="ko">🇰🇷 한국어</option>
+                        <option value="zh">🇨🇳 中文 (简体)</option>
+                        <option value="ar">🇸🇦 العربية</option>
+                        <option value="ru">🇷🇺 Русский</option>
+                        <option value="hi">🇮🇳 हिन्दी</option>
+                        <option value="nl">🇳🇱 Nederlands</option>
+                        <option value="pl">🇵🇱 Polski</option>
+                        <option value="tr">🇹🇷 Türkçe</option>
+                        <option value="sv">🇸🇪 Svenska</option>
+                        <option value="no">🇳🇴 Norsk</option>
+                        <option value="da">🇩🇰 Dansk</option>
+                        <option value="fi">🇫🇮 Suomi</option>
+                        <option value="cs">🇨🇿 Čeština</option>
+                        <option value="el">🇬🇷 Ελληνικά</option>
+                        <option value="he">🇮🇱 עברית</option>
+                        <option value="id">🇮🇩 Bahasa Indonesia</option>
+                        <option value="th">🇹🇭 ภาษาไทย</option>
+                        <option value="vi">🇻🇳 Tiếng Việt</option>
+                      </select>
+                      <p className="text-xs text-gray-500 mt-2">
+                        The language you will speak during meetings
+                      </p>
+                    </div>
+
+                    {/* I Want to Hear */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        I want to hear (Output Language)
+                      </label>
+                      <select
+                        value={understandsLanguage}
+                        onChange={(e) => setUnderstandsLanguage(e.target.value)}
+                        className="w-full px-4 py-3 bg-black/60 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 hover:border-white/20 transition-all"
+                      >
+                        <option value="en">🇺🇸 English</option>
+                        <option value="pt">🇧🇷 Português</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                        <option value="it">🇮🇹 Italiano</option>
+                        <option value="ja">🇯🇵 日本語</option>
+                        <option value="ko">🇰🇷 한국어</option>
+                        <option value="zh">🇨🇳 中文 (简体)</option>
+                        <option value="ar">🇸🇦 العربية</option>
+                        <option value="ru">🇷🇺 Русский</option>
+                        <option value="hi">🇮🇳 हिन्दी</option>
+                        <option value="nl">🇳🇱 Nederlands</option>
+                        <option value="pl">🇵🇱 Polski</option>
+                        <option value="tr">🇹🇷 Türkçe</option>
+                        <option value="sv">🇸🇪 Svenska</option>
+                        <option value="no">🇳🇴 Norsk</option>
+                        <option value="da">🇩🇰 Dansk</option>
+                        <option value="fi">🇫🇮 Suomi</option>
+                        <option value="cs">🇨🇿 Čeština</option>
+                        <option value="el">🇬🇷 Ελληνικά</option>
+                        <option value="he">🇮🇱 עברית</option>
+                        <option value="id">🇮🇩 Bahasa Indonesia</option>
+                        <option value="th">🇹🇭 ภาษาไทย</option>
+                        <option value="vi">🇻🇳 Tiếng Việt</option>
+                      </select>
+                      <p className="text-xs text-gray-500 mt-2">
+                        The language you want to hear others speaking in
+                      </p>
+                    </div>
+
+                    {/* Use Cloned Voice */}
+                    <div className="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-xl">
+                      <label className="flex items-center justify-between cursor-pointer">
+                        <div>
+                          <div className="flex items-center gap-2 text-white font-medium mb-1">
+                            <Mic size={18} className="text-blue-400" />
+                            Use my cloned voice
+                          </div>
+                          <p className="text-xs text-gray-400">
+                            Others will hear translations in your cloned voice
+                          </p>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={useClonedVoice}
+                          onChange={(e) => setUseClonedVoice(e.target.checked)}
+                          className="w-5 h-5 rounded"
+                        />
+                      </label>
+                    </div>
                   </div>
 
                   <div className="space-y-4 pt-4">

@@ -92,7 +92,7 @@ class AudioStreamProcessor:
         """Background loop to process audio chunks"""
         try:
             while True:
-                await asyncio.sleep(0.1)  # Process every 100ms
+                await asyncio.sleep(1.0)  # ✅ DIAGNOSTIC: Process every 1 second (was 0.5)
                 
                 if user_id not in self.user_languages:
                     break
@@ -101,10 +101,28 @@ class AudioStreamProcessor:
                 if not audio_chunks:
                     continue
                 
-                # Process the latest chunk
+                # Combine all buffered chunks for better transcription
                 combined_chunk = b"".join(audio_chunks)
                 if not combined_chunk:
                     continue
+                
+                # ✅ DIAGNOSTIC: Require minimum 1 second of audio (was 0.3s)
+                # At 16kHz PCM16, each sample = 2 bytes
+                # 1.0s = 16000 * 1.0 * 2 = 32000 bytes minimum
+                min_bytes = 32000
+                if len(combined_chunk) < min_bytes:
+                    logger.debug(
+                        f"⏭️ Skipping short audio chunk: {len(combined_chunk)} bytes "
+                        f"(need {min_bytes} = 1 second)"
+                    )
+                    continue
+                
+                # Log audio statistics for debugging
+                audio_duration = len(combined_chunk) / (self.input_sample_rate * 2)
+                logger.info(
+                    f"🎧 Processing audio chunk: {len(combined_chunk)} bytes "
+                    f"= {audio_duration:.2f} seconds"
+                )
 
                 await self._process_audio_chunk(user_id, combined_chunk)
                 
@@ -150,13 +168,16 @@ class AudioStreamProcessor:
             transcribed_text, detected_lang, _ = await whisper_service.transcribe(
                 audio_array,
                 language=input_lang if input_lang != 'auto' else None,
-                sample_rate=self.input_sample_rate
+                sample_rate=self.input_sample_rate,
+                vad_filter=True  # ✅ Keep VAD but with better thresholds
             )
             asr_latency = (time.time() - asr_start_time) * 1000
             
-            if not transcribed_text.strip():
-                logger.debug(f"No speech detected for user {user_id}")
-                return  # No speech detected
+            # ✅ Filter out empty/meaningless transcriptions
+            transcribed_text = transcribed_text.strip()
+            if not transcribed_text or transcribed_text in ['...', '.', ',', '?', '!', '  ']:
+                logger.debug(f"⏭️ Skipping empty/noise transcription for user {user_id}")
+                return  # No meaningful speech detected
             
             # Update detected language if auto mode
             if input_lang == 'auto' and detected_lang:
@@ -228,13 +249,14 @@ class AudioStreamProcessor:
 
                     translations_cache[target_language] = target_text
 
-                # Synthesize audio for this listener (use listener voice, fallback to speaker voice)
+                # ✅ FIX: Synthesize audio using SPEAKER's voice (not listener's voice)
+                # The listener should hear the speaker's cloned voice speaking in their language
                 tts_start_time = time.time()
                 target_audio, used_fallback_voice = await self._text_to_speech(
                     target_text,
                     target_language,
-                    voice_user_id=target_user_id,
-                    fallback_user_id=user_id
+                    voice_user_id=user_id,  # ✅ Use SPEAKER's voice (quem está falando)
+                    fallback_user_id=None   # ✅ No fallback - use default voice if no profile
                 )
                 tts_latency = (time.time() - tts_start_time) * 1000
                 tts_total_latency += tts_latency
@@ -326,16 +348,30 @@ class AudioStreamProcessor:
         text: str,
         language: str,
         voice_user_id: UUID,
-        fallback_user_id: UUID
+        fallback_user_id: Optional[UUID] = None
     ) -> Tuple[bytes, bool]:
-        """Convert text to speech with listener voice, falling back as needed"""
+        """Convert text to speech with speaker's cloned voice"""
         try:
             speaker_wav = self._get_speaker_reference(voice_user_id)
             used_fallback = False
 
-            if not speaker_wav and fallback_user_id != voice_user_id:
+            # Log voice profile status
+            if not speaker_wav:
+                logger.warning(
+                    f"⚠️ No voice profile found for user {voice_user_id}. "
+                    f"Using default TTS voice without cloning."
+                )
+            else:
+                logger.info(f"✅ Using cloned voice for user {voice_user_id}: {speaker_wav}")
+
+            if not speaker_wav and fallback_user_id and fallback_user_id != voice_user_id:
+                logger.info(f"🔄 Trying fallback voice profile for user {fallback_user_id}")
                 speaker_wav = self._get_speaker_reference(fallback_user_id)
                 used_fallback = bool(speaker_wav)
+                if speaker_wav:
+                    logger.info(f"✅ Using fallback cloned voice: {speaker_wav}")
+                else:
+                    logger.warning(f"⚠️ No fallback voice profile found either")
 
             audio_array = await coqui_service.synthesize(
                 text=text,
@@ -490,22 +526,55 @@ class AudioStreamProcessor:
                 .first()
             )
 
-            if not profile or not profile.model_path:
+            if not profile:
+                logger.debug(f"🔍 No voice profile found in DB for user {user_id}")
+                if fallback_path:
+                    logger.debug(f"✅ Found fallback WAV file: {fallback_path}")
+                else:
+                    logger.debug(f"❌ No fallback WAV file found for user {user_id}")
+                return fallback_path
+
+            if not profile.model_path:
+                logger.warning(f"⚠️ Voice profile exists but has no model_path for user {user_id}")
                 return fallback_path
 
             model_file = Path(profile.model_path)
             if not model_file.exists():
+                logger.warning(
+                    f"⚠️ Voice profile model_path does not exist: {profile.model_path} for user {user_id}"
+                )
                 return fallback_path
 
             try:
                 metadata = json.loads(model_file.read_text())
                 speaker_wav = metadata.get("speaker_wav")
-                if speaker_wav and Path(speaker_wav).exists():
-                    return speaker_wav
-            except Exception as exc:  # noqa: BLE001
-                logger.warning("Failed to parse voice profile metadata for %s: %s", user_id, exc)
+                
+                if not speaker_wav:
+                    logger.warning(
+                        f"⚠️ Voice profile metadata missing 'speaker_wav' field for user {user_id}"
+                    )
+                    return fallback_path
+                
+                if not Path(speaker_wav).exists():
+                    logger.warning(
+                        f"⚠️ Speaker WAV file does not exist: {speaker_wav} for user {user_id}"
+                    )
+                    return fallback_path
+                
+                logger.debug(f"✅ Found speaker WAV from profile: {speaker_wav} for user {user_id}")
+                return speaker_wav
+                
+            except json.JSONDecodeError as exc:
+                logger.warning(
+                    f"⚠️ Failed to parse voice profile metadata JSON for user {user_id}: {exc}"
+                )
+                return fallback_path
+            except Exception as exc:
+                logger.warning(
+                    f"⚠️ Unexpected error reading voice profile metadata for user {user_id}: {exc}"
+                )
+                return fallback_path
 
-            return fallback_path
         finally:
             session.close()
 

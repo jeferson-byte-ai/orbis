@@ -248,6 +248,31 @@ async def startup_event():
         await _initialize_ml_services_immediately()
     else:
         logger.info("✅ Lazy loading enabled - models will load on first use")
+        
+        # ✅ CRITICAL FIX: Preload models to avoid Windows buffer crash
+        # Loading models during first request causes WinError 10055
+        logger.info("📦 Pre-loading critical models to avoid runtime crashes...")
+        try:
+            # Preload all models in parallel for faster startup
+            preload_tasks = []
+            
+            if settings.enable_transcription:
+                preload_tasks.append(lazy_loader.load_model(ModelType.WHISPER))
+            
+            if settings.enable_translation:
+                # NLLB is the main culprit - must be preloaded!
+                preload_tasks.append(lazy_loader.load_model(ModelType.NLLB))
+            
+            if settings.enable_voice_cloning:
+                preload_tasks.append(lazy_loader.load_model(ModelType.COQUI))
+            
+            # Load all in parallel
+            if preload_tasks:
+                await asyncio.gather(*preload_tasks, return_exceptions=True)
+                logger.info("✅ All critical models pre-loaded successfully")
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to pre-load some models: {e}")
+            logger.info("⚠️ This may cause crashes on first translation request!")
     
     # Initialize advanced services (if enabled)
     if settings.enable_advanced_analytics or settings.enable_ai_assistant:
