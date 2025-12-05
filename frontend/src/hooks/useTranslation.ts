@@ -23,6 +23,7 @@ interface TranslationMessage {
   audio?: TranslationAudioPayload;
   text?: string;
   timestamp?: number;
+  voice_fallback?: boolean;
 }
 
 interface ParticipantInfo {
@@ -62,6 +63,7 @@ interface UseTranslationReturn {
   unmute: () => void;
   websocket: WebSocket | null;
   setWebRTCMessageHandler: (handler: ((data: any) => void) | null) => void;
+  voiceFallbackNotice: number | null;
 }
 
 export const useTranslation = (): UseTranslationReturn => {
@@ -75,6 +77,7 @@ export const useTranslation = (): UseTranslationReturn => {
   const [error, setError] = useState<string | null>(null);
   const [participants, setParticipants] = useState<string[]>([]);
   const [participantsInfo, setParticipantsInfo] = useState<Map<string, ParticipantInfo>>(new Map());
+  const [voiceFallbackNotice, setVoiceFallbackNotice] = useState<number | null>(null);
 
   const ws = useRef<WebSocket | null>(null);
   const audioContext = useRef<AudioContext | null>(null);
@@ -250,6 +253,10 @@ export const useTranslation = (): UseTranslationReturn => {
         if (data.text) {
           setLastTranslation(data.text);
           setLatency(currentLatency);
+        }
+
+        if (data.voice_fallback) {
+          setVoiceFallbackNotice(Date.now());
         }
 
         const audioPayload: TranslationAudioPayload | undefined = data.audio || (data.audio_data ? {
@@ -466,7 +473,8 @@ export const useTranslation = (): UseTranslationReturn => {
     mute,
     unmute,
     websocket: ws.current,
-    setWebRTCMessageHandler
+    setWebRTCMessageHandler,
+    voiceFallbackNotice
   };
 };
 
@@ -543,8 +551,6 @@ async function convertToPCM16(buffer: ArrayBuffer, audioContext: AudioContext, t
 (convertToPCM16 as any).hasLoggedError = false;
 
 function int16ToBase64(data: Int16Array): string {
-  // Create a DataView to read bytes from the Int16Array's buffer
-  const dataView = new DataView(data.buffer);
   let binary = '';
   // Iterate through the Int16Array, converting each 16-bit integer to two 8-bit bytes
   for (let i = 0; i < data.length; i++) {

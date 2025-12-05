@@ -122,12 +122,21 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
     mute: muteTranslation,
     unmute: unmuteTranslation,
     websocket: translationWebSocket,
-    setWebRTCMessageHandler
+    setWebRTCMessageHandler,
+    voiceFallbackNotice
   } = useTranslation();
 
   const webrtcStartedRef = useRef<boolean>(false);
   const translationInitializedRef = useRef<boolean>(false);
   const audioChunkDebugCounter = useRef<number>(0);
+  const [showVoiceFallback, setShowVoiceFallback] = useState(false);
+
+  useEffect(() => {
+    if (!voiceFallbackNotice) return;
+    setShowVoiceFallback(true);
+    const timeout = window.setTimeout(() => setShowVoiceFallback(false), 4000);
+    return () => window.clearTimeout(timeout);
+  }, [voiceFallbackNotice]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -669,6 +678,13 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
       {languageChanged && (
         <div className="glass-dark border-l-4 border-red-500 bg-red-500/10 text-white px-6 py-3 animate-slide-down relative z-10">
           <p className="font-medium">✅ Languages updated successfully!</p>
+        </div>
+      )}
+
+      {/* Voice fallback notification */}
+      {showVoiceFallback && (
+        <div className="glass-dark border-l-4 border-yellow-400 bg-yellow-500/10 text-white px-6 py-3 animate-slide-down relative z-10">
+          <p className="font-medium">🎧 Sem voz clonada disponível. Usando voz do falante.</p>
         </div>
       )}
 

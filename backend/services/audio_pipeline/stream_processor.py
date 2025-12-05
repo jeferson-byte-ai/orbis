@@ -8,7 +8,7 @@ import json
 import logging
 import time
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 from uuid import UUID
 
 import numpy as np
@@ -193,7 +193,7 @@ class AudioStreamProcessor:
                 logger.debug(f"No listeners in room {room_id}")
                 return
 
-            translations_cache: Dict[str, Dict[str, Any]] = {}
+            translations_cache: Dict[str, str] = {}
             tts_total_latency = 0.0
             send_latency = 0.0
             processed_count = 0
@@ -210,9 +210,9 @@ class AudioStreamProcessor:
                 logger.debug(f"📢 Processing for listener {target_user_id}: {input_lang} → {target_language}")
 
                 # Check if we already processed this language
-                cache_entry = translations_cache.get(target_language)
+                target_text = translations_cache.get(target_language)
 
-                if not cache_entry:
+                if not target_text:
                     translation_start = time.time()
                     
                     # Translate text from speaker's language to listener's language
@@ -226,23 +226,24 @@ class AudioStreamProcessor:
 
                     logger.info(f"🌐 Translated to {target_language}: '{target_text}'")
 
-                    # Synthesize audio in target language with speaker's voice
-                    tts_start_time = time.time()
-                    target_audio = await self._text_to_speech(target_text, target_language, user_id)
-                    tts_latency = (time.time() - tts_start_time) * 1000
-                    tts_total_latency += tts_latency
+                    translations_cache[target_language] = target_text
 
-                    if not target_audio:
-                        logger.warning(
-                            f"⚠️ No translated audio generated for {input_lang} → {target_language}"
-                        )
-                        continue
+                # Synthesize audio for this listener (use listener voice, fallback to speaker voice)
+                tts_start_time = time.time()
+                target_audio, used_fallback_voice = await self._text_to_speech(
+                    target_text,
+                    target_language,
+                    voice_user_id=target_user_id,
+                    fallback_user_id=user_id
+                )
+                tts_latency = (time.time() - tts_start_time) * 1000
+                tts_total_latency += tts_latency
 
-                    cache_entry = {
-                        'text': target_text,
-                        'audio': target_audio
-                    }
-                    translations_cache[target_language] = cache_entry
+                if not target_audio:
+                    logger.warning(
+                        f"⚠️ No translated audio generated for {input_lang} → {target_language}"
+                    )
+                    continue
 
                 # Send translated audio to listener
                 send_start_time = time.time()
@@ -250,9 +251,10 @@ class AudioStreamProcessor:
                     room_id=room_id,
                     source_user_id=user_id,
                     target_user_id=target_user_id,
-                    audio_data=cache_entry['audio'],
-                    text=cache_entry['text'],
-                    target_language=target_language
+                    audio_data=target_audio,
+                    text=target_text,
+                    target_language=target_language,
+                    voice_fallback=used_fallback_voice
                 )
                 send_latency += (time.time() - send_start_time) * 1000
                 processed_count += 1
@@ -319,10 +321,21 @@ class AudioStreamProcessor:
             # Fallback to mock translation
             return f"[{(target or 'en').upper()}] {text}"
     
-    async def _text_to_speech(self, text: str, language: str, user_id: UUID) -> bytes:
-        """Convert text to speech with voice cloning"""
+    async def _text_to_speech(
+        self,
+        text: str,
+        language: str,
+        voice_user_id: UUID,
+        fallback_user_id: UUID
+    ) -> Tuple[bytes, bool]:
+        """Convert text to speech with listener voice, falling back as needed"""
         try:
-            speaker_wav = self._get_speaker_reference(user_id)
+            speaker_wav = self._get_speaker_reference(voice_user_id)
+            used_fallback = False
+
+            if not speaker_wav and fallback_user_id != voice_user_id:
+                speaker_wav = self._get_speaker_reference(fallback_user_id)
+                used_fallback = bool(speaker_wav)
 
             audio_array = await coqui_service.synthesize(
                 text=text,
@@ -332,16 +345,16 @@ class AudioStreamProcessor:
             )
 
             if audio_array.size == 0:
-                return b""
+                return b"", used_fallback
 
             audio_array = np.clip(audio_array, -1.0, 1.0)
             pcm_audio = (audio_array * 32767).astype(np.int16)
-            return pcm_audio.tobytes()
+            return pcm_audio.tobytes(), used_fallback
 
         except Exception as e:
             logger.error(f"TTS service error: {e}")
             # Fallback to mock audio
-            return b""
+            return b"", True
     
     async def _send_translated_audio(
         self,
@@ -350,7 +363,8 @@ class AudioStreamProcessor:
         target_user_id: UUID,
         audio_data: bytes,
         text: str,
-        target_language: str
+        target_language: str,
+        voice_fallback: bool
     ):
         """Send translated audio to a specific participant"""
         if not audio_data:
@@ -368,6 +382,7 @@ class AudioStreamProcessor:
             'audio_data': encoded_audio,
             'text': text,
              'language': target_language,
+            'voice_fallback': voice_fallback,
             'timestamp': time.time()
         }
         
