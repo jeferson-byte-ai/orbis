@@ -82,7 +82,7 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [isChatVisible, setIsChatVisible] = useState<boolean>(true);
   const [showControls, setShowControls] = useState<boolean>(true);
-  const hideControlsTimeout = useRef<NodeJS.Timeout | null>(null);
+  const hideControlsTimeout = useRef<number | null>(null);
 
   // WebRTC for video/audio
   const {
@@ -157,7 +157,14 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
     const initialOutput = understandsLanguages[0] || 'en';
 
     try {
-      connectTranslation(roomId, token, initialInput, initialOutput);
+      connectTranslation(
+        roomId,
+        token,
+        initialInput,
+        initialOutput,
+        speaksLanguages,
+        understandsLanguages
+      );
       translationInitializedRef.current = true;
     } catch (err) {
       console.error('Failed to connect translation service:', err);
@@ -229,7 +236,8 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
       if (debugCount % 50 === 0) {
         console.log('[AudioDebug] chunk', debugCount, 'downsampledSamples=', downsampled.length, 'pcmBytes=', pcm16.byteLength);
       }
-      sendAudioChunk(pcm16.buffer.slice(0), { isPCM16: true }).catch(err => {
+      const chunkBuffer = pcm16.buffer.slice(0) as ArrayBuffer;
+      sendAudioChunk(chunkBuffer, { isPCM16: true }).catch(err => {
         console.warn('Failed to send audio chunk for translation', err);
       });
     };
@@ -260,9 +268,11 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
   // Handle language change
   const handleLanguageChange = (input: string, output: string) => {
     console.log('🔄 Meeting: Language change requested', { input, output });
-    setSpeaksLanguages([input]);
-    setUnderstandsLanguages([output]);
-    updateLanguages(input, output);
+    const speaksArray = [input];
+    const understandsArray = [output];
+    setSpeaksLanguages(speaksArray);
+    setUnderstandsLanguages(understandsArray);
+    updateLanguages(input, output, speaksArray, understandsArray);
     setShowLanguageSelector(false);
     setLanguageChanged(true);
     setTimeout(() => setLanguageChanged(false), 3000);
@@ -554,7 +564,12 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
 
     // Update translation settings
     if (speaks.length > 0 && understands.length > 0) {
-      updateLanguages(speaks[0], understands[0]);
+      updateLanguages(
+        speaks[0] || 'auto',
+        understands[0] || 'en',
+        speaks,
+        understands
+      );
     }
   };
 

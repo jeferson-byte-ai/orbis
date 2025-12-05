@@ -40,15 +40,24 @@ interface UseTranslationReturn {
   isConnected: boolean;
   inputLanguage: string;
   outputLanguage: string;
+  speaksLanguages: string[];
+  understandsLanguages: string[];
   lastTranslation: string | null;
   latency: number;
   error: string | null;
   participants: string[];
   participantsInfo: Map<string, ParticipantInfo>;
-  connect: (roomId: string, token: string) => void;
+  connect: (
+    roomId: string,
+    token: string,
+    initialInputLang?: string,
+    initialOutputLang?: string,
+    initialSpeaks?: string[],
+    initialUnderstands?: string[]
+  ) => void;
   disconnect: () => void;
   sendAudioChunk: (audioData: ArrayBuffer, options?: SendAudioOptions) => Promise<void>;
-  updateLanguages: (input: string, output: string) => void;
+  updateLanguages: (input: string, output: string, speaks?: string[], understands?: string[]) => void;
   mute: () => void;
   unmute: () => void;
   websocket: WebSocket | null;
