@@ -4,6 +4,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { Loader, Check, Wand2, Download, Cpu, Sparkles } from 'lucide-react';
+import { authenticatedFetch } from '../utils/api';
 
 interface VoicePreLoaderProps {
     onComplete: () => void;
@@ -53,24 +54,17 @@ const VoicePreLoader: React.FC<VoicePreLoaderProps> = ({ onComplete, onError }) 
             setCurrentStep(0);
             await simulateProgress(0, 30, 1000);
 
-            const token = localStorage.getItem('auth_token');
-            if (!token) {
-                throw new Error('Authentication required');
-            }
-
-            // Call backend to preload voice
-            const apiBaseUrl = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:8000';
-            const response = await fetch(`${apiBaseUrl}/api/voices/preload`, {
+            // Call backend to preload voice using centralized fetch helper
+            const response = await authenticatedFetch('/api/voices/preload', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ detail: 'Failed to load voice' }));
-                throw new Error(errorData.detail || 'Failed to preload voice');
+                throw new Error(errorData.detail || `Failed to preload voice (status ${response.status})`);
             }
 
             // Step 2: Processing
