@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
 from pydantic import BaseModel
 from pathlib import Path
 from sqlalchemy.orm import Session
+import json
 
 from backend.api.deps import get_current_active_user, get_db
 from backend.db.models import User, VoiceProfile, VoiceType
@@ -206,25 +207,21 @@ async def preload_voice_for_meeting(
     This should be called before joining a meeting to ensure fast voice synthesis.
     
     Steps:
-    1. Check if user has a voice profile
-    2. Load the voice file into memory
-    3. Initialize TTS model with the voice
+    1. Check if user has a voice profile (WAV file)
+    2. Create/verify Coqui voice profile (JSON metadata)
+    3. Load TTS model with the voice
     4. Return ready status
     """
     user_id = current_user.id
-    voice_profile_path = Path(settings.voices_path) / f"{user_id}.wav"
-    
-    # Check if voice profile exists
-    if not voice_profile_path.exists():
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Voice profile not found. Please upload a voice sample first."
-        )
+    voice_wav_path = Path(settings.voices_path) / f"{user_id}.wav"
+    voice_json_path = Path(settings.voices_path) / f"{user_id}.json"
     
     try:
         logger.info(f"🎤 Preloading voice for user {user_id}")
+        logger.info(f"📁 Voice WAV: {voice_wav_path}")
+        logger.info(f"📁 Voice JSON: {voice_json_path}")
         
-        # Get voice profile from database
+        # Get or create voice profile from database
         voice_profile = (
             db.query(VoiceProfile)
             .filter(VoiceProfile.user_id == user_id, VoiceProfile.type == VoiceType.CLONED)
@@ -233,7 +230,7 @@ async def preload_voice_for_meeting(
         )
         
         if not voice_profile:
-            # Create voice profile entry if doesn't exist
+            # Create voice profile entry
             primary_language = (current_user.speaks_languages or ["en"])[0]
             voice_name = current_user.full_name or current_user.username or "My Voice"
             
@@ -243,31 +240,92 @@ async def preload_voice_for_meeting(
                 name=f"{voice_name} (Cloned)",
                 language=primary_language,
                 is_default=True,
-                is_ready=True,
-                model_path=str(voice_profile_path)
+                is_ready=False,  # Will be set to True after cloning
+                model_path=str(voice_json_path)  # JSON metadata file
             )
             db.add(voice_profile)
             db.commit()
             db.refresh(voice_profile)
+            logger.info(f"✅ Created voice profile in database")
         
-        # Load TTS service (lazy loading - will be used in real-time translation)
-        try:
-            from ml.tts.coqui_service import coqui_service
-            
-            # Initialize TTS if not already loaded
-            if coqui_service.tts is None:
-                logger.info("🔄 Loading Coqui TTS model...")
-                loop = asyncio.get_running_loop()
-                await loop.run_in_executor(None, coqui_service.load)
-                logger.info("✅ Coqui TTS model loaded")
-            
-            # Verify voice file can be read
-            voice_file_size = voice_profile_path.stat().st_size
-            logger.info(f"📊 Voice file size: {voice_file_size} bytes")
-            
-        except Exception as tts_error:
-            logger.warning(f"⚠️ TTS preload warning: {tts_error}")
-            # Continue anyway - TTS will load on first use
+        # Load TTS service
+        from ml.tts.coqui_service import coqui_service
+        
+        # Initialize TTS if not already loaded
+        if coqui_service.tts is None:
+            logger.info("🔄 Loading Coqui TTS model...")
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(None, coqui_service.load)
+            logger.info("✅ Coqui TTS model loaded")
+        
+        # Resolve best speaker WAV (prefer fresh upload; fallback to existing profile metadata)
+        speaker_wav_path: Path | None = None
+        if voice_wav_path.exists():
+            speaker_wav_path = voice_wav_path
+        else:
+            # Try existing profile metadata
+            metadata_path = Path(voice_profile.model_path) if voice_profile.model_path else None
+            if metadata_path and metadata_path.exists():
+                try:
+                    metadata = json.loads(metadata_path.read_text())
+                    candidate_wav = metadata.get("speaker_wav")
+                    if candidate_wav and Path(candidate_wav).exists():
+                        speaker_wav_path = Path(candidate_wav)
+                        logger.warning(
+                            "⚠️ Using speaker WAV from existing profile metadata because user WAV was missing: %s",
+                            speaker_wav_path,
+                        )
+                except Exception as exc:  # noqa: BLE001
+                    logger.warning("⚠️ Could not read profile metadata for fallback WAV: %s", exc)
+
+        if not speaker_wav_path:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Voice profile not found. Please upload a voice sample first."
+            )
+
+        # Choose target JSON (reuse existing ready profile if possible)
+        target_json_path = voice_json_path
+        if voice_profile.model_path and Path(voice_profile.model_path).exists():
+            target_json_path = Path(voice_profile.model_path)
+
+        need_clone = (not target_json_path.exists()) or (not voice_profile.is_ready)
+        if need_clone:
+            logger.info("🎨 Creating/refreshing Coqui voice profile at %s", target_json_path)
+            success = await coqui_service.clone_voice(
+                audio_samples=[str(speaker_wav_path)],
+                output_path=str(target_json_path)
+            )
+
+            if not success:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Failed to clone voice. Please try uploading again."
+                )
+
+            voice_profile.is_ready = True
+            voice_profile.model_path = str(target_json_path)
+            db.commit()
+            logger.info(f"✅ Voice cloned successfully: {target_json_path}")
+        else:
+            logger.info(f"✅ Voice profile already ready: {target_json_path}")
+        
+        # Verify voice file can be read (if present)
+        if voice_wav_path.exists():
+            voice_file_size = voice_wav_path.stat().st_size
+            logger.info(f"📊 Voice WAV file: {voice_file_size} bytes")
+        else:
+            logger.warning("⚠️ Voice WAV file missing after preload attempt: %s", voice_wav_path)
+        
+        # Verify JSON metadata
+        if target_json_path.exists():
+            metadata = json.loads(target_json_path.read_text())
+            logger.info(f"📊 Voice profile metadata: {metadata.get('notes', 'N/A')}")
+            speaker_wav = metadata.get('speaker_wav')
+            if speaker_wav and Path(speaker_wav).exists():
+                logger.info(f"✅ Speaker WAV verified: {speaker_wav}")
+            else:
+                logger.warning(f"⚠️ Speaker WAV not found: {speaker_wav}")
         
         # Store voice profile ID in Redis for fast lookup during meeting
         try:
@@ -288,9 +346,12 @@ async def preload_voice_for_meeting(
             "voice_profile_id": str(voice_profile.id),
             "voice_name": voice_profile.name,
             "language": voice_profile.language,
-            "ready": True,
-            "file_size": voice_profile_path.stat().st_size,
-            "tts_loaded": coqui_service.tts is not None if 'coqui_service' in locals() else False
+            "ready": voice_profile.is_ready,
+            "file_size": voice_file_size,
+            "tts_loaded": coqui_service.tts is not None,
+            "voice_wav": str(voice_wav_path),
+            "voice_json": str(voice_json_path),
+            "json_exists": voice_json_path.exists()
         }
         
     except HTTPException:

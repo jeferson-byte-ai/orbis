@@ -106,14 +106,14 @@ class AudioStreamProcessor:
                 if not combined_chunk:
                     continue
                 
-                # ✅ DIAGNOSTIC: Require minimum 1 second of audio (was 0.3s)
+                # ✅ Require ~0.25s of audio to trigger processing (was 1.0s)
                 # At 16kHz PCM16, each sample = 2 bytes
-                # 1.0s = 16000 * 1.0 * 2 = 32000 bytes minimum
-                min_bytes = 32000
+                # 0.25s = 16000 * 0.25 * 2 = 8000 bytes minimum
+                min_bytes = int(self.input_sample_rate * 0.25 * 2)
                 if len(combined_chunk) < min_bytes:
                     logger.debug(
                         f"⏭️ Skipping short audio chunk: {len(combined_chunk)} bytes "
-                        f"(need {min_bytes} = 1 second)"
+                        f"(need >= {min_bytes} ≈0.25s at {self.input_sample_rate}Hz)"
                     )
                     continue
                 
@@ -353,7 +353,8 @@ class AudioStreamProcessor:
         """Convert text to speech with speaker's cloned voice"""
         try:
             speaker_wav = self._get_speaker_reference(voice_user_id)
-            used_fallback = False
+            # Consider it a fallback whenever we don't have a speaker-specific WAV
+            used_fallback = not bool(speaker_wav)
 
             # Log voice profile status
             if not speaker_wav:
