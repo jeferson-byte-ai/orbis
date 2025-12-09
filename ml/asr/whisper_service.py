@@ -141,15 +141,21 @@ class WhisperService:
             # ✅ DIAGNOSTIC MODE: Force Portuguese and disable VAD for testing
             segments, info = self.model.transcribe(
                 audio,
-                language=language or "pt",  # ✅ Force PT if no language specified
-                vad_filter=False,  # ✅ DISABLE VAD temporarily for testing
-                beam_size=5,  # ✅ Better quality for testing (was 1)
-                best_of=5,  # ✅ Better quality for testing (was 1)
+                language=language,
+                vad_filter=vad_filter,
+                beam_size=1,
+                best_of=1,
                 temperature=0.0,
                 compression_ratio_threshold=2.4,
                 log_prob_threshold=-1.0,
-                no_speech_threshold=0.6,  # ✅ More strict to avoid false positives
-                condition_on_previous_text=True,  # ✅ Use context for better accuracy
+                no_speech_threshold=0.4,
+                condition_on_previous_text=False,
+                vad_parameters={
+                    "threshold": 0.3,
+                    "min_speech_duration_ms": 250,
+                    "min_silence_duration_ms": 500,
+                    "speech_pad_ms": 400,
+                } if vad_filter else None,
             )
             
             # Log more details for debugging

@@ -6,6 +6,7 @@ import asyncio
 import base64
 import json
 import logging
+import re
 import time
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
@@ -34,6 +35,7 @@ class AudioStreamProcessor:
         self.latency_target_ms = 200
         self.input_sample_rate = 16000
         self.output_sample_rate = 22050
+        self.max_tts_chars = 240  # Keep text under XTTS 400 token limit
     
     async def _notify_translation_error(self, user_id: UUID, stage: str, detail: str):
         """Send translation error information back to the user"""
@@ -92,7 +94,8 @@ class AudioStreamProcessor:
         """Background loop to process audio chunks"""
         try:
             while True:
-                await asyncio.sleep(1.0)  # ✅ DIAGNOSTIC: Process every 1 second (was 0.5)
+                # Process every 500ms para acumular áudio suficiente sem ficar pesado
+                await asyncio.sleep(0.5)
                 
                 if user_id not in self.user_languages:
                     break
@@ -106,10 +109,10 @@ class AudioStreamProcessor:
                 if not combined_chunk:
                     continue
                 
-                # ✅ Require ~0.25s of audio to trigger processing (was 1.0s)
-                # At 16kHz PCM16, each sample = 2 bytes
-                # 0.25s = 16000 * 0.25 * 2 = 8000 bytes minimum
-                min_bytes = int(self.input_sample_rate * 0.25 * 2)
+                # Requer ~0.5s de áudio para transcrever com qualidade
+                # A 16kHz PCM16, cada amostra = 2 bytes
+                # 0.5s = 16000 * 0.5 * 2 = 16000 bytes mínimo
+                min_bytes = int(self.input_sample_rate * 0.5 * 2)
                 if len(combined_chunk) < min_bytes:
                     logger.debug(
                         f"⏭️ Skipping short audio chunk: {len(combined_chunk)} bytes "
@@ -165,11 +168,13 @@ class AudioStreamProcessor:
                 await self._notify_translation_error(user_id, "asr", "Whisper model failed to load")
                 return
             
+            # Para estabilizar a transcrição em hardware fraco, desabilitamos o VAD
+            # aqui no pipeline de streaming e deixamos o próprio modelo lidar com o áudio.
             transcribed_text, detected_lang, _ = await whisper_service.transcribe(
                 audio_array,
                 language=input_lang if input_lang != 'auto' else None,
                 sample_rate=self.input_sample_rate,
-                vad_filter=True  # ✅ Keep VAD but with better thresholds
+                vad_filter=False
             )
             asr_latency = (time.time() - asr_start_time) * 1000
             
@@ -329,18 +334,37 @@ class AudioStreamProcessor:
 
         if source == target:
             return text
-        
+
         try:
-            # Use NLLB service for translation
-            translated_text = await nllb_service.translate(
-                text, 
-                source,
-                target
-            )
-            return translated_text
+            cleaned = text.strip()
+            if not cleaned:
+                return ""
+
+            max_total_chars = self.max_tts_chars * 3
+            if len(cleaned) > max_total_chars:
+                logger.warning(
+                    "Truncating long transcription from %s to %s chars for translation",
+                    len(cleaned),
+                    max_total_chars,
+                )
+                cleaned = cleaned[-max_total_chars:]
+
+            chunks = self._chunk_text_for_tts(cleaned, self.max_tts_chars)
+            if not chunks:
+                return ""
+
+            translated_chunks: List[str] = []
+            for chunk in chunks:
+                translated = await nllb_service.translate(
+                    chunk,
+                    source,
+                    target,
+                )
+                translated_chunks.append(translated)
+
+            return " ".join(translated_chunks)
         except Exception as e:
             logger.error(f"Translation service error: {e}")
-            # Fallback to mock translation
             return f"[{(target or 'en').upper()}] {text}"
     
     async def _text_to_speech(
@@ -374,12 +398,29 @@ class AudioStreamProcessor:
                 else:
                     logger.warning(f"⚠️ No fallback voice profile found either")
 
-            audio_array = await coqui_service.synthesize(
-                text=text,
-                language=language,
-                speaker_wav=speaker_wav,
-                sample_rate=self.output_sample_rate
-            )
+            text_chunks = self._chunk_text_for_tts(text, self.max_tts_chars)
+            if not text_chunks:
+                return b"", used_fallback
+
+            audio_segments: List[np.ndarray] = []
+            for chunk in text_chunks:
+                audio_array = await coqui_service.synthesize(
+                    text=chunk,
+                    language=language,
+                    speaker_wav=speaker_wav,
+                    sample_rate=self.output_sample_rate
+                )
+
+                if audio_array.size == 0:
+                    logger.warning("⚠️ Empty audio chunk from TTS, skipping segment")
+                    continue
+
+                audio_segments.append(audio_array)
+
+            if not audio_segments:
+                return b"", used_fallback
+
+            audio_array = np.concatenate(audio_segments)
 
             if audio_array.size == 0:
                 return b"", used_fallback
@@ -578,6 +619,48 @@ class AudioStreamProcessor:
 
         finally:
             session.close()
+
+    @staticmethod
+    def _chunk_text_for_tts(text: str, max_chars: int) -> List[str]:
+        """Split long sentences so XTTS stays within its 400-token limit (~250 chars)"""
+        cleaned = text.strip()
+        if not cleaned:
+            return []
+        if len(cleaned) <= max_chars:
+            return [cleaned]
+
+        sentences = re.split(r'(?<=[\.\?\!\n])\s+', cleaned)
+        chunks: List[str] = []
+        buffer = ""
+
+        for sentence in sentences:
+            sentence = sentence.strip()
+            if not sentence:
+                continue
+
+            if len(sentence) > max_chars:
+                # Flush existing buffer before hard splitting the long sentence
+                if buffer:
+                    chunks.append(buffer.strip())
+                    buffer = ""
+                for idx in range(0, len(sentence), max_chars):
+                    part = sentence[idx:idx + max_chars].strip()
+                    if part:
+                        chunks.append(part)
+                continue
+
+            prospective = f"{buffer} {sentence}".strip() if buffer else sentence
+            if len(prospective) <= max_chars:
+                buffer = prospective
+            else:
+                if buffer:
+                    chunks.append(buffer)
+                buffer = sentence
+
+        if buffer:
+            chunks.append(buffer.strip())
+
+        return chunks
 
 
 # Global instance
