@@ -208,7 +208,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
     if (localStream) {
       localStream.getTracks().forEach(track => {
         // Only add video tracks unless explicitly allowed to send raw mic
-        if (track.kind === 'video' || (track.kind === 'audio' && SEND_RAW_MIC_TO_PEERS)) {
+        if (track.kind === 'video' || (track.kind === 'audio' && getSendRawMicToPeers())) {
           pc.addTrack(track, localStream);
           console.log('➕ Added local track:', track.kind, 'to', remoteUserId);
         } else {
@@ -512,7 +512,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
         if (senders.length === 0) {
           console.log(`➕ Adding tracks to existing peer connection for ${userId}`);
           stream.getTracks().forEach(track => {
-            if (track.kind === 'video' || (track.kind === 'audio' && SEND_RAW_MIC_TO_PEERS)) {
+            if (track.kind === 'video' || (track.kind === 'audio' && getSendRawMicToPeers())) {
               pc.addTrack(track, stream);
               console.log(`  ✅ Added ${track.kind} track to ${userId}`);
             } else {
@@ -644,7 +644,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
         
         localStream.getTracks().forEach(track => {
           try {
-            if (track.kind === 'video' || (track.kind === 'audio' && SEND_RAW_MIC_TO_PEERS)) {
+            if (track.kind === 'video' || (track.kind === 'audio' && getSendRawMicToPeers())) {
               pc.addTrack(track, localStream);
               console.log(`  ✅ Added ${track.kind} track to ${userId}`);
             } else {
