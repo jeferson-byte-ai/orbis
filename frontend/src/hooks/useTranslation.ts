@@ -251,7 +251,13 @@ export const useTranslation = (): UseTranslationReturn => {
       case 'translated_audio': {
         // Received translated audio from another participant
         if (data.text) {
-          setLastTranslation(data.text);
+          // Prefer to show both translated text and the original for clarity
+          const detectedLang = (data as any).detected_language ? String((data as any).detected_language).toUpperCase() : undefined;
+          const original = (data as any).original_text as string | undefined;
+          const show = original && detectedLang
+            ? `${data.text}  |  [${detectedLang}] ${original}`
+            : data.text;
+          setLastTranslation(show);
           setLatency(currentLatency);
         }
 

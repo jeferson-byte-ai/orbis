@@ -3,7 +3,7 @@
  * Meeting controls (mute, video, leave, etc.)
  */
 import React, { useState } from 'react';
-import { Mic, MicOff, Video, VideoOff, PhoneOff, Monitor, MonitorOff, Users, Maximize, Minimize, MessageSquare, Subtitles } from 'lucide-react';
+import { Mic, MicOff, Video, VideoOff, PhoneOff, Monitor, MonitorOff, Users, Maximize, Minimize, MessageSquare, Subtitles, Waves } from 'lucide-react';
 
 interface ControlBarProps {
   isMuted: boolean;
@@ -22,6 +22,9 @@ interface ControlBarProps {
   isChatVisible?: boolean;
   onToggleCaptions?: () => void;
   showCaptions?: boolean;
+  // Debug toggle to send raw microphone over WebRTC
+  rawMicEnabled?: boolean;
+  onToggleRawMic?: () => void;
 }
 
 const ControlBar: React.FC<ControlBarProps> = ({
@@ -102,8 +105,18 @@ const ControlBar: React.FC<ControlBarProps> = ({
               isActive={showCaptions}
             />
           )}
+
+          {/* Raw mic debug toggle */}
+          {onToggleRawMic && (
+            <ControlButton
+              icon={Waves}
+              label={rawMicEnabled ? 'Raw Mic ON' : 'Raw Mic OFF'}
+              onClick={onToggleRawMic}
+              isActive={!!rawMicEnabled}
+            />
+          )}
           
-          {/* Chat toggle - Enhanced with visible label */}
+          {/* Chat toggle - Enhanced with visible label */
           {onToggleChat && (
             <div className="relative">
               <button

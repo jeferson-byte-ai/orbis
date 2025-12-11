@@ -151,10 +151,10 @@ class WhisperService:
                 no_speech_threshold=0.4,
                 condition_on_previous_text=False,
                 vad_parameters={
-                    "threshold": 0.3,
-                    "min_speech_duration_ms": 250,
-                    "min_silence_duration_ms": 500,
-                    "speech_pad_ms": 400,
+                    "threshold": 0.25,  # slightly more permissive to catch soft speech
+                    "min_speech_duration_ms": 200,
+                    "min_silence_duration_ms": 450,
+                    "speech_pad_ms": 320,
                 } if vad_filter else None,
             )
             

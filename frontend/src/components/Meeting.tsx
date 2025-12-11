@@ -3,7 +3,7 @@
  * Main video conferencing interface with real-time translation
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { useWebRTC } from '../hooks/useWebRTC';
+import { useWebRTC, setSendRawMicToPeers, getSendRawMicToPeers } from '../hooks/useWebRTC';
 import { useTranslation } from '../hooks/useTranslation';
 import VideoGrid from './VideoGrid';
 import ControlBar from './ControlBar';
@@ -72,8 +72,11 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
   const [showCaptions, setShowCaptions] = useState(true);
   const [copied, setCopied] = useState(false);
   const [languageChanged, setLanguageChanged] = useState(false);
-  const [speaksLanguages, setSpeaksLanguages] = useState<string[]>(['en']);
-  const [understandsLanguages, setUnderstandsLanguages] = useState<string[]>(['en']);
+  // Default languages from browser locale if user profile not yet loaded
+  const browserLang = (navigator.language || 'en').split('-')[0].toLowerCase();
+  const defaultLang = ['en','pt','es','fr','de'].includes(browserLang) ? browserLang : 'en';
+  const [speaksLanguages, setSpeaksLanguages] = useState<string[]>([defaultLang]);
+  const [understandsLanguages, setUnderstandsLanguages] = useState<string[]>([defaultLang]);
   const [languagesLoaded, setLanguagesLoaded] = useState(false);
   const [userName, setUserName] = useState<string>('');
   const [userId, setUserId] = useState<string>('');
@@ -162,7 +165,8 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
       return;
     }
 
-    const initialInput = speaksLanguages[0] || 'auto';
+    // Always start with input auto-detect to avoid forcing wrong ASR language
+    const initialInput = 'auto';
     const initialOutput = understandsLanguages[0] || 'en';
 
     try {
@@ -767,6 +771,11 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
           isHost={isHost}
           onToggleScreenShare={handleToggleScreenShare}
           isScreenSharing={isScreenSharing}
+          rawMicEnabled={getSendRawMicToPeers()}
+          onToggleRawMic={() => {
+            const current = getSendRawMicToPeers();
+            setSendRawMicToPeers(!current);
+          }}
           participantCount={(() => {
             // Merge WebRTC participants with WebSocket participants for accurate count
             const allParticipantIds = new Set([

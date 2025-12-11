@@ -35,7 +35,15 @@ interface UseWebRTCReturn {
 
 // Whether to send raw microphone audio directly to peers via WebRTC.
 // When false, peers will only hear the translated/cloned voice (recommended).
-const SEND_RAW_MIC_TO_PEERS = false;
+let SEND_RAW_MIC_TO_PEERS = false;
+
+export function setSendRawMicToPeers(value: boolean) {
+  SEND_RAW_MIC_TO_PEERS = value;
+}
+
+export function getSendRawMicToPeers(): boolean {
+  return SEND_RAW_MIC_TO_PEERS;
+}
 
 // ICE servers for STUN/TURN
 const ICE_SERVERS = {
@@ -50,9 +58,10 @@ export const useWebRTC = (): UseWebRTCReturn => {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [participants, setParticipants] = useState<Map<string, Participant>>(new Map());
   const [isConnected, setIsConnected] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isVideoOff, setIsVideoOff] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const [isVideoOff, setIsVideoOff] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [rawMicEnabled, setRawMicEnabled] = useState<boolean>(getSendRawMicToPeers());
   const [signalingConnected, setSignalingConnected] = useState(false);
 
   const peerConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
@@ -81,8 +90,22 @@ export const useWebRTC = (): UseWebRTCReturn => {
         }
       });
 
-      setLocalStream(stream);
-      return stream;
+     // Disable audio/video tracks by default (muted and video off on join)
+     const audioTrack = stream.getAudioTracks()[0];
+     if (audioTrack) {
+       audioTrack.enabled = false;
+     }
+     const videoTrack = stream.getVideoTracks()[0];
+     if (videoTrack) {
+       videoTrack.enabled = false;
+     }
+
+     setLocalStream(stream);
+     // Reflect disabled state in UI flags
+     setIsMuted(true);
+     setIsVideoOff(true);
+
+     return stream;
     } catch (err) {
       const errorMsg = `Failed to access camera/microphone: ${err}`;
       setError(errorMsg);

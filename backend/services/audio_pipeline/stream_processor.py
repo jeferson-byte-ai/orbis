@@ -38,8 +38,9 @@ class AudioStreamProcessor:
         self.max_tts_chars = 240  # Keep text under XTTS 400 token limit
         # Prevent ASR hallucination/repetition: track last transcript per user
         self._last_transcript: Dict[UUID, Tuple[str, float]] = {}
-        # Simple energy gate to drop near-silence chunks
-        self._silence_rms_threshold: float = 0.008
+        # Simple energy gate to drop near-silence chunks (tuned)
+        # Lower threshold reduces false skips on soft speech
+        self._silence_rms_threshold: float = 0.005
     
     async def _notify_translation_error(self, user_id: UUID, stage: str, detail: str):
         """Send translation error information back to the user"""
@@ -199,10 +200,10 @@ class AudioStreamProcessor:
                 logger.debug(f"⏭️ Skipping empty/noise transcription for user {user_id}")
                 return  # No meaningful speech detected
 
-            # ✅ Suppress repeated identical transcriptions within 1.0s window
+            # ✅ Suppress repeated identical transcriptions within 1.5s window (tuned)
             now = time.time()
             last_text, last_ts = self._last_transcript.get(user_id, ("", 0.0))
-            if transcribed_text.lower() == last_text.lower() and (now - last_ts) < 1.0:
+            if transcribed_text.lower() == last_text.lower() and (now - last_ts) < 1.5:
                 logger.debug(f"⏭️ Suppressing duplicate transcript within window for user {user_id}: '{transcribed_text}'")
                 return
             self._last_transcript[user_id] = (transcribed_text, now)
@@ -482,6 +483,8 @@ class AudioStreamProcessor:
                 'sample_rate': self.output_sample_rate
             },
             'audio_data': encoded_audio,
+             'original_text': self._last_transcript.get(source_user_id, ("", 0.0))[0],
+             'detected_language': self.user_languages.get(source_user_id, {}).get('input'),
             'text': text,
              'language': target_language,
             'voice_fallback': voice_fallback,
