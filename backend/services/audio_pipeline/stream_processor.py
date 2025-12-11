@@ -36,6 +36,10 @@ class AudioStreamProcessor:
         self.input_sample_rate = 16000
         self.output_sample_rate = 22050
         self.max_tts_chars = 240  # Keep text under XTTS 400 token limit
+        # Prevent ASR hallucination/repetition: track last transcript per user
+        self._last_transcript: Dict[UUID, Tuple[str, float]] = {}
+        # Simple energy gate to drop near-silence chunks
+        self._silence_rms_threshold: float = 0.008
     
     async def _notify_translation_error(self, user_id: UUID, stage: str, detail: str):
         """Send translation error information back to the user"""
@@ -87,6 +91,7 @@ class AudioStreamProcessor:
         if user_id in self.user_languages:
             del self.user_languages[user_id]
         
+        self._last_transcript.pop(user_id, None)
         audio_chunk_manager.clear_audio_buffer(user_id)
         logger.info(f"Stopped audio processing for user {user_id}")
     
@@ -94,13 +99,18 @@ class AudioStreamProcessor:
         """Background loop to process audio chunks"""
         try:
             while True:
-                # Process every 500ms para acumular áudio suficiente sem ficar pesado
-                await asyncio.sleep(0.5)
+                # Process frequently to reduce latency while batching small chunks
+                await asyncio.sleep(0.05)
                 
                 if user_id not in self.user_languages:
                     break
                 
                 audio_chunks = audio_chunk_manager.consume_audio_chunks(user_id)
+                
+                # Debug: Log chunk consumption
+                if audio_chunks:
+                    logger.info(f"🔍 Consumed {len(audio_chunks)} chunks for user {user_id}, total bytes: {sum(len(c) for c in audio_chunks)}")
+                
                 if not audio_chunks:
                     continue
                 
@@ -109,14 +119,14 @@ class AudioStreamProcessor:
                 if not combined_chunk:
                     continue
                 
-                # Requer ~0.5s de áudio para transcrever com qualidade
-                # A 16kHz PCM16, cada amostra = 2 bytes
-                # 0.5s = 16000 * 0.5 * 2 = 16000 bytes mínimo
-                min_bytes = int(self.input_sample_rate * 0.5 * 2)
+                # Aim for ~0.1s of audio to reduce perceived latency while keeping quality
+                # At 16kHz PCM16, each sample = 2 bytes
+                # 0.1s = 16000 * 0.1 * 2 = 3200 bytes mínimo
+                min_bytes = int(self.input_sample_rate * 0.1 * 2)
                 if len(combined_chunk) < min_bytes:
                     logger.debug(
                         f"⏭️ Skipping short audio chunk: {len(combined_chunk)} bytes "
-                        f"(need >= {min_bytes} ≈0.25s at {self.input_sample_rate}Hz)"
+                        f"(need >= {min_bytes} ≈0.2s at {self.input_sample_rate}Hz)"
                     )
                     continue
                 
@@ -156,6 +166,12 @@ class AudioStreamProcessor:
             if audio_array.size == 0:
                 return
             
+            # Drop near-silence chunks to avoid Whisper hallucinations (e.g., repeated 'what is')
+            rms = float(np.sqrt(np.mean(np.square(audio_array)))) if audio_array.size > 0 else 0.0
+            if rms < self._silence_rms_threshold:
+                logger.debug(f"⏭️ Skipping near-silence chunk (RMS={rms:.4f}) for user {user_id}")
+                return
+
             # Step 2: ASR - Speech to Text (Lazy Load)
             asr_start_time = time.time()
             
@@ -168,13 +184,12 @@ class AudioStreamProcessor:
                 await self._notify_translation_error(user_id, "asr", "Whisper model failed to load")
                 return
             
-            # Para estabilizar a transcrição em hardware fraco, desabilitamos o VAD
-            # aqui no pipeline de streaming e deixamos o próprio modelo lidar com o áudio.
+            # Use Whisper VAD to reduce repetitions on noisy audio
             transcribed_text, detected_lang, _ = await whisper_service.transcribe(
                 audio_array,
                 language=input_lang if input_lang != 'auto' else None,
                 sample_rate=self.input_sample_rate,
-                vad_filter=False
+                vad_filter=True
             )
             asr_latency = (time.time() - asr_start_time) * 1000
             
@@ -183,6 +198,14 @@ class AudioStreamProcessor:
             if not transcribed_text or transcribed_text in ['...', '.', ',', '?', '!', '  ']:
                 logger.debug(f"⏭️ Skipping empty/noise transcription for user {user_id}")
                 return  # No meaningful speech detected
+
+            # ✅ Suppress repeated identical transcriptions within 1.0s window
+            now = time.time()
+            last_text, last_ts = self._last_transcript.get(user_id, ("", 0.0))
+            if transcribed_text.lower() == last_text.lower() and (now - last_ts) < 1.0:
+                logger.debug(f"⏭️ Suppressing duplicate transcript within window for user {user_id}: '{transcribed_text}'")
+                return
+            self._last_transcript[user_id] = (transcribed_text, now)
             
             # Update detected language if auto mode
             if input_lang == 'auto' and detected_lang:
@@ -215,8 +238,9 @@ class AudioStreamProcessor:
                 return
             
             listeners = connection_manager.get_room_users(room_id)
+            logger.info(f"🔊 Found {len(listeners) if listeners else 0} listeners in room {room_id}: {listeners}")
             if not listeners:
-                logger.debug(f"No listeners in room {room_id}")
+                logger.warning(f"⚠️ No listeners in room {room_id} - cannot send translation!")
                 return
 
             translations_cache: Dict[str, str] = {}

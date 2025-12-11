@@ -33,6 +33,10 @@ interface UseWebRTCReturn {
   handleSignalingMessage: (data: any) => Promise<void>;
 }
 
+// Whether to send raw microphone audio directly to peers via WebRTC.
+// When false, peers will only hear the translated/cloned voice (recommended).
+const SEND_RAW_MIC_TO_PEERS = false;
+
 // ICE servers for STUN/TURN
 const ICE_SERVERS = {
   iceServers: [
@@ -180,8 +184,13 @@ export const useWebRTC = (): UseWebRTCReturn => {
     // Add local stream tracks to peer connection
     if (localStream) {
       localStream.getTracks().forEach(track => {
-        pc.addTrack(track, localStream);
-        console.log('➕ Added local track:', track.kind, 'to', remoteUserId);
+        // Only add video tracks unless explicitly allowed to send raw mic
+        if (track.kind === 'video' || (track.kind === 'audio' && SEND_RAW_MIC_TO_PEERS)) {
+          pc.addTrack(track, localStream);
+          console.log('➕ Added local track:', track.kind, 'to', remoteUserId);
+        } else {
+          console.log('⏭️ Skipping adding raw mic to peer connection (using translated audio only)');
+        }
       });
     } else {
       console.warn('⚠️ Creating peer connection WITHOUT local stream tracks!');
@@ -480,8 +489,12 @@ export const useWebRTC = (): UseWebRTCReturn => {
         if (senders.length === 0) {
           console.log(`➕ Adding tracks to existing peer connection for ${userId}`);
           stream.getTracks().forEach(track => {
-            pc.addTrack(track, stream);
-            console.log(`  ✅ Added ${track.kind} track to ${userId}`);
+            if (track.kind === 'video' || (track.kind === 'audio' && SEND_RAW_MIC_TO_PEERS)) {
+              pc.addTrack(track, stream);
+              console.log(`  ✅ Added ${track.kind} track to ${userId}`);
+            } else {
+              console.log('  ⏭️ Skipping raw mic track for peer (translated audio only)');
+            }
           });
 
           // Renegotiate by creating a new offer
@@ -608,8 +621,12 @@ export const useWebRTC = (): UseWebRTCReturn => {
         
         localStream.getTracks().forEach(track => {
           try {
-            pc.addTrack(track, localStream);
-            console.log(`  ✅ Added ${track.kind} track to ${userId}`);
+            if (track.kind === 'video' || (track.kind === 'audio' && SEND_RAW_MIC_TO_PEERS)) {
+              pc.addTrack(track, localStream);
+              console.log(`  ✅ Added ${track.kind} track to ${userId}`);
+            } else {
+              console.log('  ⏭️ Skipping raw mic track for peer (translated audio only)');
+            }
           } catch (err) {
             console.error(`  ❌ Failed to add ${track.kind} track to ${userId}:`, err);
           }
