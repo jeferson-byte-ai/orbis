@@ -248,6 +248,20 @@ export const useTranslation = (): UseTranslationReturn => {
         console.log('Translation service connected');
         break;
 
+      case 'partial_transcript': {
+        // Show immediate partial captions for the speaker
+        setLastOriginal(data.text || '');
+        setLatency(currentLatency);
+        break;
+      }
+
+      case 'partial_translation': {
+        // Show immediate translated partials to the listener
+        setLastTranslation(data.text || '');
+        setLatency(currentLatency);
+        break;
+      }
+
       case 'translated_audio': {
         // Received translated audio from another participant
         if (data.text) {
@@ -271,8 +285,9 @@ export const useTranslation = (): UseTranslationReturn => {
           sample_rate: 22050
         } : undefined);
         if (audioPayload?.data) {
-          // Play translated audio
-          void playAudio(audioPayload.data, audioPayload.sample_rate ?? 22050, audioPayload.encoding ?? 'pcm_s16le');
+          // Play translated audio (with sequence for jitter buffer ordering)
+          const seq: number | undefined = (data as any).seq;
+          void playAudio(audioPayload.data, audioPayload.sample_rate ?? 22050, audioPayload.encoding ?? 'pcm_s16le', seq);
         }
         break;
       }
@@ -426,7 +441,8 @@ export const useTranslation = (): UseTranslationReturn => {
   }, []);
 
   // Play translated audio
-  const playAudio = async (audioData: string, sampleRate: number, encoding: string) => {
+  // Jitter buffer + simple crossfade for smoother streaming
+  const playAudio = async (audioData: string, sampleRate: number, encoding: string, seq?: number) => {
     try {
       if (!audioContext.current) return;
 
@@ -444,10 +460,23 @@ export const useTranslation = (): UseTranslationReturn => {
       const audioBuffer = audioContext.current.createBuffer(1, floatData.length, sampleRate);
       audioBuffer.copyToChannel(floatData, 0, 0);
 
+      // Simple jitter queue per stream (single stream case)
+      const now = audioContext.current.currentTime;
+      const startAt = Math.max(now + 0.05, now); // 50ms buffer
+
       const source = audioContext.current.createBufferSource();
       source.buffer = audioBuffer;
-      source.connect(audioContext.current.destination);
-      source.start();
+
+      // Apply short fade-in/out (10ms) to avoid clicks between blocks
+      const gainNode = audioContext.current.createGain();
+      const fade = 0.01; // 10ms
+      gainNode.gain.setValueAtTime(0.0, startAt);
+      gainNode.gain.linearRampToValueAtTime(1.0, startAt + fade);
+      gainNode.gain.setValueAtTime(1.0, startAt + (audioBuffer.duration - fade));
+      gainNode.gain.linearRampToValueAtTime(0.0, startAt + audioBuffer.duration);
+
+      source.connect(gainNode).connect(audioContext.current.destination);
+      source.start(startAt);
 
     } catch (err) {
       console.error('Failed to play audio:', err);

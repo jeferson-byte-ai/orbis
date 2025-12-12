@@ -93,10 +93,11 @@ async def websocket_audio_endpoint(websocket: WebSocket, room_id: str):
         return
     
     # Store connection (don't call accept again, already done above)
-    connection_manager.active_connections[user_id] = websocket
+    connection_manager.active_connections.setdefault(user_id, []).append(websocket)
     if room_id not in connection_manager.room_connections:
         connection_manager.room_connections[room_id] = []
-    connection_manager.room_connections[room_id].append(user_id)
+    if user_id not in connection_manager.room_connections[room_id]:
+        connection_manager.room_connections[room_id].append(user_id)
     connection_manager.user_rooms[user_id] = room_id
     logger.info(f"User {user_id} connected to room {room_id}")
     
@@ -460,10 +461,11 @@ async def websocket_status_endpoint(websocket: WebSocket, room_id: str):
         return
     
     # Store connection (don't call connect(), already accepted above)
-    connection_manager.active_connections[user_id] = websocket
+    connection_manager.active_connections.setdefault(user_id, []).append(websocket)
     if room_id not in connection_manager.room_connections:
         connection_manager.room_connections[room_id] = []
-    connection_manager.room_connections[room_id].append(user_id)
+    if user_id not in connection_manager.room_connections[room_id]:
+        connection_manager.room_connections[room_id].append(user_id)
     connection_manager.user_rooms[user_id] = room_id
     
     try:

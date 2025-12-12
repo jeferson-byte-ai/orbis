@@ -41,6 +41,15 @@ class AudioStreamProcessor:
         # Simple energy gate to drop near-silence chunks (tuned)
         # Lower threshold reduces false skips on soft speech
         self._silence_rms_threshold: float = 0.005
+        # Rolling buffers for streaming context and voice activity
+        self._rolling_buffers: Dict[UUID, bytes] = {}
+        self._last_activity_ts: Dict[UUID, float] = {}
+        self._last_process_ts: Dict[UUID, float] = {}
+        self._speaking_flags: Dict[UUID, bool] = {}
+        # Track what translation content has already been sent per (speaker -> listener, language)
+        self._last_sent_translations: Dict[Tuple[UUID, UUID, str], str] = {}
+        # Per (speaker->listener) sequence counters for audio chunks
+        self._seq_counters: Dict[Tuple[UUID, UUID], int] = {}
     
     async def _notify_translation_error(self, user_id: UUID, stage: str, detail: str):
         """Send translation error information back to the user"""
@@ -92,58 +101,92 @@ class AudioStreamProcessor:
         if user_id in self.user_languages:
             del self.user_languages[user_id]
         
+        # Clear per-user state
         self._last_transcript.pop(user_id, None)
+        self._rolling_buffers.pop(user_id, None)
+        self._last_activity_ts.pop(user_id, None)
+        self._last_process_ts.pop(user_id, None)
+        self._speaking_flags.pop(user_id, None)
         audio_chunk_manager.clear_audio_buffer(user_id)
         logger.info(f"Stopped audio processing for user {user_id}")
     
     async def _process_audio_loop(self, user_id: UUID):
-        """Background loop to process audio chunks"""
+        """Background loop to process audio chunks with rolling buffer and VAD-like gating"""
         try:
             while True:
-                # Process frequently to reduce latency while batching small chunks
-                await asyncio.sleep(0.05)
+                # Throttle processing loop to ~100ms for ultra-low latency
+                await asyncio.sleep(0.10)
                 
                 if user_id not in self.user_languages:
                     break
                 
-                audio_chunks = audio_chunk_manager.consume_audio_chunks(user_id)
-                
-                # Debug: Log chunk consumption
-                if audio_chunks:
-                    logger.info(f"🔍 Consumed {len(audio_chunks)} chunks for user {user_id}, total bytes: {sum(len(c) for c in audio_chunks)}")
-                
-                if not audio_chunks:
+                # Get new chunks from the socket buffer
+                new_chunks = audio_chunk_manager.consume_audio_chunks(user_id)
+                if not new_chunks:
+                    # On silence, check if we should end the speaking session
+                    self._check_end_of_speech(user_id)
                     continue
                 
-                # Combine all buffered chunks for better transcription
-                combined_chunk = b"".join(audio_chunks)
-                if not combined_chunk:
+                combined_new = b"".join(new_chunks)
+                if not combined_new:
                     continue
                 
-                # Aim for ~0.1s of audio to reduce perceived latency while keeping quality
-                # At 16kHz PCM16, each sample = 2 bytes
-                # 0.1s = 16000 * 0.1 * 2 = 3200 bytes mínimo
-                min_bytes = int(self.input_sample_rate * 0.1 * 2)
-                if len(combined_chunk) < min_bytes:
-                    logger.debug(
-                        f"⏭️ Skipping short audio chunk: {len(combined_chunk)} bytes "
-                        f"(need >= {min_bytes} ≈0.2s at {self.input_sample_rate}Hz)"
-                    )
+                # Append to rolling buffer with a maximum of 2.5s to limit Whisper context size
+                buf = self._rolling_buffers.get(user_id, b"") + combined_new
+                max_seconds = 2.5
+                max_bytes = int(self.input_sample_rate * max_seconds * 2)
+                if len(buf) > max_bytes:
+                    buf = buf[-max_bytes:]
+                self._rolling_buffers[user_id] = buf
+                
+                # Update last activity timestamp based on energy in the new audio
+                # This helps us know when the user stopped speaking
+                audio_array = self._bytes_to_audio_array(combined_new)
+                rms = float(np.sqrt(np.mean(np.square(audio_array)))) if audio_array.size > 0 else 0.0
+                if rms >= self._silence_rms_threshold:
+                    self._last_activity_ts[user_id] = time.time()
+                    self._speaking_flags[user_id] = True
+                
+                # Only process if enough time passed since last process to avoid duplicate work
+                now = time.time()
+                last_proc = self._last_process_ts.get(user_id, 0.0)
+                if now - last_proc < 0.10:  # 100ms minimum interval
+                    continue
+                self._last_process_ts[user_id] = now
+                
+                # If we still have very little audio in the rolling buffer, wait for more to reduce first-word cut
+                min_bytes = int(self.input_sample_rate * 0.12 * 2)  # ~120ms (start a bit earlier)
+                if len(buf) < min_bytes:
                     continue
                 
-                # Log audio statistics for debugging
-                audio_duration = len(combined_chunk) / (self.input_sample_rate * 2)
-                logger.info(
-                    f"🎧 Processing audio chunk: {len(combined_chunk)} bytes "
-                    f"= {audio_duration:.2f} seconds"
-                )
-
-                await self._process_audio_chunk(user_id, combined_chunk)
+                # Process the rolling buffer, which provides some context
+                await self._process_audio_chunk(user_id, buf)
                 
         except asyncio.CancelledError:
             logger.info(f"Audio processing stopped for user {user_id}")
         except Exception as e:
             logger.error(f"Audio processing error for user {user_id}: {e}")
+    
+    def _check_end_of_speech(self, user_id: UUID):
+        """End-of-speech detection based on silence duration to reset rolling context"""
+        last_ts = self._last_activity_ts.get(user_id)
+        speaking = self._speaking_flags.get(user_id, False)
+        if not last_ts or not speaking:
+            return
+        # If we've had >500ms without activity, finalize and reset state to avoid repeats
+        if time.time() - last_ts > 0.4:  # slightly more sensitive for faster stop
+            # Reset rolling context and per-listener delta trackers
+            self._rolling_buffers.pop(user_id, None)
+            self._speaking_flags[user_id] = False
+            # Clear last transcript window older than 1.5s to allow new phrases
+            last_text, last_time = self._last_transcript.get(user_id, ("", 0.0))
+            if last_text and (time.time() - last_time) > 1.5:
+                self._last_transcript.pop(user_id, None)
+            # Clear last-sent trackers for this speaker so next utterance starts fresh
+            keys_to_clear = [k for k in self._last_sent_translations.keys() if k[0] == user_id]
+            for k in keys_to_clear:
+                self._last_sent_translations.pop(k, None)
+            logger.debug(f"🛑 End-of-speech detected for {user_id}, resetting rolling buffer and last-sent deltas")
     
     async def _process_audio_chunk(self, user_id: UUID, audio_data: bytes):
         """Process a single audio chunk through ASR → MT → TTS pipeline"""
@@ -217,6 +260,18 @@ class AudioStreamProcessor:
 
             logger.info(f"🎤 User {user_id} spoke in {speaker_language}: '{transcribed_text}'")
             
+            # Emit partial transcript immediately to room (low-latency UI)
+            try:
+                await connection_manager.broadcast_to_room(room_id, {
+                    'type': 'partial_transcript',
+                    'user_id': str(user_id),
+                    'text': transcribed_text,
+                    'language': speaker_language,
+                    'timestamp': time.time()
+                })
+            except Exception as _e:
+                logger.debug(f"Partial transcript broadcast failed: {_e}")
+            
             # Step 3: Machine Translation (Lazy Load)
             # Ensure NLLB is loaded
             if not await lazy_loader.ensure_loaded(ModelType.NLLB):
@@ -261,13 +316,13 @@ class AudioStreamProcessor:
                 logger.debug(f"📢 Processing for listener {target_user_id}: {input_lang} → {target_language}")
 
                 # Check if we already processed this language
-                target_text = translations_cache.get(target_language)
+                full_translation = translations_cache.get(target_language)
 
-                if not target_text:
+                if not full_translation:
                     translation_start = time.time()
                     
                     # Translate text from speaker's language to listener's language
-                    target_text = await self._translate_text(
+                    full_translation = await self._translate_text(
                         transcribed_text,
                         speaker_language,
                         target_language
@@ -275,41 +330,64 @@ class AudioStreamProcessor:
                     translation_latency = (time.time() - translation_start) * 1000
                     mt_latency += translation_latency
 
-                    logger.info(f"🌐 Translated to {target_language}: '{target_text}'")
+                    logger.info(f"🌐 Translated to {target_language}: '{full_translation}'")
 
-                    translations_cache[target_language] = target_text
+                    translations_cache[target_language] = full_translation
+                
+                # Also broadcast partial translation for UI immediacy
+                try:
+                    await connection_manager.send_personal_message(target_user_id, {
+                        'type': 'partial_translation',
+                        'from_user_id': str(user_id),
+                        'text': full_translation,
+                        'language': target_language,
+                        'timestamp': time.time()
+                    })
+                except Exception as _e:
+                    logger.debug(f"Partial translation send failed: {_e}")
 
-                # ✅ FIX: Synthesize audio using SPEAKER's voice (not listener's voice)
-                # The listener should hear the speaker's cloned voice speaking in their language
+                # Compute delta: only speak what hasn't been sent yet to this listener for this language
+                key = (user_id, target_user_id, target_language)
+                last_sent = self._last_sent_translations.get(key, "")
+                delta_text = full_translation[len(last_sent):] if full_translation.startswith(last_sent) else full_translation
+                
+                # If delta is too small, skip to avoid micro TTS calls
+                min_delta_chars = 5  # ultra-low latency: allow smaller deltas
+                if len(delta_text.strip()) < min_delta_chars:
+                    continue
+                
+                # TTS only the delta
                 tts_start_time = time.time()
                 target_audio, used_fallback_voice = await self._text_to_speech(
-                    target_text,
+                    delta_text,
                     target_language,
-                    voice_user_id=user_id,  # ✅ Use SPEAKER's voice (quem está falando)
-                    fallback_user_id=None   # ✅ No fallback - use default voice if no profile
+                    voice_user_id=user_id,
+                    fallback_user_id=None
                 )
                 tts_latency = (time.time() - tts_start_time) * 1000
                 tts_total_latency += tts_latency
 
                 if not target_audio:
                     logger.warning(
-                        f"⚠️ No translated audio generated for {input_lang} → {target_language}"
+                        f"⚠️ No translated audio generated for {input_lang} → {target_language} (delta)"
                     )
                     continue
 
-                # Send translated audio to listener
+                # Send translated audio delta to listener
                 send_start_time = time.time()
                 await self._send_translated_audio(
                     room_id=room_id,
                     source_user_id=user_id,
                     target_user_id=target_user_id,
                     audio_data=target_audio,
-                    text=target_text,
+                    text=delta_text,
                     target_language=target_language,
                     voice_fallback=used_fallback_voice
                 )
                 send_latency += (time.time() - send_start_time) * 1000
                 processed_count += 1
+                # Update last-sent marker for incremental streaming
+                self._last_sent_translations[key] = full_translation
             
             # Calculate and log latency
             total_processing_time = (time.time() - start_time) * 1000
@@ -423,12 +501,13 @@ class AudioStreamProcessor:
                 else:
                     logger.warning(f"⚠️ No fallback voice profile found either")
 
-            text_chunks = self._chunk_text_for_tts(text, self.max_tts_chars)
+            text_chunks = self._chunk_text_for_tts(text, max(80, self.max_tts_chars // 2))
             if not text_chunks:
                 return b"", used_fallback
 
+            # Stream TTS progressively: synthesize small chunks and yield concatenated bytes
             audio_segments: List[np.ndarray] = []
-            for chunk in text_chunks:
+            for idx, chunk in enumerate(text_chunks):
                 audio_array = await coqui_service.synthesize(
                     text=chunk,
                     language=language,
@@ -440,13 +519,14 @@ class AudioStreamProcessor:
                     logger.warning("⚠️ Empty audio chunk from TTS, skipping segment")
                     continue
 
+                # Append to segments
                 audio_segments.append(audio_array)
 
             if not audio_segments:
                 return b"", used_fallback
 
+            # Concatenate and return bytes
             audio_array = np.concatenate(audio_segments)
-
             if audio_array.size == 0:
                 return b"", used_fallback
 
@@ -469,24 +549,30 @@ class AudioStreamProcessor:
         target_language: str,
         voice_fallback: bool
     ):
-        """Send translated audio to a specific participant"""
+        """Send translated audio to a specific participant (with sequence for jitter buffer)"""
         if not audio_data:
             return
+
+        # Sequence per (speaker->listener)
+        seq_key = (source_user_id, target_user_id)
+        seq = self._seq_counters.get(seq_key, 0) + 1
+        self._seq_counters[seq_key] = seq
 
         encoded_audio = base64.b64encode(audio_data).decode("ascii")
         audio_message = {
             'type': 'translated_audio',
             'user_id': str(source_user_id),
+            'seq': seq,
             'audio': {
                 'data': encoded_audio,
                 'encoding': 'pcm_s16le',
                 'sample_rate': self.output_sample_rate
             },
             'audio_data': encoded_audio,
-             'original_text': self._last_transcript.get(source_user_id, ("", 0.0))[0],
-             'detected_language': self.user_languages.get(source_user_id, {}).get('input'),
+            'original_text': self._last_transcript.get(source_user_id, ("", 0.0))[0],
+            'detected_language': self.user_languages.get(source_user_id, {}).get('input'),
             'text': text,
-             'language': target_language,
+            'language': target_language,
             'voice_fallback': voice_fallback,
             'timestamp': time.time()
         }

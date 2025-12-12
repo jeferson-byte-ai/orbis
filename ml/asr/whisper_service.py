@@ -11,11 +11,73 @@ import time
 from pathlib import Path
 import io
 import tempfile
+import re
 
 logger = logging.getLogger(__name__)
 
 
 class WhisperService:
+    @staticmethod
+    def _clean_repetitions(text: str) -> str:
+        """
+        Reduce pathological repetitions that can occur in ASR streaming like:
+        "what's what's what's" or "go go go".
+        - Collapse 3+ repeated tokens to 1
+        - Collapse repeated bigrams/trigrams
+        - Normalize excessive punctuation/whitespace
+        """
+        if not text:
+            return text
+        # Normalize spaces
+        t = re.sub(r"\s+", " ", text).strip()
+
+        # Collapse token repetitions (words or contractions)
+        # e.g., "what's what's what's" -> "what's"
+        def collapse_repeats(tokens, max_n=3):
+            out = []
+            i = 0
+            n = len(tokens)
+            while i < n:
+                j = i + 1
+                while j < n and tokens[j].lower() == tokens[i].lower():
+                    j += 1
+                count = j - i
+                # keep a single occurrence if repeated >=2
+                out.append(tokens[i])
+                i = j
+            return out
+
+        tokens = t.split(" ")
+        tokens = collapse_repeats(tokens)
+        t = " \\n".join(tokens).replace(" \\n", " ")
+
+        # Collapse repeated bigrams (A B A B A B -> A B)
+        words = t.split(" ")
+        i = 0
+        out = []
+        while i < len(words):
+            # try bigram
+            if i + 3 < len(words) and words[i].lower() == words[i+2].lower() and words[i+1].lower() == words[i+3].lower():
+                # consume all repeating bigrams
+                a, b = words[i], words[i+1]
+                out.extend([a, b])
+                k = i + 2
+                while k + 1 < len(words) and words[k].lower() == a.lower() and words[k+1].lower() == b.lower():
+                    k += 2
+                i = k
+                continue
+            out.append(words[i])
+            i += 1
+        t = " ".join(out)
+
+        # Remove leftover runs of the same word (case-insensitive)
+        t = re.sub(r"\b(\w+[’']?\w*)\b(\s+\1\b)+", r"\1", t, flags=re.IGNORECASE)
+
+        # Collapse punctuation repetitions
+        t = re.sub(r"([,.!?])\1{1,}", r"\1", t)
+        t = re.sub(r"\s*([,.!?])\s*", r"\1 ", t).strip()
+
+        return t
     """
     Production-ready Whisper ASR service for real-time transcription
     Uses faster-whisper for optimal performance
@@ -173,6 +235,8 @@ class WhisperService:
                 segment_count += 1
             
             transcription = transcription.strip()
+            # Sanitize repetitions and artifacts often produced by partial-chunk decoding
+            transcription = self._clean_repetitions(transcription)
             detected_lang = info.language if hasattr(info, 'language') else (language or "en")
             
             # ✅ Log warning if transcription is empty but audio was long enough
