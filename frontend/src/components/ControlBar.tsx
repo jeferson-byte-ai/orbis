@@ -66,7 +66,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
             isActive={!isMuted}
             isDanger={isMuted}
           />
-          
+
           {/* Video toggle */}
           <ControlButton
             icon={isVideoOff ? VideoOff : Video}
@@ -75,7 +75,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
             isActive={!isVideoOff}
             isDanger={isVideoOff}
           />
-          
+
           {/* Screen share */}
           {onToggleScreenShare && (
             <ControlButton
@@ -85,7 +85,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
               isActive={isScreenSharing}
             />
           )}
-          
+
           {/* Fullscreen */}
           {onToggleFullscreen && (
             <ControlButton
@@ -95,7 +95,7 @@ const ControlBar: React.FC<ControlBarProps> = ({
               isActive={isFullscreen}
             />
           )}
-          
+
           {/* Captions toggle */}
           {onToggleCaptions && (
             <ControlButton
@@ -115,17 +115,16 @@ const ControlBar: React.FC<ControlBarProps> = ({
               isActive={!!rawMicEnabled}
             />
           )}
-          
-          {/* Chat toggle - Enhanced with visible label */
-          {onToggleChat && (
+
+          {/* Chat toggle - Enhanced with visible label */}
+          {(onToggleChat && (
             <div className="relative">
               <button
                 onClick={onToggleChat}
-                className={`rounded-full p-4 transition-all hover:scale-110 active:scale-95 relative group ${
-                  isChatVisible
+                className={`rounded-full p-4 transition-all hover:scale-110 active:scale-95 relative group ${isChatVisible
                     ? 'bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg shadow-red-600/50'
                     : 'glass hover:bg-white/10 text-white animate-pulse'
-                }`}
+                  }`}
                 title={isChatVisible ? 'Hide Chat' : 'Show Chat'}
               >
                 <MessageSquare size={24} />
@@ -145,17 +144,17 @@ const ControlBar: React.FC<ControlBarProps> = ({
                 </div>
               )}
             </div>
-          )}
-          
+          ))}
+
           {/* Participant count */}
           <div className="glass px-4 py-3 rounded-full flex items-center gap-2">
             <Users size={20} className="text-red-400" />
             <span className="text-white font-semibold">{participantCount}</span>
           </div>
-          
+
           {/* Spacer */}
           <div className="w-8" />
-          
+
           {/* Leave or End Meeting button */}
           {isHost && onEndMeeting ? (
             <button
@@ -226,9 +225,9 @@ const ControlButton: React.FC<ControlButtonProps> = ({
   const colorClasses = isDanger
     ? "bg-red-600/80 hover:bg-red-600 text-white shadow-lg shadow-red-600/50"
     : isActive
-    ? "bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg shadow-red-600/50"
-    : "glass hover:bg-white/10 text-white";
-  
+      ? "bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg shadow-red-600/50"
+      : "glass hover:bg-white/10 text-white";
+
   return (
     <div className="relative">
       <button
