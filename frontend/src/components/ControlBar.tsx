@@ -43,7 +43,9 @@ const ControlBar: React.FC<ControlBarProps> = ({
   onToggleChat,
   isChatVisible = true,
   onToggleCaptions,
-  showCaptions = true
+  showCaptions = true,
+  rawMicEnabled = false,
+  onToggleRawMic
 }) => {
   const [showEndMeetingConfirm, setShowEndMeetingConfirm] = useState(false);
 
