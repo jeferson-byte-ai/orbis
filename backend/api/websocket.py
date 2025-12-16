@@ -4,6 +4,7 @@ WebSocket endpoints for real-time audio streaming and translation
 import base64
 import logging
 from uuid import UUID
+import asyncio
 from fastapi import WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.routing import APIRouter
 
@@ -139,15 +140,43 @@ async def websocket_audio_endpoint(websocket: WebSocket, room_id: str):
         finally:
             db.close()
         
-        # Start audio processing for this user
-        await audio_stream_processor.start_processing(
-            user_id,
-            room_id,
-            input_lang=input_lang,
-            output_lang=output_lang,
-            speaks_pref=speaks_pref,
-            understands_pref=understands_pref
-        )
+        # Start audio processing for this user only if we have a concrete input language
+        # If input is 'auto' and no speaks_pref, wait for init_settings from client to avoid wrong decisions
+        should_start = bool(input_lang and input_lang != 'auto') or bool(speaks_pref)
+        if should_start:
+            await audio_stream_processor.start_processing(
+                user_id,
+                room_id,
+                input_lang=input_lang,
+                output_lang=output_lang,
+                speaks_pref=speaks_pref,
+                understands_pref=understands_pref
+            )
+        else:
+            logger.warning(
+                "⏸️ Deferring start_processing for user %s: input_lang=auto and no speaks_pref. Waiting for init_settings...",
+                user_id
+            )
+        
+        # If we deferred start (no concrete input language), auto-start after timeout using profile
+        if not should_start:
+            async def _delayed_autostart():
+                try:
+                    await asyncio.sleep(2.0)
+                    if user_id not in audio_stream_processor.user_languages:
+                        # Use DB prefs loaded above
+                        await audio_stream_processor.start_processing(
+                            user_id,
+                            room_id,
+                            input_lang=(speaks_pref[0] if speaks_pref else 'en'),
+                            output_lang=(understands_pref[0] if understands_pref else 'en'),
+                            speaks_pref=speaks_pref,
+                            understands_pref=understands_pref
+                        )
+                        logger.info("⏱️ init_settings timeout — starting with profile prefers speaks=%s → wants_to_hear=%s", speaks_pref, understands_pref)
+                except Exception as _e:
+                    logger.error("Auto-start fallback failed: %s", _e)
+            asyncio.create_task(_delayed_autostart())
         
         # Main message loop
         while True:
@@ -182,19 +211,36 @@ async def handle_websocket_message(user_id: UUID, room_id: str, data: dict):
         speaks_pref = data.get("speaks_languages")
         understands_pref = data.get("understands_languages")
 
+        # Normalize short codes like 'pt-BR' -> 'pt'
+        def _norm(code: str | None):
+            if not code:
+                return code
+            return (code.split('-')[0] or code).lower()
+
         # Update user language preferences
         audio_stream_processor.update_user_language(
             user_id,
-            input_lang,
-            output_lang,
+            _norm(input_lang),
+            _norm(output_lang),
             speaks_pref=speaks_pref,
             understands_pref=understands_pref
         )
 
+        # If processing hasn't started yet (was deferred), start now with normalized values
+        if user_id not in audio_stream_processor.user_languages:
+            await audio_stream_processor.start_processing(
+                user_id,
+                room_id,
+                input_lang=_norm(input_lang or 'en'),
+                output_lang=_norm(output_lang or 'en'),
+                speaks_pref=speaks_pref,
+                understands_pref=understands_pref
+            )
+
         await connection_manager.send_personal_message(user_id, {
             "type": "language_updated",
-            "input_language": input_lang,
-            "output_language": output_lang,
+            "input_language": _norm(input_lang),
+            "output_language": _norm(output_lang),
             "message": "Initial language preferences applied"
         })
         logger.info(
@@ -206,6 +252,11 @@ async def handle_websocket_message(user_id: UUID, room_id: str, data: dict):
         return
 
     if message_type == "audio_chunk":
+        # If processing was deferred and still not started, keep buffering but warn once
+        if user_id not in audio_stream_processor.user_languages:
+            if not hasattr(handle_websocket_message, "_warned_deferred"):
+                logger.warning("🎙️ Received audio before init_settings; buffering until settings arrive for user %s", user_id)
+                handle_websocket_message._warned_deferred = True
         await handle_audio_chunk(user_id, data)
     
     elif message_type == "language_update":

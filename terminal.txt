@@ -3,100 +3,102 @@ PS C:\Users\Jeferson\Documents\orbis> & C:/Users/Jeferson/Documents/orbis/venv/S
 >> 
 INFO:     Will watch for changes in these directories: ['C:\\Users\\Jeferson\\Documents\\orbis']
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [12980] using WatchFiles
+INFO:     Started reloader process [14384] using WatchFiles
 C:\Users\Jeferson\Documents\orbis\venv\lib\site-packages\transformers\utils\generic.py:441: FutureWarning: `torch.utils._pytree._register_pytree_node` is deprecated. Please use `torch.utils._pytree.register_pytree_node` instead.
   _torch_pytree._register_pytree_node(
 C:\Users\Jeferson\Documents\orbis\venv\lib\site-packages\transformers\utils\generic.py:309: FutureWarning: `torch.utils._pytree._register_pytree_node` is deprecated. Please use `torch.utils._pytree.register_pytree_node` instead.
   _torch_pytree._register_pytree_node(
-INFO:     Started server process [18308]
+INFO:     Started server process [8344]
 INFO:     Waiting for application startup.
-2025-12-16 15:13:22,596 - backend.main - INFO - 🚀 Starting Orbis Backend v2.0...
-2025-12-16 15:13:24,282 - backend.main - INFO - ✅ Database tables created/verified
-2025-12-16 15:13:24,284 - backend.main - INFO - ✅ Storage directories created/verified
-2025-12-16 15:13:24,317 - backend.core.cache - WARNING - ⚠️  Redis connection failed: Error 11001 connecting to living-liger-41000.upstash.io:6379. getaddrinfo failed.
-2025-12-16 15:13:24,317 - backend.core.cache - WARNING - ⚠️  Sistema funcionará com cache in-memory (limitado)
-2025-12-16 15:13:24,317 - backend.core.cache - WARNING - ⚠️  Para melhor performance, inicie Redis:
-2025-12-16 15:13:24,320 - backend.core.cache - WARNING -    • Docker: docker-compose up -d
-2025-12-16 15:13:24,320 - backend.core.cache - WARNING -    • Windows: .\install_redis_windows.ps1
-2025-12-16 15:13:24,320 - backend.main - INFO - ✅ Redis connected
-2025-12-16 15:13:24,320 - backend.main - INFO - 🔍 Initializing Lazy Loading System...
-2025-12-16 15:13:24,320 - backend.services.hardware_detection - INFO - 🔍 Detecting hardware capabilities...
-2025-12-16 15:13:24,422 - backend.services.hardware_detection - INFO - ============================================================
-2025-12-16 15:13:24,422 - backend.services.hardware_detection - INFO - 🔍 HARDWARE DETECTION RESULTS
-2025-12-16 15:13:24,422 - backend.services.hardware_detection - INFO - ============================================================
-2025-12-16 15:13:24,422 - backend.services.hardware_detection - INFO - 💻 CPU: 12 cores @ 2688 MHz
-2025-12-16 15:13:24,422 - backend.services.hardware_detection - INFO - 🧠 RAM: 0.9GB available / 7.8GB total (87.9% used)
-2025-12-16 15:13:24,422 - backend.services.hardware_detection - INFO - 🎮 GPU: Not available (using CPU)
-2025-12-16 15:13:24,422 - backend.services.hardware_detection - INFO - 📊 Profile: LOW
-2025-12-16 15:13:24,422 - backend.services.hardware_detection - INFO -
-2025-12-16 15:13:24,425 - backend.services.hardware_detection - INFO - 🎯 RECOMMENDED CONFIGURATION:
-2025-12-16 15:13:24,425 - backend.services.hardware_detection - INFO -    • Whisper Model: base
-2025-12-16 15:13:24,425 - backend.services.hardware_detection - INFO -    • NLLB Model: facebook/nllb-200-distilled-600M
-2025-12-16 15:13:24,425 - backend.services.hardware_detection - INFO -    • Device: CPU
-2025-12-16 15:13:24,426 - backend.services.hardware_detection - INFO -    • Compute Type: int8
-2025-12-16 15:13:24,426 - backend.services.hardware_detection - INFO - ============================================================
-2025-12-16 15:13:24,426 - backend.main - INFO - ✅ Hardware auto-configuration applied:
-2025-12-16 15:13:24,426 - backend.main - INFO -    Device: cpu
-2025-12-16 15:13:24,426 - backend.main - INFO -    Whisper: base
-2025-12-16 15:13:24,426 - backend.main - INFO -    NLLB: facebook/nllb-200-distilled-600M
-2025-12-16 15:13:24,426 - backend.services.lazy_loader - INFO - 📝 Registered whisper for lazy loading
-2025-12-16 15:13:24,427 - backend.main - INFO - 📝 Registered Whisper for lazy loading
-2025-12-16 15:13:24,427 - backend.services.lazy_loader - INFO - 📝 Registered nllb for lazy loading
-2025-12-16 15:13:24,427 - backend.main - INFO - 📝 Registered NLLB for lazy loading
-2025-12-16 15:13:24,427 - backend.services.lazy_loader - INFO - 📝 Registered coqui for lazy loading
-2025-12-16 15:13:24,427 - backend.main - INFO - 📝 Registered Coqui TTS for lazy loading
-2025-12-16 15:13:24,427 - backend.services.lazy_loader - INFO - 🔄 Started auto-unload task (check every 300s, timeout: 3600s)
-2025-12-16 15:13:24,427 - backend.main - INFO - ✅ Auto-unload enabled (idle: 3600s)
-2025-12-16 15:13:24,427 - backend.main - INFO - ✅ Lazy loading enabled - models will load on first use
-2025-12-16 15:13:24,427 - backend.main - INFO - 📦 Pre-loading critical models to avoid runtime crashes...
-2025-12-16 15:13:24,427 - backend.services.lazy_loader - INFO - ⏳ Loading whisper model...
-2025-12-16 15:13:24,427 - backend.services.lazy_loader - INFO - ⏳ Loading nllb model...
-2025-12-16 15:13:24,427 - backend.services.lazy_loader - INFO - ⏳ Loading coqui model...
+2025-12-16 15:46:34,285 - backend.main - INFO - 🚀 Starting Orbis Backend v2.0...
+2025-12-16 15:46:35,880 - backend.main - INFO - ✅ Database tables created/verified
+2025-12-16 15:46:35,880 - backend.main - INFO - ✅ Storage directories created/verified
+2025-12-16 15:46:35,915 - backend.core.cache - WARNING - ⚠️  Redis connection failed: Error 11001 connecting to living-liger-41000.upstash.io:6379. getaddrinfo  failed.
+2025-12-16 15:46:35,915 - backend.core.cache - WARNING - ⚠️  Sistema funcionará com cache in-memory (limitado)
+2025-12-16 15:46:35,915 - backend.core.cache - WARNING - ⚠️  Para melhor performance, inicie Redis:
+2025-12-16 15:46:35,915 - backend.core.cache - WARNING -    • Docker: docker-compose up -d
+2025-12-16 15:46:35,917 - backend.core.cache - WARNING -    • Windows: .\install_redis_windows.ps1
+2025-12-16 15:46:35,917 - backend.main - INFO - ✅ Redis connected
+2025-12-16 15:46:35,917 - backend.main - INFO - 🔍 Initializing Lazy Loading System...
+2025-12-16 15:46:35,917 - backend.services.hardware_detection - INFO - 🔍 Detecting hardware capabilities...
+2025-12-16 15:46:36,025 - backend.services.hardware_detection - INFO - ============================================================
+2025-12-16 15:46:36,025 - backend.services.hardware_detection - INFO - 🔍 HARDWARE DETECTION RESULTS
+2025-12-16 15:46:36,025 - backend.services.hardware_detection - INFO - ============================================================
+2025-12-16 15:46:36,025 - backend.services.hardware_detection - INFO - 💻 CPU: 12 cores @ 2688 MHz
+2025-12-16 15:46:36,025 - backend.services.hardware_detection - INFO - 🧠 RAM: 1.8GB available / 7.8GB total (76.7% used)
+2025-12-16 15:46:36,025 - backend.services.hardware_detection - INFO - 🎮 GPU: Not available (using CPU)
+2025-12-16 15:46:36,025 - backend.services.hardware_detection - INFO - 📊 Profile: LOW
+2025-12-16 15:46:36,025 - backend.services.hardware_detection - INFO -
+2025-12-16 15:46:36,025 - backend.services.hardware_detection - INFO - 🎯 RECOMMENDED CONFIGURATION:
+2025-12-16 15:46:36,025 - backend.services.hardware_detection - INFO -    • Whisper Model: base
+2025-12-16 15:46:36,025 - backend.services.hardware_detection - INFO -    • NLLB Model: facebook/nllb-200-distilled-600M
+2025-12-16 15:46:36,025 - backend.services.hardware_detection - INFO -    • Device: CPU
+2025-12-16 15:46:36,025 - backend.services.hardware_detection - INFO -    • Compute Type: int8
+2025-12-16 15:46:36,025 - backend.services.hardware_detection - INFO - ============================================================
+2025-12-16 15:46:36,025 - backend.main - INFO - ✅ Hardware auto-configuration applied:
+2025-12-16 15:46:36,025 - backend.main - INFO -    Device: cpu
+2025-12-16 15:46:36,025 - backend.main - INFO -    Whisper: base
+2025-12-16 15:46:36,025 - backend.main - INFO -    NLLB: facebook/nllb-200-distilled-600M
+2025-12-16 15:46:36,025 - backend.services.lazy_loader - INFO - 📝 Registered whisper for lazy loading
+2025-12-16 15:46:36,025 - backend.main - INFO - 📝 Registered Whisper for lazy loading
+2025-12-16 15:46:36,025 - backend.services.lazy_loader - INFO - 📝 Registered nllb for lazy loading
+2025-12-16 15:46:36,025 - backend.main - INFO - 📝 Registered NLLB for lazy loading
+2025-12-16 15:46:36,025 - backend.services.lazy_loader - INFO - 📝 Registered coqui for lazy loading
+2025-12-16 15:46:36,025 - backend.main - INFO - 📝 Registered Coqui TTS for lazy loading
+2025-12-16 15:46:36,025 - backend.services.lazy_loader - INFO - 🔄 Started auto-unload task (check every 300s, timeout: 3600s)
+2025-12-16 15:46:36,025 - backend.main - INFO - ✅ Auto-unload enabled (idle: 3600s)
+2025-12-16 15:46:36,025 - backend.main - INFO - ✅ Lazy loading enabled - models will load on first use
+2025-12-16 15:46:36,025 - backend.main - INFO - 📦 Pre-loading critical models to avoid runtime crashes...
+2025-12-16 15:46:36,025 - backend.services.lazy_loader - INFO - ⏳ Loading whisper model...
+2025-12-16 15:46:36,025 - backend.services.lazy_loader - INFO - ⏳ Loading nllb model...
+2025-12-16 15:46:36,025 - backend.services.lazy_loader - INFO - ⏳ Loading coqui model...
+C:\Users\Jeferson\Documents\orbis\venv\lib\site-packages\huggingface_hub\file_download.py:942: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+C:\Users\Jeferson\Documents\orbis\venv\lib\site-packages\ctranslate2\__init__.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
 C:\Users\Jeferson\Documents\orbis\venv\lib\site-packages\huggingface_hub\file_download.py:942: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
   warnings.warn(
 C:\Users\Jeferson\Documents\orbis\venv\lib\site-packages\transformers\modeling_utils.py:484: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
   return torch.load(checkpoint_file, map_location=map_location)
-C:\Users\Jeferson\Documents\orbis\venv\lib\site-packages\librosa\core\intervals.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
-  from pkg_resources import resource_filename
-2025-12-16 15:13:30,877 - ml.asr.whisper_service - INFO - ✅ Whisper base loaded in 1.53s
-2025-12-16 15:13:30,889 - ml.asr.whisper_service - INFO - 🔥 Warming up Whisper model...
-2025-12-16 15:13:32,583 - ml.asr.whisper_service - INFO - ✅ Model warmed up
-2025-12-16 15:13:32,596 - backend.services.lazy_loader - INFO - ✅ whisper loaded successfully (time: 8.2s, RAM: +551MB)
+2025-12-16 15:46:38,402 - ml.asr.whisper_service - INFO - ✅ Whisper base loaded in 1.26s
+2025-12-16 15:46:38,402 - ml.asr.whisper_service - INFO - 🔥 Warming up Whisper model...
+2025-12-16 15:46:41,598 - ml.asr.whisper_service - INFO - ✅ Model warmed up
+2025-12-16 15:46:41,600 - backend.services.lazy_loader - INFO - ✅ whisper loaded successfully (time: 5.6s, RAM: +1312MB)
 C:\Users\Jeferson\Documents\orbis\venv\lib\site-packages\transformers\utils\generic.py:309: FutureWarning: `torch.utils._pytree._register_pytree_node` is deprecated. Please use `torch.utils._pytree.register_pytree_node` instead.
   _torch_pytree._register_pytree_node(
+2025-12-16 15:47:01,336 - ml.tts.coqui_service - INFO - ✅ Registered XTTS safe globals for deserialization: XttsConfig, XttsAudioConfig, XttsArgs, BaseDatasetConfig
+ > tts_models/multilingual/multi-dataset/xtts_v2 is already downloaded.
+ > Using model: xtts
 C:\Users\Jeferson\Documents\orbis\venv\lib\site-packages\huggingface_hub\file_download.py:942: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
   warnings.warn(
-2025-12-16 15:14:02,435 - ml.tts.coqui_service - INFO - ✅ Registered XTTS safe globals for deserialization: XttsConfig, XttsAudioConfig, XttsArgs, BaseDatasetConfig
- > tts_models/multilingual/multi-dataset/xtts_v2 is already downloaded.
-2025-12-16 15:14:02,720 - ml.mt.nllb_service - INFO - ✅ NLLB model loaded successfully
-2025-12-16 15:14:02,752 - backend.services.lazy_loader - INFO - ✅ nllb loaded successfully (time: 38.3s, RAM: +1007MB)
- > Using model: xtts
+2025-12-16 15:47:42,544 - ml.mt.nllb_service - INFO - ✅ NLLB model loaded successfully
+2025-12-16 15:47:42,574 - backend.services.lazy_loader - INFO - ✅ nllb loaded successfully (time: 66.5s, RAM: +3182MB)
 C:\Users\Jeferson\Documents\orbis\venv\lib\site-packages\TTS\tts\layers\xtts\xtts_manager.py:5: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
   self.speakers = torch.load(speaker_file_path)
 C:\Users\Jeferson\Documents\orbis\venv\lib\site-packages\TTS\utils\io.py:54: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
   return torch.load(f, map_location=map_location, **kwargs)
-2025-12-16 15:14:22,601 - ml.tts.coqui_service - INFO - ✅ Coqui TTS model loaded successfully
-2025-12-16 15:14:22,629 - backend.services.lazy_loader - INFO - ✅ coqui loaded successfully (time: 58.2s, RAM: +3630MB)
-2025-12-16 15:14:22,647 - backend.main - INFO - ✅ All critical models pre-loaded successfully
-2025-12-16 15:14:22,651 - backend.main - INFO - 🚀 Initializing advanced services...
-2025-12-16 15:14:22,762 - backend.core.enterprise_features - WARNING - ⚠️ Enterprise service Redis connection failed: Error 11001 connecting to living-liger-41000.upstash.io::6379. getaddrinfo failed.
-2025-12-16 15:14:22,762 - backend.main - INFO - ✅ Enterprise service initialized
-2025-12-16 15:14:22,762 - backend.services.advanced_voice_cloning - INFO - ✅ TTS model loaded for quality: fast
-2025-12-16 15:14:22,773 - backend.services.advanced_voice_cloning - INFO - ✅ TTS model loaded for quality: balanced
-2025-12-16 15:14:22,773 - backend.services.advanced_voice_cloning - INFO - ✅ TTS model loaded for quality: high
-2025-12-16 15:14:22,773 - backend.services.advanced_voice_cloning - INFO - ✅ TTS model loaded for quality: ultra
-2025-12-16 15:14:22,775 - backend.services.advanced_voice_cloning - INFO - ✅ Advanced Voice Cloning Service initialized
-2025-12-16 15:14:22,775 - backend.main - INFO - ✅ Advanced voice cloning service initialized
-2025-12-16 15:14:22,779 - backend.services.ultra_low_latency_webrtc - ERROR - ❌ Failed to initialize Ultra-Low Latency WebRTC Service: Error 11001 connecting to living-liger-41000.upstash.io:6379. getaddrinfo failed.
-2025-12-16 15:14:22,779 - backend.main - INFO - ✅ Ultra-low latency WebRTC service initialized
-2025-12-16 15:14:22,782 - backend.services.ai_meeting_assistant - WARNING - ⚠️ OpenAI API key not configured - AI features disabled
-2025-12-16 15:14:22,782 - backend.main - INFO - ✅ AI meeting assistant initialized
-2025-12-16 15:14:22,786 - backend.services.voice_marketplace - WARNING - ⚠️ Voice Marketplace Redis connection failed: Error 11001 connecting to living-liger-41000.upstash.ioo:6379. getaddrinfo failed.
-2025-12-16 15:14:22,786 - backend.main - INFO - ✅ Voice marketplace service initialized
-2025-12-16 15:14:22,792 - backend.services.advanced_analytics - ERROR - ❌ Failed to initialize Advanced Analytics Service: Error 11001 connecting to living-liger-41000.upstash.io:6379. getaddrinfo failed.
-2025-12-16 15:14:22,793 - backend.main - INFO - ✅ Advanced analytics service initialized
-2025-12-16 15:14:22,796 - backend.services.gamification_system - ERROR - ❌ Failed to initialize Gamification System: Error 11001 connecting to living-liger-41000.upstash.io:6379. getaddrinfo failed.
-2025-12-16 15:14:22,796 - backend.main - INFO - ✅ Gamification system initialized
+2025-12-16 15:47:59,299 - ml.tts.coqui_service - INFO - ✅ Coqui TTS model loaded successfully
+2025-12-16 15:47:59,350 - backend.services.lazy_loader - INFO - ✅ coqui loaded successfully (time: 83.3s, RAM: +3219MB)
+2025-12-16 15:47:59,364 - backend.main - INFO - ✅ All critical models pre-loaded successfully
+2025-12-16 15:47:59,367 - backend.main - INFO - 🚀 Initializing advanced services...
+2025-12-16 15:47:59,440 - backend.core.enterprise_features - WARNING - ⚠️ Enterprise service Redis connection failed: Error 11001 connecting to living-liger-410000.upstash.io:6379. getaddrinfo failed.
+2025-12-16 15:47:59,440 - backend.main - INFO - ✅ Enterprise service initialized
+2025-12-16 15:47:59,440 - backend.services.advanced_voice_cloning - INFO - ✅ TTS model loaded for quality: fast
+2025-12-16 15:47:59,440 - backend.services.advanced_voice_cloning - INFO - ✅ TTS model loaded for quality: balanced
+2025-12-16 15:47:59,440 - backend.services.advanced_voice_cloning - INFO - ✅ TTS model loaded for quality: high
+2025-12-16 15:47:59,440 - backend.services.advanced_voice_cloning - INFO - ✅ TTS model loaded for quality: ultra
+2025-12-16 15:47:59,440 - backend.services.advanced_voice_cloning - INFO - ✅ Advanced Voice Cloning Service initialized
+2025-12-16 15:47:59,440 - backend.main - INFO - ✅ Advanced voice cloning service initialized
+2025-12-16 15:47:59,451 - backend.services.ultra_low_latency_webrtc - ERROR - ❌ Failed to initialize Ultra-Low Latency WebRTC Service: Error 11001 connecting to living-liger-41000.upstash.io:6379. getaddrinfo failed.
+2025-12-16 15:47:59,451 - backend.main - INFO - ✅ Ultra-low latency WebRTC service initialized
+2025-12-16 15:47:59,452 - backend.services.ai_meeting_assistant - WARNING - ⚠️ OpenAI API key not configured - AI features disabled
+2025-12-16 15:47:59,453 - backend.main - INFO - ✅ AI meeting assistant initialized
+2025-12-16 15:47:59,456 - backend.services.voice_marketplace - WARNING - ⚠️ Voice Marketplace Redis connection failed: Error 11001 connecting to living-liger-411000.upstash.io:6379. getaddrinfo failed.
+2025-12-16 15:47:59,457 - backend.main - INFO - ✅ Voice marketplace service initialized
+2025-12-16 15:47:59,459 - backend.services.advanced_analytics - ERROR - ❌ Failed to initialize Advanced Analytics Service: Error 11001 connecting to living-liger-41000.upstash.io:6379. getaddrinfo failed.
+2025-12-16 15:47:59,460 - backend.main - INFO - ✅ Advanced analytics service initialized
+2025-12-16 15:47:59,462 - backend.services.gamification_system - ERROR - ❌ Failed to initialize Gamification System: Error 11001 connecting to living-liger-41000.upstash.io:6379. getaddrinfo failed.
+2025-12-16 15:47:59,463 - backend.main - INFO - ✅ Gamification system initialized
 C:\Users\Jeferson\Documents\orbis\venv\lib\site-packages\transformers\modeling_utils.py:484: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
   return torch.load(checkpoint_file, map_location=map_location)
 C:\Users\Jeferson\Documents\orbis\venv\lib\site-packages\transformers\pipelines\text_classification.py:105: UserWarning: `return_all_scores` is now deprecated,  if want a similar functionality use `top_k=None` instead of `return_all_scores=True` or `top_k=1` instead of `return_all_scores=False`.
@@ -106,335 +108,190 @@ Some weights of the model checkpoint at cardiffnlp/twitter-roberta-base-sentimen
 - This IS NOT expected if you are initializing RobertaForSequenceClassification from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
 Some weights of GPT2ForSequenceClassification were not initialized from the model checkpoint at microsoft/DialoGPT-medium and are newly initialized: ['score.weight']
 You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
-2025-12-16 15:14:34,165 - backend.services.advanced_ai_features - INFO - ✅ Advanced AI Features Service initialized
-2025-12-16 15:14:34,165 - backend.main - INFO - ✅ Advanced AI features service initialized
-2025-12-16 15:14:34,245 - backend.services.social_networking - ERROR - ❌ Failed to initialize Social Networking Service: Error 11001 connecting to living-liger.io:6379. getaddrinfo failed.
-2025-12-16 15:14:34,245 - backend.main - INFO - ✅ Social networking service initialized
-2025-12-16 15:14:34,245 - backend.main - INFO - 🎯 All advanced services initialized successfully!
-2025-12-16 15:14:34,245 - backend.main - INFO - 🌍 Environment: development
-2025-12-16 15:14:34,245 - backend.main - INFO - 🔧 Debug mode: False
-2025-12-16 15:14:34,245 - backend.main - INFO - 🎯 Target latency: <800ms
-2025-12-16 15:14:34,245 - backend.main - INFO - 🔐 Security features enabled: False
-2025-12-16 15:14:34,245 - backend.main - INFO - 📊 Metrics enabled: False
-2025-12-16 15:14:34,245 - backend.main - INFO - ✨ Orbis Backend ready!
+2025-12-16 15:48:08,217 - backend.services.advanced_ai_features - INFO - ✅ Advanced AI Features Service initialized
+2025-12-16 15:48:08,226 - backend.main - INFO - ✅ Advanced AI features service initialized
+2025-12-16 15:48:08,347 - backend.services.social_networking - ERROR - ❌ Failed to initialize Social Networking Service: Error 11001 connecting to living-liger-41000.upstash.io:6379. getaddrinfo failed.
+2025-12-16 15:48:08,347 - backend.main - INFO - ✅ Social networking service initialized
+2025-12-16 15:48:08,347 - backend.main - INFO - 🎯 All advanced services initialized successfully!
+2025-12-16 15:48:08,347 - backend.main - INFO - 🌍 Environment: development
+2025-12-16 15:48:08,347 - backend.main - INFO - 🔧 Debug mode: False
+2025-12-16 15:48:08,347 - backend.main - INFO - 🎯 Target latency: <800ms
+2025-12-16 15:48:08,347 - backend.main - INFO - 🔐 Security features enabled: False
+2025-12-16 15:48:08,347 - backend.main - INFO - 📊 Metrics enabled: False
+2025-12-16 15:48:08,347 - backend.main - INFO - ✨ Orbis Backend ready!
 INFO:     Application startup complete.
-INFO:     177.54.146.84:0 - "OPTIONS /api/voices/profile HTTP/1.1" 200 OK
-2025-12-16 15:16:52,498 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-16 15:16:52,499 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-16 15:16:52,504 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-16 15:16:52,624 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
-2025-12-16 15:16:52,985 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
-INFO:     177.54.146.84:0 - "GET /api/voices/profile HTTP/1.1" 200 OK
-INFO:     177.54.146.84:0 - "OPTIONS /api/voices/preload HTTP/1.1" 200 OK
-2025-12-16 15:16:54,351 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-16 15:16:54,352 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-16 15:16:54,352 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-16 15:16:54,353 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
-2025-12-16 15:16:54,536 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
-2025-12-16 15:16:54,537 - backend.api.voices - INFO - 🎤 Preloading voice for user e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-16 15:16:54,537 - backend.api.voices - INFO - 📁 Voice WAV: data\voices\e10438f8-4759-4467-95f4-a12d7c15ae6d.wav
-2025-12-16 15:16:54,537 - backend.api.voices - INFO - 📁 Voice JSON: data\voices\e10438f8-4759-4467-95f4-a12d7c15ae6d.json
-2025-12-16 15:16:54,604 - backend.api.voices - INFO - ✅ Voice profile already ready: data\voices\47f91b11-35f4-4c20-89d6-225f2e432fd3.json
-2025-12-16 15:16:54,604 - backend.api.voices - INFO - 📊 Voice WAV file: 136809 bytes
-2025-12-16 15:16:54,612 - backend.api.voices - INFO - 📊 Voice profile metadata: Coqui XTTS v2 voice profile - works with short audio samples (5+ seconds)      
-2025-12-16 15:16:54,615 - backend.api.voices - INFO - ✅ Speaker WAV verified: C:\Users\Jeferson\Documents\orbis\data\voices\e10438f8-4759-4467-95f4-a12d7c15ae6d.wav
-2025-12-16 15:16:54,622 - backend.api.voices - WARNING - ⚠️ Redis cache warning: No module named 'backend.core.redis'
-INFO:     177.54.146.84:0 - "POST /api/voices/preload HTTP/1.1" 200 OK
-INFO:     177.54.146.84:0 - "OPTIONS /api/rooms HTTP/1.1" 200 OK
-2025-12-16 15:16:57,858 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-16 15:16:57,859 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-16 15:16:57,859 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-16 15:16:57,859 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
-2025-12-16 15:16:57,965 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
-INFO:     177.54.146.84:0 - "POST /api/rooms HTTP/1.1" 201 Created
-INFO:     177.54.146.84:0 - "OPTIONS /api/rooms/fb732a7f-ecc5-4dab-972d-dafc52676e06/join HTTP/1.1" 200 OK
-2025-12-16 15:16:58,795 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-16 15:16:58,795 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-16 15:16:58,796 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-16 15:16:58,796 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
-2025-12-16 15:16:58,904 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
-INFO:     177.54.146.84:0 - "POST /api/rooms/fb732a7f-ecc5-4dab-972d-dafc52676e06/join HTTP/1.1" 200 OK
-INFO:     177.54.146.84:0 - "OPTIONS /api/chat/messages/fb732a7f-ecc5-4dab-972d-dafc52676e06?limit=100 HTTP/1.1" 200 OK
-2025-12-16 15:16:59,292 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-16 15:16:59,292 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-16 15:16:59,292 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-16 15:16:59,292 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
-INFO:     177.54.146.84:0 - "OPTIONS /api/rooms/fb732a7f-ecc5-4dab-972d-dafc52676e06 HTTP/1.1" 200 OK
-INFO:     177.54.146.84:0 - "OPTIONS /api/profile/me HTTP/1.1" 200 OK
-2025-12-16 15:16:59,390 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-16 15:16:59,390 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-16 15:16:59,390 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-16 15:16:59,390 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
-INFO:     ('177.54.146.84', 0) - "WebSocket /api/chat/ws/fb732a7f-ecc5-4dab-972d-dafc52676e06" [accepted]
-2025-12-16 15:16:59,438 - backend.api.chat - INFO - Client connected to room fb732a7f-ecc5-4dab-972d-dafc52676e06. Total: 1
+INFO:     2a09:bac5:633:305a::4d1:35:0 - "OPTIONS /api/voices/profile HTTP/1.1" 200 OK
+2025-12-16 15:48:45,358 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-16 15:48:45,359 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-16 15:48:45,361 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-16 15:48:45,438 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
+2025-12-16 15:48:45,788 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
+INFO:     2a09:bac5:633:305a::4d1:35:0 - "GET /api/voices/profile HTTP/1.1" 200 OK
+INFO:     2a09:bac5:633:305a::4d1:35:0 - "OPTIONS /api/voices/preload HTTP/1.1" 200 OK
+2025-12-16 15:48:47,070 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-16 15:48:47,070 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-16 15:48:47,070 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-16 15:48:47,070 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
+2025-12-16 15:48:47,248 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
+2025-12-16 15:48:47,250 - backend.api.voices - INFO - 🎤 Preloading voice for user e10438f8-4759-4467-95f4-a12d7c15ae6d
+2025-12-16 15:48:47,250 - backend.api.voices - INFO - 📁 Voice WAV: data\voices\e10438f8-4759-4467-95f4-a12d7c15ae6d.wav
+2025-12-16 15:48:47,250 - backend.api.voices - INFO - 📁 Voice JSON: data\voices\e10438f8-4759-4467-95f4-a12d7c15ae6d.json
+2025-12-16 15:48:47,311 - backend.api.voices - INFO - ✅ Voice profile already ready: data\voices\47f91b11-35f4-4c20-89d6-225f2e432fd3.json
+2025-12-16 15:48:47,312 - backend.api.voices - INFO - 📊 Voice WAV file: 136809 bytes
+2025-12-16 15:48:47,313 - backend.api.voices - INFO - 📊 Voice profile metadata: Coqui XTTS v2 voice profile - works with short audio samples (5+ seconds)      
+2025-12-16 15:48:47,317 - backend.api.voices - INFO - ✅ Speaker WAV verified: C:\Users\Jeferson\Documents\orbis\data\voices\e10438f8-4759-4467-95f4-a12d7c15ae6d.wav
+2025-12-16 15:48:47,320 - backend.api.voices - WARNING - ⚠️ Redis cache warning: No module named 'backend.core.redis'
+INFO:     2a09:bac5:633:305a::4d1:35:0 - "POST /api/voices/preload HTTP/1.1" 200 OK
+INFO:     2a09:bac5:633:305a::4d1:35:0 - "OPTIONS /api/rooms HTTP/1.1" 200 OK
+2025-12-16 15:48:50,386 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-16 15:48:50,387 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-16 15:48:50,387 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-16 15:48:50,387 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
+2025-12-16 15:48:50,483 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
+INFO:     2a09:bac5:633:305a::4d1:35:0 - "POST /api/rooms HTTP/1.1" 201 Created
+INFO:     2a09:bac5:633:305a::4d1:35:0 - "OPTIONS /api/rooms/342b5c34-f807-4a35-82ed-fd7bdb6d574c/join HTTP/1.1" 200 OK
+2025-12-16 15:48:51,325 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-16 15:48:51,325 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-16 15:48:51,325 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-16 15:48:51,325 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
+2025-12-16 15:48:51,417 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
+INFO:     2a09:bac5:633:305a::4d1:35:0 - "POST /api/rooms/342b5c34-f807-4a35-82ed-fd7bdb6d574c/join HTTP/1.1" 200 OK
+INFO:     2a09:bac5:633:305a::4d1:35:0 - "OPTIONS /api/chat/messages/342b5c34-f807-4a35-82ed-fd7bdb6d574c?limit=100 HTTP/1.1" 200 OK
+INFO:     2a09:bac5:633:305a::4d1:35:0 - "OPTIONS /api/profile/me HTTP/1.1" 200 OK
+2025-12-16 15:48:51,870 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-16 15:48:51,870 - backend.api.deps - INFO - 🎫 Token length: 187
+INFO:     2a09:bac5:633:305a::4d1:35:0 - "OPTIONS /api/rooms/342b5c34-f807-4a35-82ed-fd7bdb6d574c HTTP/1.1" 200 OK
+2025-12-16 15:48:51,870 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-16 15:48:51,874 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
+INFO:     ('2a09:bac5:633:305a::4d1:35', 0) - "WebSocket /api/chat/ws/342b5c34-f807-4a35-82ed-fd7bdb6d574c" [accepted]
+2025-12-16 15:48:51,916 - backend.api.chat - INFO - Client connected to room 342b5c34-f807-4a35-82ed-fd7bdb6d574c. Total: 1
 INFO:     connection open
-2025-12-16 15:16:59,457 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-16 15:16:59,457 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-16 15:16:59,459 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-16 15:16:59,460 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
-2025-12-16 15:16:59,465 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
-INFO:     177.54.146.84:0 - "GET /api/voices/profile HTTP/1.1" 200 OK
-INFO:     177.54.146.84:0 - "GET /api/profile/me HTTP/1.1" 200 OK
-INFO:     177.54.146.84:0 - "GET /api/chat/messages/fb732a7f-ecc5-4dab-972d-dafc52676e06?limit=100 HTTP/1.1" 200 OK
-INFO:     177.54.146.84:0 - "GET /api/rooms/fb732a7f-ecc5-4dab-972d-dafc52676e06 HTTP/1.1" 200 OK
-2025-12-16 15:17:00,330 - backend.api.websocket - INFO - 🔌 WebSocket connection attempt to room: fb732a7f-ecc5-4dab-972d-dafc52676e06
-2025-12-16 15:17:00,330 - backend.api.websocket - INFO - Query params: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlMTA0MzhmOC00NzU5LTQ0NjctOTVmNC1hMTJkN2MxNWFlNmQiLCJleHAiOjE3NjY0MzE4MDYsInR5cGUiOiJhY2Nlc3MifQ.lnNSluBMCU6XAZl6Y3uU3GcazGzwaiWRdcrDhapUZk8
-2025-12-16 15:17:00,335 - backend.api.websocket - INFO - Headers: {'host': 'convolutionary-staminal-caren.ngrok-free.dev', 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7', 'cache-control': 'no-cache', 'connection': 'Upgrade', 'origin': 'https://orbis-omega.vercel.app', 'pragma': 'no-cache', 'sec-websocket-extensions': 'permessage-deflate; client_max_window_bits', 'sec-websocket-key': 'chyfqvUj4RzR6u4Nc2uTBw==', 'sec-websocket-version': '13', 'upgrade': 'websocket', 'x-forwarded-for': '177.54.146.84', 'x-forwarded-host': 'convolutionary-staminal-caren.ngrok-free.dev', 'x-forwarded-proto': 'https'}
-2025-12-16 15:17:00,337 - backend.api.websocket - INFO - Origin: https://orbis-omega.vercel.app
-2025-12-16 15:17:00,337 - backend.api.websocket - INFO - 📍 WebSocket connection from origin: https://orbis-omega.vercel.app
-INFO:     ('177.54.146.84', 0) - "WebSocket /api/ws/audio/fb732a7f-ecc5-4dab-972d-dafc52676e06?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlMTA0MzhmOC00NzU5LTQ0NjctOTVmNC1hMTJkN2MxNWFlNmQiLCJleHAiOjE3NjY0MzE4MDYsInR5cGUiOiJhY2Nlc3MifQ.lnNSluBMCU6XAZl6Y3uU3GcazGzwaiWRdcrDhapUZk8" [accepted]
-2025-12-16 15:17:00,337 - backend.api.websocket - INFO - ✅ WebSocket connection accepted
-2025-12-16 15:17:00,337 - backend.api.websocket - INFO - 🔐 Attempting to authenticate WebSocket user...
-2025-12-16 15:17:00,337 - backend.api.deps - INFO - 🔑 Token from query params: Present
-2025-12-16 15:17:00,337 - backend.api.deps - INFO - 🔓 Decoding token (length: 187)
-2025-12-16 15:17:00,339 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-16 15:17:00,339 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
-2025-12-16 15:17:00,341 - backend.api.deps - INFO - ✅ Token decoded successfully: {'sub': 'e10438f8-4759-4467-95f4-a12d7c15ae6d', 'exp': 1766431806, 'type': 'access'}
-2025-12-16 15:17:00,341 - backend.api.deps - INFO - 👤 User ID from token: e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-16 15:17:00,341 - backend.api.deps - INFO - ✅ Converted user_id to UUID: e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-16 15:17:00,517 - backend.api.deps - INFO - ✅ User found in database: jefersonservices4@gmail.com
-2025-12-16 15:17:00,554 - backend.api.websocket - INFO - ✅ User authenticated: e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-16 15:17:00,558 - backend.api.websocket - INFO - User e10438f8-4759-4467-95f4-a12d7c15ae6d connected to room fb732a7f-ecc5-4dab-972d-dafc52676e06
+2025-12-16 15:48:51,953 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-16 15:48:51,954 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-16 15:48:51,954 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-16 15:48:51,955 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
+2025-12-16 15:48:51,983 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-16 15:48:51,985 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-16 15:48:51,986 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-16 15:48:51,987 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
+2025-12-16 15:48:52,047 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
+INFO:     2a09:bac5:633:305a::4d1:35:0 - "GET /api/voices/profile HTTP/1.1" 200 OK
+INFO:     2a09:bac5:633:305a::4d1:35:0 - "GET /api/profile/me HTTP/1.1" 200 OK
+INFO:     2a09:bac5:633:305a::4d1:35:0 - "GET /api/chat/messages/342b5c34-f807-4a35-82ed-fd7bdb6d574c?limit=100 HTTP/1.1" 200 OK
+INFO:     2a09:bac5:633:305a::4d1:35:0 - "GET /api/rooms/342b5c34-f807-4a35-82ed-fd7bdb6d574c HTTP/1.1" 200 OK
+2025-12-16 15:48:52,872 - backend.api.websocket - INFO - 🔌 WebSocket connection attempt to room: 342b5c34-f807-4a35-82ed-fd7bdb6d574c
+2025-12-16 15:48:52,874 - backend.api.websocket - INFO - Query params: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlMTA0MzhmOC00NzU5LTQ0NjctOTVmNC1hMTJkN2MxNWFlNmQiLCJleHAiOjE3NjY0MzE4MDYsInR5cGUiOiJhY2Nlc3MifQ.lnNSluBMCU6XAZl6Y3uU3GcazGzwaiWRdcrDhapUZk8
+2025-12-16 15:48:52,874 - backend.api.websocket - INFO - Headers: {'host': 'convolutionary-staminal-caren.ngrok-free.dev', 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7', 'cache-control': 'no-cache', 'connection': 'Upgrade', 'origin': 'https://orbis-omega.vercel.app', 'pragma': 'no-cache', 'sec-websocket-extensions': 'permessage-deflate; client_max_window_bits', 'sec-websocket-key': 'ceb9HvQWwLM1z5RHmArO5w==', 'sec-websocket-version': '13', 'upgrade': 'websocket', 'x-forwarded-for': '2a09:bac5:633:305a::4d1:35', 'x-forwarded-host': 'convolutionary-staminal-caren.ngrok-free.dev', 'x-forwarded-proto': 'https'}
+2025-12-16 15:48:52,875 - backend.api.websocket - INFO - Origin: https://orbis-omega.vercel.app
+2025-12-16 15:48:52,875 - backend.api.websocket - INFO - 📍 WebSocket connection from origin: https://orbis-omega.vercel.app
+INFO:     ('2a09:bac5:633:305a::4d1:35', 0) - "WebSocket /api/ws/audio/342b5c34-f807-4a35-82ed-fd7bdb6d574c?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlMTA0MzhmOC00NzU5LTQ0NjctOTVmNC1hMTJkN2MxNWFlNmQiLCJleHAiOjE3NjY0MzE4MDYsInR5cGUiOiJhY2Nlc3MifQ.lnNSluBMCU6XAZl6Y3uU3GcazGzwaiWRdcrDhapUZk8" [accepted]       
+2025-12-16 15:48:52,877 - backend.api.websocket - INFO - ✅ WebSocket connection accepted
+2025-12-16 15:48:52,877 - backend.api.websocket - INFO - 🔐 Attempting to authenticate WebSocket user...
+2025-12-16 15:48:52,879 - backend.api.deps - INFO - 🔑 Token from query params: Present
+2025-12-16 15:48:52,879 - backend.api.deps - INFO - 🔓 Decoding token (length: 187)
+2025-12-16 15:48:52,879 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-16 15:48:52,880 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
+2025-12-16 15:48:52,880 - backend.api.deps - INFO - ✅ Token decoded successfully: {'sub': 'e10438f8-4759-4467-95f4-a12d7c15ae6d', 'exp': 1766431806, 'type': 'access'}
+2025-12-16 15:48:52,880 - backend.api.deps - INFO - 👤 User ID from token: e10438f8-4759-4467-95f4-a12d7c15ae6d
+2025-12-16 15:48:52,880 - backend.api.deps - INFO - ✅ Converted user_id to UUID: e10438f8-4759-4467-95f4-a12d7c15ae6d
+2025-12-16 15:48:52,976 - backend.api.deps - INFO - ✅ User found in database: jefersonservices4@gmail.com
+2025-12-16 15:48:53,008 - backend.api.websocket - INFO - ✅ User authenticated: e10438f8-4759-4467-95f4-a12d7c15ae6d
+2025-12-16 15:48:53,011 - backend.api.websocket - INFO - User e10438f8-4759-4467-95f4-a12d7c15ae6d connected to room 342b5c34-f807-4a35-82ed-fd7bdb6d574c
 INFO:     connection open
-2025-12-16 15:17:00,883 - backend.api.websocket - INFO - 🌐 Loaded user languages from DB: speaks=en (['en']), wants_to_hear=en (['en'])
-2025-12-16 15:17:00,922 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d (en→en)
-2025-12-16 15:17:00,925 - backend.services.audio_pipeline.stream_processor - INFO - 🔄 Updated languages for user e10438f8-4759-4467-95f4-a12d7c15ae6d: speaks=en, wants_to_hear=en
-2025-12-16 15:17:00,927 - backend.api.websocket - INFO - ✅ Initial language settings for user e10438f8-4759-4467-95f4-a12d7c15ae6d: speaks=en, wants_to_hear=en
-INFO:     177.54.146.84:0 - "OPTIONS /api/profile/languages/supported HTTP/1.1" 200 OK
-INFO:     177.54.146.84:0 - "GET /api/profile/languages/supported HTTP/1.1" 200 OK
-INFO:     177.54.146.84:0 - "OPTIONS /api/profile/languages HTTP/1.1" 200 OK
-2025-12-16 15:17:03,643 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-16 15:17:03,645 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-16 15:17:03,645 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-16 15:17:03,645 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
-2025-12-16 15:17:03,912 - backend.services.audio_pipeline.stream_processor - INFO - 🔄 Updated languages for user e10438f8-4759-4467-95f4-a12d7c15ae6d: speaks=en, wants_to_hear=en
-2025-12-16 15:17:03,915 - backend.api.profile - INFO - 🌐 User e10438f8-4759-4467-95f4-a12d7c15ae6d language settings updated: speaks=en, wants_to_hear=en
-INFO:     177.54.146.84:0 - "PUT /api/profile/languages HTTP/1.1" 200 OK
-2025-12-16 15:17:04,117 - backend.services.audio_pipeline.stream_processor - INFO - 🔄 Updated languages for user e10438f8-4759-4467-95f4-a12d7c15ae6d: speaks=en, wants_to_hear=en
-2025-12-16 15:17:04,118 - backend.api.websocket - INFO - ✅ User e10438f8-4759-4467-95f4-a12d7c15ae6d updated languages: speaks=en, wants_to_hear=en
+2025-12-16 15:48:53,315 - backend.api.websocket - INFO - 🌐 Loaded user languages from DB: speaks=en (['en']), wants_to_hear=en (['en'])
+2025-12-16 15:48:53,346 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d (en→en)
+2025-12-16 15:48:53,350 - backend.services.audio_pipeline.stream_processor - INFO - 🔄 Updated languages for user e10438f8-4759-4467-95f4-a12d7c15ae6d: speaks=en, wants_to_hear=en
+2025-12-16 15:48:53,352 - backend.api.websocket - INFO - ✅ Initial language settings for user e10438f8-4759-4467-95f4-a12d7c15ae6d: speaks=en, wants_to_hear=en
 INFO:     45.178.146.74:0 - "OPTIONS /api/voices/profile HTTP/1.1" 200 OK
-2025-12-16 15:17:56,332 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-16 15:17:56,332 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-16 15:17:56,332 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-16 15:17:56,332 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1766080059
-2025-12-16 15:17:56,509 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
+2025-12-16 15:49:29,822 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-16 15:49:29,823 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-16 15:49:29,823 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-16 15:49:29,824 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1766080059
+2025-12-16 15:49:30,004 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
 INFO:     45.178.146.74:0 - "GET /api/voices/profile HTTP/1.1" 200 OK
 INFO:     45.178.146.74:0 - "OPTIONS /api/voices/preload HTTP/1.1" 200 OK
-2025-12-16 15:17:58,363 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-16 15:17:58,364 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-16 15:17:58,364 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-16 15:17:58,364 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1766080059
-2025-12-16 15:17:58,460 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
-2025-12-16 15:17:58,460 - backend.api.voices - INFO - 🎤 Preloading voice for user 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-16 15:17:58,460 - backend.api.voices - INFO - 📁 Voice WAV: data\voices\702de09d-3da9-4f47-8fde-73a42fdd0457.wav
-2025-12-16 15:17:58,460 - backend.api.voices - INFO - 📁 Voice JSON: data\voices\702de09d-3da9-4f47-8fde-73a42fdd0457.json
-2025-12-16 15:17:58,498 - backend.api.voices - INFO - ✅ Voice profile already ready: data\voices\f15171b6-67a6-483f-aea0-5e86423648cc.json
-2025-12-16 15:17:58,498 - backend.api.voices - INFO - 📊 Voice WAV file: 92078 bytes
-2025-12-16 15:17:58,500 - backend.api.voices - INFO - 📊 Voice profile metadata: Coqui XTTS v2 voice profile - works with short audio samples (5+ seconds)      
-2025-12-16 15:17:58,501 - backend.api.voices - INFO - ✅ Speaker WAV verified: C:\Users\Jeferson\Documents\orbis\data\voices\702de09d-3da9-4f47-8fde-73a42fdd0457.wav
-2025-12-16 15:17:58,502 - backend.api.voices - WARNING - ⚠️ Redis cache warning: No module named 'backend.core.redis'
+2025-12-16 15:49:31,532 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-16 15:49:31,534 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-16 15:49:31,534 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-16 15:49:31,535 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1766080059
+2025-12-16 15:49:31,668 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
+2025-12-16 15:49:31,671 - backend.api.voices - INFO - 🎤 Preloading voice for user 702de09d-3da9-4f47-8fde-73a42fdd0457
+2025-12-16 15:49:31,671 - backend.api.voices - INFO - 📁 Voice WAV: data\voices\702de09d-3da9-4f47-8fde-73a42fdd0457.wav
+2025-12-16 15:49:31,672 - backend.api.voices - INFO - 📁 Voice JSON: data\voices\702de09d-3da9-4f47-8fde-73a42fdd0457.json
+2025-12-16 15:49:31,708 - backend.api.voices - INFO - ✅ Voice profile already ready: data\voices\f15171b6-67a6-483f-aea0-5e86423648cc.json
+2025-12-16 15:49:31,711 - backend.api.voices - INFO - 📊 Voice WAV file: 92078 bytes
+2025-12-16 15:49:31,716 - backend.api.voices - INFO - 📊 Voice profile metadata: Coqui XTTS v2 voice profile - works with short audio samples (5+ seconds)      
+2025-12-16 15:49:31,718 - backend.api.voices - INFO - ✅ Speaker WAV verified: C:\Users\Jeferson\Documents\orbis\data\voices\702de09d-3da9-4f47-8fde-73a42fdd0457.wav
+2025-12-16 15:49:31,719 - backend.api.voices - WARNING - ⚠️ Redis cache warning: No module named 'backend.core.redis'
 INFO:     45.178.146.74:0 - "POST /api/voices/preload HTTP/1.1" 200 OK
-INFO:     45.178.146.74:0 - "OPTIONS /api/rooms/fb732a7f-ecc5-4dab-972d-dafc52676e06/join HTTP/1.1" 200 OK
-2025-12-16 15:18:01,554 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-16 15:18:01,554 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-16 15:18:01,557 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-16 15:18:01,557 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1766080059
-2025-12-16 15:18:01,648 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
-INFO:     45.178.146.74:0 - "POST /api/rooms/fb732a7f-ecc5-4dab-972d-dafc52676e06/join HTTP/1.1" 200 OK
-INFO:     45.178.146.74:0 - "OPTIONS /api/chat/messages/fb732a7f-ecc5-4dab-972d-dafc52676e06?limit=100 HTTP/1.1" 200 OK
-INFO:     ('45.178.146.74', 0) - "WebSocket /api/chat/ws/fb732a7f-ecc5-4dab-972d-dafc52676e06" [accepted]
-2025-12-16 15:18:02,799 - backend.api.chat - INFO - Client connected to room fb732a7f-ecc5-4dab-972d-dafc52676e06. Total: 2
-INFO:     connection open
-2025-12-16 15:18:02,815 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-16 15:18:02,815 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-16 15:18:02,816 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+INFO:     45.178.146.74:0 - "OPTIONS /api/rooms/342b5c34-f807-4a35-82ed-fd7bdb6d574c/join HTTP/1.1" 200 OK
+2025-12-16 15:49:35,078 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-16 15:49:35,078 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-16 15:49:35,078 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-16 15:49:35,078 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1766080059
+2025-12-16 15:49:35,167 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
+INFO:     45.178.146.74:0 - "POST /api/rooms/342b5c34-f807-4a35-82ed-fd7bdb6d574c/join HTTP/1.1" 200 OK
+INFO:     45.178.146.74:0 - "OPTIONS /api/chat/messages/342b5c34-f807-4a35-82ed-fd7bdb6d574c?limit=100 HTTP/1.1" 200 OK
+2025-12-16 15:49:35,985 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-16 15:49:35,985 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-16 15:49:35,986 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-16 15:49:35,986 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1766080059
 INFO:     45.178.146.74:0 - "OPTIONS /api/profile/me HTTP/1.1" 200 OK
-2025-12-16 15:18:02,817 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1766080059
-INFO:     45.178.146.74:0 - "OPTIONS /api/rooms/fb732a7f-ecc5-4dab-972d-dafc52676e06 HTTP/1.1" 200 OK
-2025-12-16 15:18:02,844 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-16 15:18:02,844 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-16 15:18:02,844 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-16 15:18:02,844 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1766080059
-2025-12-16 15:18:02,915 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
-2025-12-16 15:18:02,948 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-16 15:18:02,948 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-16 15:18:02,950 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-16 15:18:02,950 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1766080059
-INFO:     45.178.146.74:0 - "GET /api/voices/profile HTTP/1.1" 200 OK
-INFO:     45.178.146.74:0 - "GET /api/chat/messages/fb732a7f-ecc5-4dab-972d-dafc52676e06?limit=100 HTTP/1.1" 200 OK
-INFO:     45.178.146.74:0 - "GET /api/profile/me HTTP/1.1" 200 OK
-INFO:     45.178.146.74:0 - "GET /api/rooms/fb732a7f-ecc5-4dab-972d-dafc52676e06 HTTP/1.1" 200 OK
-2025-12-16 15:18:03,382 - backend.api.websocket - INFO - 🔌 WebSocket connection attempt to room: fb732a7f-ecc5-4dab-972d-dafc52676e06
-2025-12-16 15:18:03,382 - backend.api.websocket - INFO - Query params: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3MDJkZTA5ZC0zZGE5LTRmNDctOGZkZS03M2E0MmZkZDA0NTciLCJleHAiOjE3NjYwODAwNTksInR5cGUiOiJhY2Nlc3MifQ.Z-w_IlIlbXKggCuNoJY-IDZ4ajsw9unSvpVFzqVl_A8
-2025-12-16 15:18:03,383 - backend.api.websocket - INFO - Headers: {'host': 'convolutionary-staminal-caren.ngrok-free.dev', 'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'en-US,en;q=0.6', 'cache-control': 'no-cache', 'connection': 'Upgrade', 'origin': 'https://orbis-omega.vercel.app', 'pragma': 'no-cache', 'sec-websocket-extensions': 'permessage-deflate; client_max_window_bits', 'sec-websocket-key': 'N1BmAIzZeNhMJrf+4Y5Q/A==', 'sec-websocket-version': '13', 'upgrade': 'websocket', 'x-forwarded-for': '45.178.146.74', 'x-forwarded-host': 'convolutionary-staminal-caren.ngrok-free.dev', 'x-forwarded-proto': 'https'}
-2025-12-16 15:18:03,384 - backend.api.websocket - INFO - Origin: https://orbis-omega.vercel.app
-2025-12-16 15:18:03,384 - backend.api.websocket - INFO - 📍 WebSocket connection from origin: https://orbis-omega.vercel.app
-INFO:     ('45.178.146.74', 0) - "WebSocket /api/ws/audio/fb732a7f-ecc5-4dab-972d-dafc52676e06?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3MDJkZTA5ZC0zZGE5LTRmNDctOGZkZS03M2E0MmZkZDA0NTciLCJleHAiOjE3NjYwODAwNTksInR5cGUiOiJhY2Nlc3MifQ.Z-w_IlIlbXKggCuNoJY-IDZ4ajsw9unSvpVFzqVl_A8" [accepted]
-2025-12-16 15:18:03,384 - backend.api.websocket - INFO - ✅ WebSocket connection accepted
-2025-12-16 15:18:03,385 - backend.api.websocket - INFO - 🔐 Attempting to authenticate WebSocket user...
-2025-12-16 15:18:03,385 - backend.api.deps - INFO - 🔑 Token from query params: Present
-2025-12-16 15:18:03,385 - backend.api.deps - INFO - 🔓 Decoding token (length: 187)
-2025-12-16 15:18:03,385 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-16 15:18:03,385 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1766080059
-2025-12-16 15:18:03,385 - backend.api.deps - INFO - ✅ Token decoded successfully: {'sub': '702de09d-3da9-4f47-8fde-73a42fdd0457', 'exp': 1766080059, 'type': 'access'}
-2025-12-16 15:18:03,385 - backend.api.deps - INFO - 👤 User ID from token: 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-16 15:18:03,385 - backend.api.deps - INFO - ✅ Converted user_id to UUID: 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-16 15:18:03,557 - backend.api.deps - INFO - ✅ User found in database: jefersonservices6@gmail.com
-2025-12-16 15:18:03,589 - backend.api.websocket - INFO - ✅ User authenticated: 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-16 15:18:03,589 - backend.api.websocket - INFO - User 702de09d-3da9-4f47-8fde-73a42fdd0457 connected to room fb732a7f-ecc5-4dab-972d-dafc52676e06
+INFO:     45.178.146.74:0 - "OPTIONS /api/rooms/342b5c34-f807-4a35-82ed-fd7bdb6d574c HTTP/1.1" 200 OK
+2025-12-16 15:49:36,059 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+INFO:     ('45.178.146.74', 0) - "WebSocket /api/chat/ws/342b5c34-f807-4a35-82ed-fd7bdb6d574c" [accepted]
+2025-12-16 15:49:36,060 - backend.api.chat - INFO - Client connected to room 342b5c34-f807-4a35-82ed-fd7bdb6d574c. Total: 2
+2025-12-16 15:49:36,060 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-16 15:49:36,061 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
 INFO:     connection open
-2025-12-16 15:18:03,842 - backend.api.websocket - INFO - 🌐 Loaded user languages from DB: speaks=pt (['pt']), wants_to_hear=pt (['pt'])
-2025-12-16 15:18:03,884 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457 (pt→pt)
-2025-12-16 15:18:03,884 - backend.services.audio_pipeline.stream_processor - INFO - 🔄 Updated languages for user 702de09d-3da9-4f47-8fde-73a42fdd0457: speaks=pt, wants_to_hear=pt
-2025-12-16 15:18:03,885 - backend.api.websocket - INFO - ✅ Initial language settings for user 702de09d-3da9-4f47-8fde-73a42fdd0457: speaks=pt, wants_to_hear=pt
-2025-12-16 15:18:03,894 - backend.api.websocket - INFO - Forwarded WebRTC offer from e10438f8-4759-4467-95f4-a12d7c15ae6d to 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-16 15:18:05,685 - backend.api.websocket - INFO - Forwarded WebRTC answer from 702de09d-3da9-4f47-8fde-73a42fdd0457 to e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-16 15:18:14,995 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457 (auto→en)
-2025-12-16 15:18:18,720 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: en (confidence: 54.40%)
-2025-12-16 15:18:18,726 - ml.asr.whisper_service - WARNING - ⚠️ Empty transcription for 6.00s of audio. Detected lang: en, segments: 0
-2025-12-16 15:18:18,726 - ml.asr.whisper_service - INFO - ✅ Transcribed [1524ms]: '...' (lang: en)
-2025-12-16 15:18:19,573 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: en (confidence: 33.92%)
-2025-12-16 15:18:20,355 - ml.asr.whisper_service - INFO - ✅ Transcribed [1526ms]: '...' (lang: en)
-2025-12-16 15:18:21,174 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: en (confidence: 77.74%)
-2025-12-16 15:18:21,929 - ml.asr.whisper_service - INFO - ✅ Transcribed [1482ms]: '...' (lang: en)
-2025-12-16 15:18:22,734 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: ru (confidence: 24.51%)
-2025-12-16 15:18:23,512 - ml.asr.whisper_service - INFO - ✅ Transcribed [1488ms]: '...' (lang: ru)
-2025-12-16 15:18:24,322 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: en (confidence: 77.72%)
-2025-12-16 15:18:25,073 - ml.asr.whisper_service - INFO - ✅ Transcribed [1460ms]: '...' (lang: en)
-2025-12-16 15:18:35,580 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: en (confidence: 54.40%)
-2025-12-16 15:18:35,580 - ml.asr.whisper_service - WARNING - ⚠️ Empty transcription for 6.00s of audio. Detected lang: en, segments: 0
-2025-12-16 15:18:35,580 - ml.asr.whisper_service - INFO - ✅ Transcribed [758ms]: '...' (lang: en)
-2025-12-16 15:18:36,510 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: en (confidence: 37.92%)
-2025-12-16 15:18:37,278 - ml.asr.whisper_service - INFO - ✅ Transcribed [1584ms]: 'Yeah...' (lang: en)
-2025-12-16 15:18:37,280 - backend.services.audio_pipeline.stream_processor - INFO - 🧭 Language decision | configured_input=auto detected=en conf=0.38 → chosen=en
-2025-12-16 15:18:37,280 - backend.services.audio_pipeline.stream_processor - INFO - 🎤 User 702de09d-3da9-4f47-8fde-73a42fdd0457 spoke in en: 'Yeah'
-2025-12-16 15:18:37,283 - backend.services.audio_pipeline.stream_processor - INFO - 🔊 Found 2 listeners in room fb732a7f-ecc5-4dab-972d-dafc52676e06: [UUID('e10438f8-4759-4467-95f4-a12d7c15ae6d'), UUID('702de09d-3da9-4f47-8fde-73a42fdd0457')]
-2025-12-16 15:18:37,283 - backend.services.audio_pipeline.stream_processor - INFO - 🌐 Translated to en: 'Yeah'
-2025-12-16 15:18:37,412 - backend.services.audio_pipeline.stream_processor - INFO - ✅ Using cloned voice for user 702de09d-3da9-4f47-8fde-73a42fdd0457: C:\Users\Jeferson\Documents\orbis\data\voices\702de09d-3da9-4f47-8fde-73a42fdd0457.wav
-2025-12-16 15:18:37,416 - ml.tts.coqui_service - INFO - Synthesizing with cloned voice from: C:\Users\Jeferson\Documents\orbis\data\voices\702de09d-3da9-4f47-8fde-73a42fdd0457.wav
+2025-12-16 15:49:36,061 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1766080059
+2025-12-16 15:49:36,074 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices6@gmail.com
+2025-12-16 15:49:36,095 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
+2025-12-16 15:49:36,095 - backend.api.deps - INFO - 🎫 Token length: 187
+2025-12-16 15:49:36,095 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-16 15:49:36,095 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1766080059
+INFO:     45.178.146.74:0 - "GET /api/voices/profile HTTP/1.1" 200 OK
+INFO:     45.178.146.74:0 - "GET /api/profile/me HTTP/1.1" 200 OK
+INFO:     45.178.146.74:0 - "GET /api/chat/messages/342b5c34-f807-4a35-82ed-fd7bdb6d574c?limit=100 HTTP/1.1" 200 OK
+2025-12-16 15:49:36,429 - backend.api.websocket - INFO - 🔌 WebSocket connection attempt to room: 342b5c34-f807-4a35-82ed-fd7bdb6d574c
+2025-12-16 15:49:36,429 - backend.api.websocket - INFO - Query params: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3MDJkZTA5ZC0zZGE5LTRmNDctOGZkZS03M2E0MmZkZDA0NTciLCJleHAiOjE3NjYwODAwNTksInR5cGUiOiJhY2Nlc3MifQ.Z-w_IlIlbXKggCuNoJY-IDZ4ajsw9unSvpVFzqVl_A8
+2025-12-16 15:49:36,429 - backend.api.websocket - INFO - Headers: {'host': 'convolutionary-staminal-caren.ngrok-free.dev', 'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'en-US,en;q=0.6', 'cache-control': 'no-cache', 'connection': 'Upgrade', 'origin': 'https://orbis-omega.vercel.app', 'pragma': 'no-cache', 'sec-websocket-extensions': 'permessage-deflate; client_max_window_bits', 'sec-websocket-key': 'A6U0Wqfse0nfHFtK2Ryh8Q==', 'sec-websocket-version': '13', 'upgrade': 'websocket', 'x-forwarded-for': '45.178.146.74', 'x-forwarded-host': 'convolutionary-staminal-caren.ngrok-free.dev', 'x-forwarded-proto': 'https'}
+2025-12-16 15:49:36,429 - backend.api.websocket - INFO - Origin: https://orbis-omega.vercel.app
+2025-12-16 15:49:36,429 - backend.api.websocket - INFO - 📍 WebSocket connection from origin: https://orbis-omega.vercel.app
+INFO:     ('45.178.146.74', 0) - "WebSocket /api/ws/audio/342b5c34-f807-4a35-82ed-fd7bdb6d574c?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3MDJkZTA5ZC0zZGE5LTRmNDctOGZkZS03M2E0MmZkZDA0NTciLCJleHAiOjE3NjYwODAwNTksInR5cGUiOiJhY2Nlc3MifQ.Z-w_IlIlbXKggCuNoJY-IDZ4ajsw9unSvpVFzqVl_A8" [accepted]
+2025-12-16 15:49:36,429 - backend.api.websocket - INFO - ✅ WebSocket connection accepted
+2025-12-16 15:49:36,429 - backend.api.websocket - INFO - 🔐 Attempting to authenticate WebSocket user...
+2025-12-16 15:49:36,429 - backend.api.deps - INFO - 🔑 Token from query params: Present
+2025-12-16 15:49:36,429 - backend.api.deps - INFO - 🔓 Decoding token (length: 187)
+2025-12-16 15:49:36,429 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
+2025-12-16 15:49:36,429 - backend.core.security - INFO - ✅ Token decoded successfully - sub: 702de09d-3da9-4f47-8fde-73a42fdd0457, type: access, exp: 1766080059
+2025-12-16 15:49:36,429 - backend.api.deps - INFO - ✅ Token decoded successfully: {'sub': '702de09d-3da9-4f47-8fde-73a42fdd0457', 'exp': 1766080059, 'type': 'access'}
+2025-12-16 15:49:36,429 - backend.api.deps - INFO - 👤 User ID from token: 702de09d-3da9-4f47-8fde-73a42fdd0457
+2025-12-16 15:49:36,429 - backend.api.deps - INFO - ✅ Converted user_id to UUID: 702de09d-3da9-4f47-8fde-73a42fdd0457
+2025-12-16 15:49:36,526 - backend.api.deps - INFO - ✅ User found in database: jefersonservices6@gmail.com
+2025-12-16 15:49:36,558 - backend.api.websocket - INFO - ✅ User authenticated: 702de09d-3da9-4f47-8fde-73a42fdd0457
+2025-12-16 15:49:36,558 - backend.api.websocket - INFO - User 702de09d-3da9-4f47-8fde-73a42fdd0457 connected to room 342b5c34-f807-4a35-82ed-fd7bdb6d574c
+INFO:     45.178.146.74:0 - "GET /api/rooms/342b5c34-f807-4a35-82ed-fd7bdb6d574c HTTP/1.1" 200 OK
+INFO:     connection open
+2025-12-16 15:49:36,868 - backend.api.websocket - INFO - 🌐 Loaded user languages from DB: speaks=pt (['pt']), wants_to_hear=pt (['pt'])
+2025-12-16 15:49:36,896 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457 (pt→pt)
+2025-12-16 15:49:36,896 - backend.services.audio_pipeline.stream_processor - INFO - 🔄 Updated languages for user 702de09d-3da9-4f47-8fde-73a42fdd0457: speaks=pt, wants_to_hear=pt
+2025-12-16 15:49:36,896 - backend.api.websocket - INFO - ✅ Initial language settings for user 702de09d-3da9-4f47-8fde-73a42fdd0457: speaks=pt, wants_to_hear=pt
+2025-12-16 15:49:36,901 - backend.api.websocket - INFO - Forwarded WebRTC offer from e10438f8-4759-4467-95f4-a12d7c15ae6d to 702de09d-3da9-4f47-8fde-73a42fdd0457
+2025-12-16 15:49:38,090 - backend.api.websocket - INFO - Forwarded WebRTC answer from 702de09d-3da9-4f47-8fde-73a42fdd0457 to e10438f8-4759-4467-95f4-a12d7c15ae6d
+2025-12-16 15:49:49,155 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457 (auto→en)
+2025-12-16 15:49:51,773 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: en (confidence: 54.40%)
+2025-12-16 15:49:51,782 - ml.asr.whisper_service - INFO - ✅ Transcribed [1275ms]: '...' (lang: en)
+2025-12-16 15:49:54,623 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: en (confidence: 54.40%)
+2025-12-16 15:49:54,623 - ml.asr.whisper_service - WARNING - ⚠️ Empty transcription for 2.41s of audio. Detected lang: en, segments: 0
+2025-12-16 15:49:54,623 - ml.asr.whisper_service - INFO - ✅ Transcribed [691ms]: '...' (lang: en)
+2025-12-16 15:49:55,393 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: it (confidence: 15.30%)
+2025-12-16 15:49:56,119 - ml.asr.whisper_service - INFO - ✅ Transcribed [1393ms]: 'con il ciò che....' (lang: it)
+2025-12-16 15:49:56,119 - backend.services.audio_pipeline.stream_processor - INFO - 🧭 Language decision | configured_input=auto detected=it conf=0.15 → chosen=en
+2025-12-16 15:49:56,119 - backend.services.audio_pipeline.stream_processor - INFO - 🎤 User 702de09d-3da9-4f47-8fde-73a42fdd0457 spoke in en: 'con il ciò che.' 
+2025-12-16 15:49:56,123 - backend.services.audio_pipeline.stream_processor - INFO - 🔊 Found 2 listeners in room 342b5c34-f807-4a35-82ed-fd7bdb6d574c: [UUID('e10438f8-4759-4467-95f4-a12d7c15ae6d'), UUID('702de09d-3da9-4f47-8fde-73a42fdd0457')]
+2025-12-16 15:49:56,124 - backend.services.audio_pipeline.stream_processor - INFO - 🌐 Translated to en: 'con il ciò che.'
+2025-12-16 15:49:56,246 - backend.services.audio_pipeline.stream_processor - INFO - ✅ Using cloned voice for user 702de09d-3da9-4f47-8fde-73a42fdd0457: C:\Users\Jeferson\Documents\orbis\data\voices\702de09d-3da9-4f47-8fde-73a42fdd0457.wav
+2025-12-16 15:49:56,246 - ml.tts.coqui_service - INFO - Synthesizing with cloned voice from: C:\Users\Jeferson\Documents\orbis\data\voices\702de09d-3da9-4f47-8fde-73a42fdd0457.wav
  > Text splitted to sentences.
-['Yeah']
- > Processing time: 16.790791749954224
- > Real-time factor: 7.414229375330235
-2025-12-16 15:18:54,217 - ml.tts.coqui_service - INFO - ✅ Synthesized speech: 'Yeah...' in en (49936 samples)
-2025-12-16 15:18:54,252 - backend.services.audio_pipeline.stream_processor - INFO - ✅ User 702de09d-3da9-4f47-8fde-73a42fdd0457 audio processed in 18557.4ms (ASR: 1585.8ms, MT: 0.0ms, TTS: 16940.0ms, Send: 26.1ms) | Sent to 1 listener(s) | 'Yeah' → languages ['en']
-2025-12-16 15:18:54,252 - backend.services.audio_pipeline.stream_processor - WARNING - ⚠️ Latency exceeded target: 18557.4ms > 200ms
-2025-12-16 15:19:09,219 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: en (confidence: 54.40%)
-2025-12-16 15:19:09,220 - ml.asr.whisper_service - WARNING - ⚠️ Empty transcription for 6.00s of audio. Detected lang: en, segments: 0
-2025-12-16 15:19:09,220 - ml.asr.whisper_service - INFO - ✅ Transcribed [936ms]: '...' (lang: en)
-2025-12-16 15:19:10,074 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: en (confidence: 61.60%)
-2025-12-16 15:19:10,838 - ml.asr.whisper_service - INFO - ✅ Transcribed [1505ms]: 'basically...' (lang: en)
-2025-12-16 15:19:10,838 - backend.services.audio_pipeline.stream_processor - INFO - 🧭 Language decision | configured_input=auto detected=en conf=0.62 → chosen=en
-2025-12-16 15:19:10,840 - backend.services.audio_pipeline.stream_processor - INFO - 🎤 User 702de09d-3da9-4f47-8fde-73a42fdd0457 spoke in en: 'basically'       
-2025-12-16 15:19:10,843 - backend.services.audio_pipeline.stream_processor - INFO - 🔊 Found 2 listeners in room fb732a7f-ecc5-4dab-972d-dafc52676e06: [UUID('e10438f8-4759-4467-95f4-a12d7c15ae6d'), UUID('702de09d-3da9-4f47-8fde-73a42fdd0457')]
-2025-12-16 15:19:10,843 - backend.services.audio_pipeline.stream_processor - INFO - 🌐 Translated to en: 'basically'
-2025-12-16 15:19:11,071 - backend.services.audio_pipeline.stream_processor - INFO - ✅ Using cloned voice for user 702de09d-3da9-4f47-8fde-73a42fdd0457: C:\Users\Jeferson\Documents\orbis\data\voices\702de09d-3da9-4f47-8fde-73a42fdd0457.wav
-2025-12-16 15:19:11,071 - ml.tts.coqui_service - INFO - Synthesizing with cloned voice from: C:\Users\Jeferson\Documents\orbis\data\voices\702de09d-3da9-4f47-8fde-73a42fdd0457.wav
- > Text splitted to sentences.
-['basically']
- > Processing time: 9.088740348815918
- > Real-time factor: 3.4027221660450793
-2025-12-16 15:19:20,164 - ml.tts.coqui_service - INFO - ✅ Synthesized speech: 'basically...' in en (58896 samples)
-2025-12-16 15:19:20,182 - backend.services.audio_pipeline.stream_processor - INFO - ✅ User 702de09d-3da9-4f47-8fde-73a42fdd0457 audio processed in 10848.6ms (ASR: 1504.6ms, MT: 0.0ms, TTS: 9321.2ms, Send: 16.8ms) | Sent to 1 listener(s) | 'basically' → languages ['en']
-2025-12-16 15:19:20,183 - backend.services.audio_pipeline.stream_processor - WARNING - ⚠️ Latency exceeded target: 10848.6ms > 200ms
-2025-12-16 15:19:29,328 - backend.services.audio_pipeline.stream_processor - INFO - Audio processing stopped for user 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-16 15:19:29,334 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-16 15:19:39,797 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d (auto→en)
-2025-12-16 15:19:44,010 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: en (confidence: 60.41%)
-2025-12-16 15:19:45,724 - ml.asr.whisper_service - WARNING - ⚠️ Empty transcription for 6.00s of audio. Detected lang: en, segments: 0
-2025-12-16 15:19:45,724 - ml.asr.whisper_service - INFO - ✅ Transcribed [3220ms]: '...' (lang: en)
-2025-12-16 15:19:54,096 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: en (confidence: 74.31%)
-2025-12-16 15:19:54,910 - ml.asr.whisper_service - WARNING - ⚠️ Empty transcription for 6.00s of audio. Detected lang: en, segments: 0
-2025-12-16 15:19:54,910 - ml.asr.whisper_service - INFO - ✅ Transcribed [1582ms]: '...' (lang: en)
-2025-12-16 15:19:55,733 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: en (confidence: 70.99%)
-2025-12-16 15:19:56,475 - ml.asr.whisper_service - INFO - ✅ Transcribed [1453ms]: '...' (lang: en)
-2025-12-16 15:19:57,541 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: en (confidence: 54.40%)
-2025-12-16 15:19:57,541 - ml.asr.whisper_service - INFO - ✅ Transcribed [732ms]: '...' (lang: en)
-2025-12-16 15:19:58,345 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: en (confidence: 62.67%)
-2025-12-16 15:19:59,110 - ml.asr.whisper_service - INFO - ✅ Transcribed [1474ms]: 'Here....' (lang: en)
-2025-12-16 15:19:59,110 - backend.services.audio_pipeline.stream_processor - INFO - 🧭 Language decision | configured_input=auto detected=en conf=0.63 → chosen=en
-2025-12-16 15:19:59,110 - backend.services.audio_pipeline.stream_processor - INFO - 🎤 User e10438f8-4759-4467-95f4-a12d7c15ae6d spoke in en: 'Here.'
-2025-12-16 15:19:59,114 - backend.services.audio_pipeline.stream_processor - INFO - 🔊 Found 2 listeners in room fb732a7f-ecc5-4dab-972d-dafc52676e06: [UUID('e10438f8-4759-4467-95f4-a12d7c15ae6d'), UUID('702de09d-3da9-4f47-8fde-73a42fdd0457')]
-2025-12-16 15:19:59,114 - backend.services.audio_pipeline.stream_processor - INFO - 🌐 Translated to en: 'Here.'
-2025-12-16 15:19:59,247 - backend.services.audio_pipeline.stream_processor - INFO - ✅ Using cloned voice for user e10438f8-4759-4467-95f4-a12d7c15ae6d: C:\Users\Jeferson\Documents\orbis\data\voices\e10438f8-4759-4467-95f4-a12d7c15ae6d.wav
-2025-12-16 15:19:59,248 - ml.tts.coqui_service - INFO - Synthesizing with cloned voice from: C:\Users\Jeferson\Documents\orbis\data\voices\e10438f8-4759-4467-95f4-a12d7c15ae6d.wav
- > Text splitted to sentences.
-['Here.']
- > Processing time: 14.388185024261475
- > Real-time factor: 3.480554236714121
-2025-12-16 15:20:13,638 - ml.tts.coqui_service - INFO - ✅ Synthesized speech: 'Here....' in en (91152 samples)
-2025-12-16 15:20:13,670 - backend.services.audio_pipeline.stream_processor - INFO - ✅ User e10438f8-4759-4467-95f4-a12d7c15ae6d audio processed in 16032.6ms (ASR: 1473.7ms, MT: 0.0ms, TTS: 14525.8ms, Send: 28.8ms) | Sent to 1 listener(s) | 'Here.' → languages ['en']
-2025-12-16 15:20:13,670 - backend.services.audio_pipeline.stream_processor - WARNING - ⚠️ Latency exceeded target: 16032.6ms > 200ms
-2025-12-16 15:20:20,610 - backend.services.audio_pipeline.stream_processor - INFO - Audio processing stopped for user e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-16 15:20:20,615 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-16 15:20:36,797 - backend.services.audio_pipeline.stream_processor - INFO - Started audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457 (auto→en)
-2025-12-16 15:20:39,599 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: en (confidence: 54.40%)
-2025-12-16 15:20:39,599 - ml.asr.whisper_service - WARNING - ⚠️ Empty transcription for 2.32s of audio. Detected lang: en, segments: 0
-2025-12-16 15:20:39,600 - ml.asr.whisper_service - INFO - ✅ Transcribed [822ms]: '...' (lang: en)
-2025-12-16 15:20:40,510 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: en (confidence: 59.92%)
-2025-12-16 15:20:41,303 - ml.asr.whisper_service - INFO - ✅ Transcribed [1591ms]: 'Yeah, does....' (lang: en)
-2025-12-16 15:20:41,303 - backend.services.audio_pipeline.stream_processor - INFO - 🧭 Language decision | configured_input=auto detected=en conf=0.60 → chosen=en
-2025-12-16 15:20:41,303 - backend.services.audio_pipeline.stream_processor - INFO - 🎤 User 702de09d-3da9-4f47-8fde-73a42fdd0457 spoke in en: 'Yeah, does.'     
-2025-12-16 15:20:41,310 - backend.services.audio_pipeline.stream_processor - INFO - 🔊 Found 2 listeners in room fb732a7f-ecc5-4dab-972d-dafc52676e06: [UUID('e10438f8-4759-4467-95f4-a12d7c15ae6d'), UUID('702de09d-3da9-4f47-8fde-73a42fdd0457')]
-2025-12-16 15:20:41,310 - backend.services.audio_pipeline.stream_processor - INFO - 🌐 Translated to en: 'Yeah, does.'
-2025-12-16 15:20:41,789 - backend.services.audio_pipeline.stream_processor - INFO - ✅ Using cloned voice for user 702de09d-3da9-4f47-8fde-73a42fdd0457: C:\Users\Jeferson\Documents\orbis\data\voices\702de09d-3da9-4f47-8fde-73a42fdd0457.wav
-2025-12-16 15:20:41,794 - ml.tts.coqui_service - INFO - Synthesizing with cloned voice from: C:\Users\Jeferson\Documents\orbis\data\voices\702de09d-3da9-4f47-8fde-73a42fdd0457.wav
- > Text splitted to sentences.
-['Yeah, does.']
- > Processing time: 6.425387859344482
- > Real-time factor: 3.2735628996891366
-2025-12-16 15:20:48,222 - ml.tts.coqui_service - INFO - ✅ Synthesized speech: 'Yeah, does....' in en (43280 samples)
-2025-12-16 15:20:48,232 - backend.services.audio_pipeline.stream_processor - INFO - ✅ User 702de09d-3da9-4f47-8fde-73a42fdd0457 audio processed in 8519.8ms (ASR: 1590.7ms, MT: 0.0ms, TTS: 6913.1ms, Send: 9.6ms) | Sent to 1 listener(s) | 'Yeah, does.' → languages ['en']
-2025-12-16 15:20:48,234 - backend.services.audio_pipeline.stream_processor - WARNING - ⚠️ Latency exceeded target: 8519.8ms > 200ms
-2025-12-16 15:20:49,262 - ml.asr.whisper_service - INFO - 🔍 Whisper detected language: en (confidence: 59.31%)
-2025-12-16 15:20:50,120 - ml.asr.whisper_service - INFO - ✅ Transcribed [1775ms]: 'Yeah, that's....' (lang: en)
-2025-12-16 15:20:50,122 - backend.services.audio_pipeline.stream_processor - INFO - 🧭 Language decision | configured_input=auto detected=en conf=0.59 → chosen=en
-2025-12-16 15:20:50,122 - backend.services.audio_pipeline.stream_processor - INFO - 🎤 User 702de09d-3da9-4f47-8fde-73a42fdd0457 spoke in en: 'Yeah, that's.'   
-2025-12-16 15:20:50,124 - backend.services.audio_pipeline.stream_processor - INFO - 🔊 Found 2 listeners in room fb732a7f-ecc5-4dab-972d-dafc52676e06: [UUID('e10438f8-4759-4467-95f4-a12d7c15ae6d'), UUID('702de09d-3da9-4f47-8fde-73a42fdd0457')]
-2025-12-16 15:20:50,124 - backend.services.audio_pipeline.stream_processor - INFO - 🌐 Translated to en: 'Yeah, that's.'
-2025-12-16 15:20:50,328 - backend.services.audio_pipeline.stream_processor - INFO - ✅ Using cloned voice for user 702de09d-3da9-4f47-8fde-73a42fdd0457: C:\Users\Jeferson\Documents\orbis\data\voices\702de09d-3da9-4f47-8fde-73a42fdd0457.wav
-2025-12-16 15:20:50,328 - ml.tts.coqui_service - INFO - Synthesizing with cloned voice from: C:\Users\Jeferson\Documents\orbis\data\voices\702de09d-3da9-4f47-8fde-73a42fdd0457.wav
- > Text splitted to sentences.
-["Yeah, that's."]
- > Processing time: 7.071906328201294
- > Real-time factor: 3.256254897611897
-2025-12-16 15:20:57,403 - ml.tts.coqui_service - INFO - ✅ Synthesized speech: 'Yeah, that's....' in en (47888 samples)
-2025-12-16 15:20:57,415 - backend.services.audio_pipeline.stream_processor - INFO - ✅ User 702de09d-3da9-4f47-8fde-73a42fdd0457 audio processed in 9070.2ms (ASR: 1777.1ms, MT: 0.0ms, TTS: 7278.3ms, Send: 12.0ms) | Sent to 1 listener(s) | 'Yeah, that's.' → languages ['en']
-2025-12-16 15:20:57,415 - backend.services.audio_pipeline.stream_processor - WARNING - ⚠️ Latency exceeded target: 9070.2ms > 200ms
-2025-12-16 15:20:57,424 - backend.services.audio_pipeline.stream_processor - INFO - Audio processing stopped for user 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-16 15:20:57,425 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457      
-2025-12-16 15:21:12,973 - backend.api.chat - INFO - Client disconnected from room fb732a7f-ecc5-4dab-972d-dafc52676e06
-2025-12-16 15:21:12,973 - backend.api.chat - INFO - Client disconnected from room fb732a7f-ecc5-4dab-972d-dafc52676e06
-INFO:     connection closed
-2025-12-16 15:21:13,003 - backend.api.websocket - INFO - WebSocket disconnected for user e10438f8-4759-4467-95f4-a12d7c15ae6d
-2025-12-16 15:21:13,003 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user e10438f8-4759-4467-95f4-a12d7c15ae6d      
-2025-12-16 15:21:13,003 - backend.services.audio_pipeline.websocket_manager - INFO - User e10438f8-4759-4467-95f4-a12d7c15ae6d disconnected
-INFO:     connection closed
-INFO:     2a09:bac5:633:305a::4d1:35:0 - "OPTIONS /api/users/me HTTP/1.1" 200 OK
-2025-12-16 15:21:23,582 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-16 15:21:23,582 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-16 15:21:23,585 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-16 15:21:23,620 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
-2025-12-16 15:21:23,723 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
-INFO:     2a09:bac5:633:305a::4d1:35:0 - "GET /api/users/me HTTP/1.1" 200 OK
-2025-12-16 15:21:24,401 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-16 15:21:24,401 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-16 15:21:24,401 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-16 15:21:24,401 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
-2025-12-16 15:21:24,501 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
-INFO:     2a09:bac5:633:305a::4d1:35:0 - "GET /api/voices/profile HTTP/1.1" 200 OK
-INFO:     2a09:bac5:633:305a::4d1:35:0 - "OPTIONS /api/voices/profile/audio HTTP/1.1" 200 OK
-2025-12-16 15:21:24,938 - backend.api.deps - INFO - 🔑 get_current_user called - has credentials: True
-2025-12-16 15:21:24,939 - backend.api.deps - INFO - 🎫 Token length: 187
-2025-12-16 15:21:24,940 - backend.core.security - INFO - 🔓 Attempting to decode token (length: 187)
-2025-12-16 15:21:24,942 - backend.core.security - INFO - ✅ Token decoded successfully - sub: e10438f8-4759-4467-95f4-a12d7c15ae6d, type: access, exp: 1766431806
-2025-12-16 15:21:25,044 - backend.api.deps - INFO - ✅ get_current_active_user - user: jefersonservices4@gmail.com
-INFO:     2a09:bac5:633:305a::4d1:35:0 - "GET /api/voices/profile/audio HTTP/1.1" 200 OK
-2025-12-16 15:21:37,543 - backend.api.chat - INFO - Client disconnected from room fb732a7f-ecc5-4dab-972d-dafc52676e06
-2025-12-16 15:21:37,544 - backend.api.chat - INFO - Client disconnected from room fb732a7f-ecc5-4dab-972d-dafc52676e06
-INFO:     connection closed
-2025-12-16 15:21:37,546 - backend.api.websocket - INFO - WebSocket disconnected for user 702de09d-3da9-4f47-8fde-73a42fdd0457
-2025-12-16 15:21:37,547 - backend.services.audio_pipeline.stream_processor - INFO - Stopped audio processing for user 702de09d-3da9-4f47-8fde-73a42fdd0457      
-2025-12-16 15:21:37,547 - backend.services.audio_pipeline.websocket_manager - INFO - User 702de09d-3da9-4f47-8fde-73a42fdd0457 disconnected
-2025-12-16 15:21:37,548 - backend.services.audio_pipeline.websocket_manager - WARNING - Cannot broadcast to room fb732a7f-ecc5-4dab-972d-dafc52676e06: room not found
-INFO:     connection closed
+['con il ciò che.']

@@ -244,6 +244,16 @@ class AudioStreamProcessor:
                 vad_filter=True
             )
             asr_latency = (time.time() - asr_start_time) * 1000
+
+            # If input is auto and we have speaks_pref, bias chosen language to speaks_pref[0]
+            if (not input_lang or input_lang == 'auto'):
+                prefs = self.user_languages.get(user_id, {})
+                sp0 = self._first_valid_language(prefs.get('speaks_pref', []) or [])
+                if sp0 and sp0 != (forced_lang or detected_lang):
+                    detected_lang = sp0
+                    if isinstance(asr_meta, dict):
+                        asr_meta['language'] = sp0
+                        asr_meta['language_probability'] = max(asr_meta.get('language_probability', 0.0), 0.75)
             
             # ✅ Filter out empty/meaningless transcriptions
             transcribed_text = transcribed_text.strip()
@@ -269,6 +279,13 @@ class AudioStreamProcessor:
                 detected_conf = float(asr_meta.get('language_probability', 0.0)) if isinstance(asr_meta, dict) else 0.0
             except Exception:
                 detected_conf = 0.0
+            # Recompute detection confidence after possible biasing
+            detected_conf = 0.0
+            try:
+                detected_conf = float(asr_meta.get('language_probability', 0.0)) if isinstance(asr_meta, dict) else 0.0
+            except Exception:
+                detected_conf = 0.0
+
             speaker_language = self._determine_speaker_language(
                 user_id,
                 (input_lang.split('-')[0].lower() if input_lang and input_lang != 'auto' else 'auto'),
