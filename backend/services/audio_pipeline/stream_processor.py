@@ -78,7 +78,8 @@ class AudioStreamProcessor:
             'output': output_lang,
             'room_id': room_id,
             'speaks_pref': list(speaks_pref or []),
-            'understands_pref': list(understands_pref or [])
+            'understands_pref': list(understands_pref or []),
+            'last_good_input': (input_lang if input_lang and input_lang != 'auto' else None)
         }
         
         # Start background processing task
@@ -229,9 +230,16 @@ class AudioStreamProcessor:
                 return
             
             # Use Whisper VAD to reduce repetitions on noisy audio
-            transcribed_text, detected_lang, _ = await whisper_service.transcribe(
+            # Normalize possible region-specific codes (e.g., pt-BR -> pt)
+            forced_lang = None
+            if input_lang and input_lang != 'auto':
+                forced_lang = (input_lang.split('-')[0] or input_lang).lower()
+            else:
+                # If auto, bias ASR with last good input if we have one
+                forced_lang = (self.user_languages.get(user_id, {}).get('last_good_input') or None)
+            transcribed_text, detected_lang, asr_meta = await whisper_service.transcribe(
                 audio_array,
-                language=input_lang if input_lang != 'auto' else None,
+                language=forced_lang if forced_lang else None,
                 sample_rate=self.input_sample_rate,
                 vad_filter=True
             )
@@ -242,8 +250,13 @@ class AudioStreamProcessor:
             if not transcribed_text or transcribed_text in ['...', '.', ',', '?', '!', '  ']:
                 logger.debug(f"⏭️ Skipping empty/noise transcription for user {user_id}")
                 return  # No meaningful speech detected
+            # If detection confidence is very low and we're in auto with no last_good, wait for more audio
+            if (input_lang == 'auto' or not input_lang) and not self.user_languages.get(user_id, {}).get('last_good_input'):
+                if 'detected_conf' in locals() and detected_conf < 0.50:
+                    logger.debug(f"⏭️ Low-confidence ({detected_conf:.2f}) detection with no prior hint; waiting for more audio for user {user_id}")
+                    return
 
-            # ✅ Suppress repeated identical transcriptions within 1.5s window (tuned)
+            # Suppress repeated identical transcriptions within 1.5s window (tuned)
             now = time.time()
             last_text, last_ts = self._last_transcript.get(user_id, ("", 0.0))
             if transcribed_text.lower() == last_text.lower() and (now - last_ts) < 1.5:
@@ -251,12 +264,55 @@ class AudioStreamProcessor:
                 return
             self._last_transcript[user_id] = (transcribed_text, now)
             
-            # Update detected language if auto mode
-            if input_lang == 'auto' and detected_lang:
-                self.user_languages[user_id]['input'] = detected_lang
-                input_lang = detected_lang
-            
-            speaker_language = self._determine_speaker_language(user_id, input_lang, detected_lang)
+            detected_conf = 0.0
+            try:
+                detected_conf = float(asr_meta.get('language_probability', 0.0)) if isinstance(asr_meta, dict) else 0.0
+            except Exception:
+                detected_conf = 0.0
+            speaker_language = self._determine_speaker_language(
+                user_id,
+                (input_lang.split('-')[0].lower() if input_lang and input_lang != 'auto' else 'auto'),
+                (detected_lang.split('-')[0].lower() if detected_lang else None),
+                detected_confidence=detected_conf
+            )
+
+            # Post-decision guard: never trust auto-detected language under low confidence
+            if (input_lang == 'auto' or not input_lang) and detected_lang and detected_conf < 0.70:
+                prefs = self.user_languages.get(user_id, {})
+                fallback = (
+                    prefs.get('last_good_input')
+                    or self._first_valid_language(prefs.get('speaks_pref', []) or [])
+                    or 'en'
+                )
+                if speaker_language != fallback:
+                    logger.warning(
+                        "🛡️ Overriding low-confidence detection (%s @ %.2f) → %s",
+                        detected_lang,
+                        detected_conf,
+                        fallback,
+                    )
+                    speaker_language = (fallback.split('-')[0] or fallback).lower()
+
+            try:
+                self.user_languages[user_id]['last_detected_language'] = speaker_language
+                # Update last-good input if we chose confidently detected or configured
+                if input_lang and input_lang != 'auto':
+                    self.user_languages[user_id]['last_good_input'] = (input_lang.split('-')[0] or input_lang).lower()
+                elif detected_conf >= 0.70 and detected_lang:
+                    self.user_languages[user_id]['last_good_input'] = (detected_lang.split('-')[0] or detected_lang).lower()
+            except Exception:
+                pass
+
+            try:
+                logger.info(
+                    "🧭 Language decision | configured_input=%s detected=%s conf=%.2f → chosen=%s",
+                    input_lang,
+                    detected_lang,
+                    detected_conf,
+                    speaker_language,
+                )
+            except Exception:
+                pass
 
             logger.info(f"🎤 User {user_id} spoke in {speaker_language}: '{transcribed_text}'")
             
@@ -570,7 +626,8 @@ class AudioStreamProcessor:
             },
             'audio_data': encoded_audio,
             'original_text': self._last_transcript.get(source_user_id, ("", 0.0))[0],
-            'detected_language': self.user_languages.get(source_user_id, {}).get('input'),
+            'detected_language': self.user_languages.get(source_user_id, {}).get('last_detected_language')
+            or self.user_languages.get(source_user_id, {}).get('input'),
             'text': text,
             'language': target_language,
             'voice_fallback': voice_fallback,
@@ -595,14 +652,26 @@ class AudioStreamProcessor:
             return
 
         config = self.user_languages[user_id]
+        # Normalize short language codes (e.g., pt-BR -> pt)
+        def _norm(code: Optional[str]) -> Optional[str]:
+            if not code:
+                return code
+            return (code.split('-')[0] or code).lower()
+        def _norm_list(codes: Optional[List[str]]) -> Optional[List[str]]:
+            if codes is None:
+                return None
+            return [(_norm(c) or 'en') for c in codes if c]
+
         if input_lang:
-            config['input'] = input_lang
+            config['input'] = _norm(input_lang)
+            if config['input'] != 'auto':
+                config['last_good_input'] = config['input']
         if output_lang:
-            config['output'] = output_lang
+            config['output'] = _norm(output_lang)
         if speaks_pref is not None:
-            config['speaks_pref'] = list(speaks_pref)
+            config['speaks_pref'] = _norm_list(speaks_pref) or []
         if understands_pref is not None:
-            config['understands_pref'] = list(understands_pref)
+            config['understands_pref'] = _norm_list(understands_pref) or []
 
         logger.info(
             "🔄 Updated languages for user %s: speaks=%s, wants_to_hear=%s",
@@ -615,25 +684,50 @@ class AudioStreamProcessor:
         self,
         user_id: UUID,
         configured_input: str,
-        detected_lang: Optional[str]
+        detected_lang: Optional[str],
+        detected_confidence: float = 0.0
     ) -> str:
-        if configured_input and configured_input != 'auto':
-            return configured_input
-        if detected_lang:
-            return detected_lang
+        # Normalize
+        configured = (configured_input or '').split('-')[0].lower() if configured_input else ''
+        detected = (detected_lang or '').split('-')[0].lower() if detected_lang else ''
 
+        # If user explicitly configured their input language, always respect it
+        if configured and configured != 'auto':
+            return configured
+
+        # If we have a confident detection, use it
+        if detected and detected_confidence >= 0.70:
+            return detected
+
+        # If low confidence, prefer last good input if available
         user_prefs = self.user_languages.get(user_id, {})
+        last_good = (user_prefs.get('last_good_input') or '')
+        if last_good:
+            return (last_good.split('-')[0] or last_good).lower()
+
+        # Otherwise, prefer user's speaks preferences
         speaks_pref = user_prefs.get('speaks_pref', []) or []
         fallback = self._first_valid_language(speaks_pref)
-        return fallback or 'en'
+        if fallback:
+            return fallback.split('-')[0].lower()
+
+        # Last resort, do not trust low-confidence random detection; return English default
+        return 'en'
 
     def _resolve_target_language(
         self,
         listener_prefs: Dict[str, Any],
         speaker_language: str
     ) -> str:
-        understands_pref = listener_prefs.get('understands_pref') or []
-        preferred_output = listener_prefs.get('output')
+        # Normalize
+        def _norm(code: Optional[str]) -> Optional[str]:
+            if not code:
+                return code
+            return (code.split('-')[0] or code).lower()
+        understands_pref = [c for c in (listener_prefs.get('understands_pref') or [])]
+        understands_pref = [_norm(c) for c in understands_pref if c]
+        preferred_output = _norm(listener_prefs.get('output'))
+        speaker_language = _norm(speaker_language)
 
         if speaker_language:
             match = self._first_matching_language(understands_pref, speaker_language)
@@ -647,7 +741,7 @@ class AudioStreamProcessor:
         if fallback_understands:
             return fallback_understands
 
-        fallback_input = listener_prefs.get('input')
+        fallback_input = _norm(listener_prefs.get('input'))
         if fallback_input and fallback_input != 'auto':
             return fallback_input
 

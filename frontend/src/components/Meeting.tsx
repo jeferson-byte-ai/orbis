@@ -165,8 +165,8 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
       return;
     }
 
-    // Always start with input auto-detect to avoid forcing wrong ASR language
-    const initialInput = 'auto';
+    // Prefer user's configured languages; allow 'auto' if that's what they chose
+    const initialInput = speaksLanguages[0] || 'auto';
     const initialOutput = understandsLanguages[0] || 'en';
 
     try {

@@ -126,9 +126,9 @@ async def websocket_audio_endpoint(websocket: WebSocket, room_id: str):
             user_with_langs = db.query(User).filter(User.id == user_id).first()
             speaks_pref = (user_with_langs.speaks_languages or []) if user_with_langs else []
             understands_pref = (user_with_langs.understands_languages or []) if user_with_langs else []
-            # Default to auto-detect for speaker input language to prevent ASR hallucinations when DB has defaults
-            input_lang = "auto"
-            output_lang = understands_pref[0] if understands_pref else "en"
+            # Use user's configured input/output if present; otherwise fall back
+            input_lang = (speaks_pref[0] if speaks_pref else "auto")
+            output_lang = (understands_pref[0] if understands_pref else "en")
             logger.info(
                 "🌐 Loaded user languages from DB: speaks=%s (%s), wants_to_hear=%s (%s)",
                 input_lang,
