@@ -125,7 +125,7 @@ export const useTranslation = (): UseTranslationReturn => {
   }, []);
 
   // Connect to WebSocket
-  const connect = useCallback((roomId: string, token: string, initialInputLang: string = 'auto', initialOutputLang: string = 'en', initialSpeaks: string[] = [], initialUnderstands: string[] = []) => {
+  const connect = useCallback((roomId: string, token: string, initialInputLang: string = 'en', initialOutputLang: string = 'en', initialSpeaks: string[] = [], initialUnderstands: string[] = []) => {
     try {
       // Close existing connection if any
       if (ws.current) {
@@ -134,8 +134,10 @@ export const useTranslation = (): UseTranslationReturn => {
         ws.current = null;
       }
 
-      setInputLanguage(initialInputLang);
-      setOutputLanguage(initialOutputLang);
+      const normIn = (initialInputLang || 'en').split('-')[0].toLowerCase();
+      const normOut = (initialOutputLang || 'en').split('-')[0].toLowerCase();
+      setInputLanguage(normIn);
+      setOutputLanguage(normOut);
       if (initialSpeaks.length > 0) {
         setSpeaksLanguages(initialSpeaks);
       }
@@ -162,8 +164,8 @@ export const useTranslation = (): UseTranslationReturn => {
         // Send initial language preferences and voice profile status
         ws.current?.send(JSON.stringify({
           type: 'init_settings',
-          input_language: initialInputLang,
-          output_language: initialOutputLang,
+          input_language: normIn,
+          output_language: normOut,
           speaks_languages: initialSpeaks,
           understands_languages: initialUnderstands,
           voice_profile_exists: voiceProfileExists.current // Send voice profile status

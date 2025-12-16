@@ -166,8 +166,8 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
     }
 
     // Prefer user's configured languages; allow 'auto' if that's what they chose
-    const initialInput = speaksLanguages[0] || 'auto';
-    const initialOutput = understandsLanguages[0] || 'en';
+    const initialInput = (speaksLanguages[0] || 'en').split('-')[0].toLowerCase();
+    const initialOutput = (understandsLanguages[0] || 'en').split('-')[0].toLowerCase();
 
     try {
       connectTranslation(
@@ -578,7 +578,7 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
     // Update translation settings
     if (speaks.length > 0 && understands.length > 0) {
       updateLanguages(
-        speaks[0] || 'auto',
+        (speaks[0] || 'en').split('-')[0].toLowerCase(),
         understands[0] || 'en',
         speaks,
         understands

@@ -210,12 +210,12 @@ class WhisperService:
                 temperature=0.0,
                 compression_ratio_threshold=2.4,
                 log_prob_threshold=-1.0,
-                no_speech_threshold=0.4,
+                no_speech_threshold=0.3,
                 condition_on_previous_text=False,
                 vad_parameters={
-                    "threshold": 0.25,  # slightly more permissive to catch soft speech
-                    "min_speech_duration_ms": 200,
-                    "min_silence_duration_ms": 450,
+                    "threshold": 0.23,
+                    "min_speech_duration_ms": 120,
+                    "min_silence_duration_ms": 300,
                     "speech_pad_ms": 320,
                 } if vad_filter else None,
             )
@@ -237,7 +237,14 @@ class WhisperService:
             transcription = transcription.strip()
             # Sanitize repetitions and artifacts often produced by partial-chunk decoding
             transcription = self._clean_repetitions(transcription)
-            detected_lang = info.language if hasattr(info, 'language') else (language or "en")
+            # If language was forced, trust it and override detection to avoid spurious mislabels
+            if language:
+                detected_lang = language
+                if isinstance(info, dict):
+                    info['language'] = language
+                    info['language_probability'] = 1.0
+            else:
+                detected_lang = info.language if hasattr(info, 'language') else (language or "en")
             
             # ✅ Log warning if transcription is empty but audio was long enough
             if not transcription and len(audio) > 8000:  # More than 0.5 seconds

@@ -40,7 +40,7 @@ class AudioStreamProcessor:
         self._last_transcript: Dict[UUID, Tuple[str, float]] = {}
         # Simple energy gate to drop near-silence chunks (tuned)
         # Lower threshold reduces false skips on soft speech
-        self._silence_rms_threshold: float = 0.005
+        self._silence_rms_threshold: float = 0.0025
         # Rolling buffers for streaming context and voice activity
         self._rolling_buffers: Dict[UUID, bytes] = {}
         self._last_activity_ts: Dict[UUID, float] = {}
@@ -134,7 +134,7 @@ class AudioStreamProcessor:
                 
                 # Append to rolling buffer with a maximum of 2.5s to limit Whisper context size
                 buf = self._rolling_buffers.get(user_id, b"") + combined_new
-                max_seconds = 2.5
+                max_seconds = 6.0
                 max_bytes = int(self.input_sample_rate * max_seconds * 2)
                 if len(buf) > max_bytes:
                     buf = buf[-max_bytes:]
@@ -156,7 +156,7 @@ class AudioStreamProcessor:
                 self._last_process_ts[user_id] = now
                 
                 # If we still have very little audio in the rolling buffer, wait for more to reduce first-word cut
-                min_bytes = int(self.input_sample_rate * 0.12 * 2)  # ~120ms (start a bit earlier)
+                min_bytes = int(self.input_sample_rate * 0.10 * 2)  # ~100ms (start even earlier)
                 if len(buf) < min_bytes:
                     continue
                 
@@ -175,7 +175,7 @@ class AudioStreamProcessor:
         if not last_ts or not speaking:
             return
         # If we've had >500ms without activity, finalize and reset state to avoid repeats
-        if time.time() - last_ts > 0.4:  # slightly more sensitive for faster stop
+        if time.time() - last_ts > 0.8:  # wait longer to avoid premature end-of-speech reset
             # Reset rolling context and per-listener delta trackers
             self._rolling_buffers.pop(user_id, None)
             self._speaking_flags[user_id] = False
@@ -371,16 +371,29 @@ class AudioStreamProcessor:
                 
                 logger.debug(f"📢 Processing for listener {target_user_id}: {input_lang} → {target_language}")
 
+                # Decide effective source language for MT to avoid 'no-op' when source==target due to misdetection
+                effective_source = speaker_language
+                try:
+                    # If we would skip MT because source==target, but detected differs from target and has some confidence,
+                    # use detected as source to force translation
+                    if target_language == speaker_language and detected_lang and detected_conf >= 0.40:
+                        det_norm = (detected_lang.split('-')[0] or detected_lang).lower()
+                        if det_norm != target_language:
+                            effective_source = det_norm
+                            logger.warning(f"🛡️ Forcing MT source from misdetected '{speaker_language}' to detected '{effective_source}' for target '{target_language}'")
+                except Exception:
+                    pass
+
                 # Check if we already processed this language
                 full_translation = translations_cache.get(target_language)
 
                 if not full_translation:
                     translation_start = time.time()
                     
-                    # Translate text from speaker's language to listener's language
+                    # Translate text from effective source to listener's language
                     full_translation = await self._translate_text(
                         transcribed_text,
-                        speaker_language,
+                        effective_source,
                         target_language
                     )
                     translation_latency = (time.time() - translation_start) * 1000
@@ -408,7 +421,7 @@ class AudioStreamProcessor:
                 delta_text = full_translation[len(last_sent):] if full_translation.startswith(last_sent) else full_translation
                 
                 # If delta is too small, skip to avoid micro TTS calls
-                min_delta_chars = 5  # ultra-low latency: allow smaller deltas
+                min_delta_chars = 1  # allow tiny deltas to capture short words like 'a', 'é'
                 if len(delta_text.strip()) < min_delta_chars:
                     continue
                 
@@ -557,7 +570,7 @@ class AudioStreamProcessor:
                 else:
                     logger.warning(f"⚠️ No fallback voice profile found either")
 
-            text_chunks = self._chunk_text_for_tts(text, max(80, self.max_tts_chars // 2))
+            text_chunks = self._chunk_text_for_tts(text, max(60, self.max_tts_chars // 3))
             if not text_chunks:
                 return b"", used_fallback
 
@@ -729,13 +742,13 @@ class AudioStreamProcessor:
         preferred_output = _norm(listener_prefs.get('output'))
         speaker_language = _norm(speaker_language)
 
+        if preferred_output and preferred_output != 'auto':
+            return preferred_output
+
         if speaker_language:
             match = self._first_matching_language(understands_pref, speaker_language)
             if match:
                 return match
-
-        if preferred_output and preferred_output != 'auto':
-            return preferred_output
 
         fallback_understands = self._first_valid_language(understands_pref)
         if fallback_understands:

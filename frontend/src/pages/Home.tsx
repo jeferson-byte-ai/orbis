@@ -168,8 +168,8 @@ const Home: React.FC<HomeProps> = ({ onJoinMeeting, user, onLogout }) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        input_language: 'auto',
-        output_language: 'auto'
+        input_language: 'en',
+        output_language: 'en'
       })
     });
 
