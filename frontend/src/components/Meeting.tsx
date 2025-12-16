@@ -232,8 +232,8 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
 
     const setupWorklet = async () => {
       try {
-        const url = new URL('../audio/pcm16-worklet.js', import.meta.url);
-        await context.audioWorklet.addModule(url);
+        const url = '/pcm16-worklet.js';
+        try { await context.audioWorklet.addModule(url); } catch (e) { console.warn('Failed to load worklet module from public path, falling back:', e); throw e; }
         workletNode = new AudioWorkletNode(context, 'pcm16-worklet');
         workletNode.port.onmessage = (event: MessageEvent) => {
           if (!translationConnected) return;
@@ -250,6 +250,7 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
         await context.resume();
       } catch (err) {
         console.warn('AudioWorklet unavailable, falling back to ScriptProcessor', err);
+        // Fallback: ScriptProcessor
         processor = context.createScriptProcessor(4096, 1, 1);
         processor.onaudioprocess = (event) => {
           if (!translationConnected) {

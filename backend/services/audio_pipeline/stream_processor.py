@@ -19,7 +19,7 @@ from ml.mt.nllb_service import nllb_service
 from ml.tts.coqui_service import coqui_service
 from backend.config import settings
 from backend.db.session import SessionLocal
-from backend.api.profile import get_user_language_settings as _get_user_language_settings
+# Note: avoid importing backend.api.profile here to prevent circular import during app startup
 from backend.db.models import VoiceProfile, VoiceType
 from backend.services.audio_pipeline.websocket_manager import connection_manager, audio_chunk_manager
 from backend.services.lazy_loader import lazy_loader, ModelType
@@ -526,13 +526,29 @@ class AudioStreamProcessor:
         return audio_float
     
     async def _fetch_user_language_prefs(self, user_id: UUID) -> Optional[Dict[str, Any]]:
-        """Fetch latest user language preferences from DB/API (sync wrapper)."""
+        """Fetch latest user language preferences directly from DB to avoid circular imports."""
         try:
-            # We import and use the profile API utilities to read current settings
-            # Note: _get_user_language_settings expects a FastAPI request context normally; here we simulate minimal path.
-            # If unavailable, fallback to DB read could be implemented.
-            # For now, return None to keep non-blocking if not accessible in this context.
-            return None
+            session = SessionLocal()
+            try:
+                from backend.db.models import User  # local import to avoid cycles
+                user = session.query(User).filter(User.id == user_id).first()
+                if not user:
+                    return None
+                speaks = (user.speaks_languages or []) if hasattr(user, 'speaks_languages') else []
+                understands = (user.understands_languages or []) if hasattr(user, 'understands_languages') else []
+                # Normalize to short codes
+                def _norm(code: Optional[str]) -> Optional[str]:
+                    if not code:
+                        return code
+                    return (code.split('-')[0] or code).lower()
+                speaks = [(_norm(x) or 'en') for x in speaks if x]
+                understands = [(_norm(x) or 'en') for x in understands if x]
+                return {
+                    'speaks_languages': speaks,
+                    'understands_languages': understands,
+                }
+            finally:
+                session.close()
         except Exception:
             return None
 
