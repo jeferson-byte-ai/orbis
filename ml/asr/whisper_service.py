@@ -210,13 +210,13 @@ class WhisperService:
                 temperature=0.0,
                 compression_ratio_threshold=2.4,
                 log_prob_threshold=-1.0,
-                no_speech_threshold=0.3,
+                no_speech_threshold=0.25,
                 condition_on_previous_text=False,
                 vad_parameters={
-                    "threshold": 0.23,
-                    "min_speech_duration_ms": 120,
+                    "threshold": 0.22,
+                    "min_speech_duration_ms": 100,
                     "min_silence_duration_ms": 300,
-                    "speech_pad_ms": 320,
+                    "speech_pad_ms": 480,
                 } if vad_filter else None,
             )
             

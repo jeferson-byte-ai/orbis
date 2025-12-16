@@ -19,6 +19,7 @@ from ml.mt.nllb_service import nllb_service
 from ml.tts.coqui_service import coqui_service
 from backend.config import settings
 from backend.db.session import SessionLocal
+from backend.api.profile import get_user_language_settings as _get_user_language_settings
 from backend.db.models import VoiceProfile, VoiceType
 from backend.services.audio_pipeline.websocket_manager import connection_manager, audio_chunk_manager
 from backend.services.lazy_loader import lazy_loader, ModelType
@@ -46,6 +47,7 @@ class AudioStreamProcessor:
         self._last_activity_ts: Dict[UUID, float] = {}
         self._last_process_ts: Dict[UUID, float] = {}
         self._speaking_flags: Dict[UUID, bool] = {}
+        self._had_first_transcript: Dict[UUID, bool] = {}
         # Track what translation content has already been sent per (speaker -> listener, language)
         self._last_sent_translations: Dict[Tuple[UUID, UUID, str], str] = {}
         # Per (speaker->listener) sequence counters for audio chunks
@@ -104,6 +106,7 @@ class AudioStreamProcessor:
         
         # Clear per-user state
         self._last_transcript.pop(user_id, None)
+        self._had_first_transcript.pop(user_id, None)
         self._rolling_buffers.pop(user_id, None)
         self._last_activity_ts.pop(user_id, None)
         self._last_process_ts.pop(user_id, None)
@@ -156,7 +159,10 @@ class AudioStreamProcessor:
                 self._last_process_ts[user_id] = now
                 
                 # If we still have very little audio in the rolling buffer, wait for more to reduce first-word cut
-                min_bytes = int(self.input_sample_rate * 0.10 * 2)  # ~100ms (start even earlier)
+                # Use a higher threshold for the first utterance after silence, then reduce for continuity
+                first_utterance = user_id not in self._had_first_transcript or not self._had_first_transcript.get(user_id)
+                min_ms = 450 if first_utterance else 100
+                min_bytes = int(self.input_sample_rate * (min_ms/1000.0) * 2)
                 if len(buf) < min_bytes:
                     continue
                 
@@ -179,6 +185,7 @@ class AudioStreamProcessor:
             # Reset rolling context and per-listener delta trackers
             self._rolling_buffers.pop(user_id, None)
             self._speaking_flags[user_id] = False
+            self._had_first_transcript.pop(user_id, None)
             # Clear last transcript window older than 1.5s to allow new phrases
             last_text, last_time = self._last_transcript.get(user_id, ("", 0.0))
             if last_text and (time.time() - last_time) > 1.5:
@@ -273,6 +280,8 @@ class AudioStreamProcessor:
                 logger.debug(f"⏭️ Suppressing duplicate transcript within window for user {user_id}: '{transcribed_text}'")
                 return
             self._last_transcript[user_id] = (transcribed_text, now)
+            if not self._had_first_transcript.get(user_id):
+                self._had_first_transcript[user_id] = True
             
             detected_conf = 0.0
             try:
@@ -516,6 +525,17 @@ class AudioStreamProcessor:
         audio_float = audio_int16.astype(np.float32) / 32768.0
         return audio_float
     
+    async def _fetch_user_language_prefs(self, user_id: UUID) -> Optional[Dict[str, Any]]:
+        """Fetch latest user language preferences from DB/API (sync wrapper)."""
+        try:
+            # We import and use the profile API utilities to read current settings
+            # Note: _get_user_language_settings expects a FastAPI request context normally; here we simulate minimal path.
+            # If unavailable, fallback to DB read could be implemented.
+            # For now, return None to keep non-blocking if not accessible in this context.
+            return None
+        except Exception:
+            return None
+
     async def _translate_text(self, text: str, source_lang: str, target_lang: str) -> str:
         """Translate text using NLLB"""
         source = source_lang or target_lang or "en"

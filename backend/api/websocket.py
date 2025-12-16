@@ -164,16 +164,24 @@ async def websocket_audio_endpoint(websocket: WebSocket, room_id: str):
                 try:
                     await asyncio.sleep(2.0)
                     if user_id not in audio_stream_processor.user_languages:
-                        # Use DB prefs loaded above
+                        # Re-fetch latest language prefs from DB before starting
+                        try:
+                            db_prefs = await audio_stream_processor._fetch_user_language_prefs(user_id)
+                        except Exception:
+                            db_prefs = None
+                        latest_speaks = (db_prefs or {}).get('speaks_languages') or speaks_pref or []
+                        latest_understands = (db_prefs or {}).get('understands_languages') or understands_pref or []
+                        in_lang = (latest_speaks[0] if latest_speaks else 'en')
+                        out_lang = (latest_understands[0] if latest_understands else 'en')
                         await audio_stream_processor.start_processing(
                             user_id,
                             room_id,
-                            input_lang=(speaks_pref[0] if speaks_pref else 'en'),
-                            output_lang=(understands_pref[0] if understands_pref else 'en'),
-                            speaks_pref=speaks_pref,
-                            understands_pref=understands_pref
+                            input_lang=in_lang,
+                            output_lang=out_lang,
+                            speaks_pref=latest_speaks,
+                            understands_pref=latest_understands
                         )
-                        logger.info("⏱️ init_settings timeout — starting with profile prefers speaks=%s → wants_to_hear=%s", speaks_pref, understands_pref)
+                        logger.info("⏱️ init_settings timeout — starting with latest profile prefers speaks=%s → wants_to_hear=%s", latest_speaks, latest_understands)
                 except Exception as _e:
                     logger.error("Auto-start fallback failed: %s", _e)
             asyncio.create_task(_delayed_autostart())

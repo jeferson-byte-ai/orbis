@@ -223,47 +223,73 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
     if (!audioTrack) return;
 
     const processingStream = new MediaStream([audioTrack]);
-    const context = new AudioContext();
+    const context = new AudioContext({ sampleRate: 48000 });
     const source = context.createMediaStreamSource(processingStream);
-    const processor = context.createScriptProcessor(4096, 1, 1);
+    let workletNode: AudioWorkletNode | null = null;
+    let processor: ScriptProcessorNode | null = null;
     const zeroGain = context.createGain();
     zeroGain.gain.value = 0;
 
-    processor.onaudioprocess = (event) => {
-      if (!translationConnected) {
-        return;
-      }
+    const setupWorklet = async () => {
+      try {
+        const url = new URL('../audio/pcm16-worklet.js', import.meta.url);
+        await context.audioWorklet.addModule(url);
+        workletNode = new AudioWorkletNode(context, 'pcm16-worklet');
+        workletNode.port.onmessage = (event: MessageEvent) => {
+          if (!translationConnected) return;
+          const chunkBuffer = event.data as ArrayBuffer;
+          const debugCount = ++audioChunkDebugCounter.current;
+          if (debugCount % 50 === 0) {
+            console.log('[AudioDebug][AW] chunk', debugCount, 'pcmBytes=', (chunkBuffer?.byteLength || 0));
+          }
+          sendAudioChunk(chunkBuffer, { isPCM16: true }).catch(err => {
+            console.warn('Failed to send audio chunk for translation', err);
+          });
+        };
+        source.connect(workletNode).connect(zeroGain).connect(context.destination);
+        await context.resume();
+      } catch (err) {
+        console.warn('AudioWorklet unavailable, falling back to ScriptProcessor', err);
+        processor = context.createScriptProcessor(4096, 1, 1);
+        processor.onaudioprocess = (event) => {
+          if (!translationConnected) {
+            return;
+          }
 
-      const channelData = event.inputBuffer.getChannelData(0);
-      if (!channelData || channelData.length === 0) {
-        return;
-      }
+          const channelData = event.inputBuffer.getChannelData(0);
+          if (!channelData || channelData.length === 0) {
+            return;
+          }
 
-      const downsampled = downsampleBuffer(channelData, context.sampleRate, TARGET_SAMPLE_RATE);
-      if (!downsampled || downsampled.length === 0) {
-        return;
-      }
+          const downsampled = downsampleBuffer(channelData, context.sampleRate, TARGET_SAMPLE_RATE);
+          if (!downsampled || downsampled.length === 0) {
+            return;
+          }
 
-      const pcm16 = floatTo16BitPCM(downsampled);
-      const debugCount = ++audioChunkDebugCounter.current;
-      if (debugCount % 50 === 0) {
-        console.log('[AudioDebug] chunk', debugCount, 'downsampledSamples=', downsampled.length, 'pcmBytes=', pcm16.byteLength);
+          const pcm16 = floatTo16BitPCM(downsampled);
+          const debugCount = ++audioChunkDebugCounter.current;
+          if (debugCount % 50 === 0) {
+            console.log('[AudioDebug] chunk', debugCount, 'downsampledSamples=', downsampled.length, 'pcmBytes=', pcm16.byteLength);
+          }
+          const chunkBuffer = pcm16.buffer.slice(0) as ArrayBuffer;
+          sendAudioChunk(chunkBuffer, { isPCM16: true }).catch(err => {
+            console.warn('Failed to send audio chunk for translation', err);
+          });
+        };
+        source.connect(processor);
+        processor.connect(zeroGain);
+        zeroGain.connect(context.destination);
+        await context.resume();
       }
-      const chunkBuffer = pcm16.buffer.slice(0) as ArrayBuffer;
-      sendAudioChunk(chunkBuffer, { isPCM16: true }).catch(err => {
-        console.warn('Failed to send audio chunk for translation', err);
-      });
     };
 
-    source.connect(processor);
-    processor.connect(zeroGain);
-    zeroGain.connect(context.destination);
-    void context.resume().catch(() => undefined);
+    void setupWorklet();
 
     return () => {
-      processor.disconnect();
-      source.disconnect();
-      zeroGain.disconnect();
+      try { workletNode?.disconnect(); } catch {}
+      try { processor?.disconnect(); } catch {}
+      try { source.disconnect(); } catch {}
+      try { zeroGain.disconnect(); } catch {}
       context.close().catch(() => undefined);
     };
   }, [localStream, translationConnected, sendAudioChunk]);
