@@ -200,6 +200,10 @@ class AudioStreamProcessor:
                 self._last_sent_translations.pop(k, None)
             logger.debug(f"🛑 End-of-speech detected for {user_id}, resetting rolling buffer and last-sent deltas")
     
+    def set_muted(self, user_id: UUID, muted: bool):
+        self._muted[user_id] = muted
+        logger.info(f"🎚️ Set muted={muted} for user {user_id}")
+
     async def _process_audio_chunk(self, user_id: UUID, audio_data: bytes):
         """Process a single audio chunk through ASR → MT → TTS pipeline"""
         start_time = time.time()
@@ -339,6 +343,11 @@ class AudioStreamProcessor:
                 pass
 
             logger.info(f"🎤 User {user_id} spoke in {speaker_language}: '{transcribed_text}'")
+
+            # If user is muted, do not emit or translate
+            if self._muted.get(user_id):
+                logger.debug(f"🔇 User {user_id} is muted — skipping transcript/translation send")
+                return
             
             # Emit partial transcript immediately to room (low-latency UI)
             try:

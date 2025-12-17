@@ -44,6 +44,7 @@ interface UseTranslationReturn {
   speaksLanguages: string[];
   understandsLanguages: string[];
   lastTranslation: string | null;
+  lastOriginal: string | null;
   latency: number;
   error: string | null;
   participants: string[];
@@ -498,6 +499,7 @@ export const useTranslation = (): UseTranslationReturn => {
     inputLanguage,
     outputLanguage,
     lastTranslation,
+    lastOriginal,
     latency,
     error,
     participants,

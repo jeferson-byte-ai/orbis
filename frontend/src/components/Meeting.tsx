@@ -114,6 +114,7 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
     inputLanguage,
     outputLanguage,
     lastTranslation,
+    lastOriginal,
     latency,
     error: translationError,
     participants: translationParticipants, // Get participants from translation service
@@ -757,10 +758,10 @@ const Meeting: React.FC<MeetingProps> = ({ roomId, token, onLeave }) => {
           />
 
           {/* Translation captions overlay */}
-          {showCaptions && lastTranslation && (
+          {showCaptions && (lastTranslation || lastOriginal) && (
             <div className={`absolute left-1/2 transform -translate-x-1/2 glass-dark text-white px-8 py-4 rounded-2xl max-w-3xl shadow-2xl animate-slide-up border border-white/20 z-20 ${isFullscreen ? 'bottom-32' : 'bottom-8'
               }`}>
-              <p className="text-center text-lg leading-relaxed">{lastTranslation}</p>
+              <p className="text-center text-lg leading-relaxed">{lastTranslation || lastOriginal}</p>
             </div>
           )}
         </div>
