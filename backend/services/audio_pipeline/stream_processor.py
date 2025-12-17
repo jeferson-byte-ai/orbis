@@ -41,7 +41,7 @@ class AudioStreamProcessor:
         self._last_transcript: Dict[UUID, Tuple[str, float]] = {}
         # Simple energy gate to drop near-silence chunks (tuned)
         # Lower threshold reduces false skips on soft speech
-        self._silence_rms_threshold: float = 0.0025
+        self._silence_rms_threshold: float = 0.0018
         # Rolling buffers for streaming context and voice activity
         self._rolling_buffers: Dict[UUID, bytes] = {}
         self._last_activity_ts: Dict[UUID, float] = {}
@@ -54,6 +54,8 @@ class AudioStreamProcessor:
         self._seq_counters: Dict[Tuple[UUID, UUID], int] = {}
         # Mute flags per speaker
         self._muted: Dict[UUID, bool] = {}
+        # Diagnostics counters per user
+        self._diag_counters: Dict[UUID, int] = {}
     
     async def _notify_translation_error(self, user_id: UUID, stage: str, detail: str):
         """Send translation error information back to the user"""
@@ -141,7 +143,7 @@ class AudioStreamProcessor:
                 
                 # Append to rolling buffer with a maximum of 2.5s to limit Whisper context size
                 buf = self._rolling_buffers.get(user_id, b"") + combined_new
-                max_seconds = 6.0
+                max_seconds = 3.0
                 max_bytes = int(self.input_sample_rate * max_seconds * 2)
                 if len(buf) > max_bytes:
                     buf = buf[-max_bytes:]
@@ -185,7 +187,7 @@ class AudioStreamProcessor:
         if not last_ts or not speaking:
             return
         # If we've had >500ms without activity, finalize and reset state to avoid repeats
-        if time.time() - last_ts > 0.8:  # wait longer to avoid premature end-of-speech reset
+        if time.time() - last_ts > 0.6:  # slightly shorter to reset context sooner after silence
             # Reset rolling context and per-listener delta trackers
             self._rolling_buffers.pop(user_id, None)
             self._speaking_flags[user_id] = False
@@ -225,12 +227,33 @@ class AudioStreamProcessor:
             audio_array = self._bytes_to_audio_array(audio_data)
             if audio_array.size == 0:
                 return
-            
+
+            # Diagnostics: per-user counter and periodic logs
+            self._diag_counters[user_id] = self._diag_counters.get(user_id, 0) + 1
+
             # Drop near-silence chunks to avoid Whisper hallucinations (e.g., repeated 'what is')
             rms = float(np.sqrt(np.mean(np.square(audio_array)))) if audio_array.size > 0 else 0.0
+
+            # Adaptive Gain Control (AGC): if speech is too soft, scale up to target RMS
+            try:
+                target_rms = 0.010  # target energy for comfortable ASR
+                if 0.0002 < rms < 0.0045:
+                    gain = min(4.0, target_rms / max(rms, 1e-8))
+                    audio_array = np.clip(audio_array * gain, -1.0, 1.0)
+                    rms = float(np.sqrt(np.mean(np.square(audio_array)))) if audio_array.size > 0 else rms
+            except Exception:
+                pass
+
             if rms < self._silence_rms_threshold:
-                logger.debug(f"⏭️ Skipping near-silence chunk (RMS={rms:.4f}) for user {user_id}")
+                if (self._diag_counters.get(user_id, 0) % 20) == 0 and logger.isEnabledFor(logging.DEBUG):
+                    logger.debug(
+                        f"⏭️ Skipping near-silence after AGC (RMS={rms:.5f}, thr={self._silence_rms_threshold:.5f}) for user {user_id}"
+                    )
                 return
+
+            # Periodic diagnostics
+            if (self._diag_counters.get(user_id, 0) % 20) == 0 and logger.isEnabledFor(logging.DEBUG):
+                logger.debug(f"[AudioDiag] user={user_id} RMS={rms:.5f} buf_ms={len(audio_array)/self.input_sample_rate*1000:.1f}")
 
             # Step 2: ASR - Speech to Text (Lazy Load)
             asr_start_time = time.time()
