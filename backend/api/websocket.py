@@ -379,8 +379,8 @@ async def handle_control_message(user_id: UUID, room_id: str, data: dict):
         action = data.get("action")
         
         if action == "mute":
-            # Temporarily stop processing user's audio
-            await audio_stream_processor.stop_processing(user_id)
+            # Mute without stopping processing to preserve state
+            audio_stream_processor.set_muted(user_id, True)
             
             await connection_manager.send_personal_message(user_id, {
                 "type": "mute_status",
@@ -389,8 +389,27 @@ async def handle_control_message(user_id: UUID, room_id: str, data: dict):
             })
             
         elif action == "unmute":
-            # Resume processing user's audio
-            await audio_stream_processor.start_processing(user_id, room_id)
+            # Resume processing without resetting languages
+            audio_stream_processor.set_muted(user_id, False)
+
+            # If processing was never started (e.g., deferred), start with current prefs or DB
+            if user_id not in audio_stream_processor.user_languages:
+                try:
+                    db_prefs = await audio_stream_processor._fetch_user_language_prefs(user_id)
+                except Exception:
+                    db_prefs = None
+                speaks_pref = (db_prefs or {}).get('speaks_languages') or []
+                understands_pref = (db_prefs or {}).get('understands_languages') or []
+                in_lang = (speaks_pref[0] if speaks_pref else 'en')
+                out_lang = (understands_pref[0] if understands_pref else 'en')
+                await audio_stream_processor.start_processing(
+                    user_id,
+                    room_id,
+                    input_lang=in_lang,
+                    output_lang=out_lang,
+                    speaks_pref=speaks_pref,
+                    understands_pref=understands_pref
+                )
             
             await connection_manager.send_personal_message(user_id, {
                 "type": "mute_status",

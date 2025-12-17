@@ -73,6 +73,7 @@ export const useTranslation = (): UseTranslationReturn => {
   const [speaksLanguages, setSpeaksLanguages] = useState<string[]>(['en']);
   const [understandsLanguages, setUnderstandsLanguages] = useState<string[]>(['en']);
   const [lastTranslation, setLastTranslation] = useState<string | null>(null);
+  const [lastOriginal, setLastOriginal] = useState<string | null>(null);
   const [latency, setLatency] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [participants, setParticipants] = useState<string[]>([]);

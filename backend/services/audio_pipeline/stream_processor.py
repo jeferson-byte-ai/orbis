@@ -52,6 +52,8 @@ class AudioStreamProcessor:
         self._last_sent_translations: Dict[Tuple[UUID, UUID, str], str] = {}
         # Per (speaker->listener) sequence counters for audio chunks
         self._seq_counters: Dict[Tuple[UUID, UUID], int] = {}
+        # Mute flags per speaker
+        self._muted: Dict[UUID, bool] = {}
     
     async def _notify_translation_error(self, user_id: UUID, stage: str, detail: str):
         """Send translation error information back to the user"""
@@ -113,6 +115,8 @@ class AudioStreamProcessor:
         self._speaking_flags.pop(user_id, None)
         audio_chunk_manager.clear_audio_buffer(user_id)
         logger.info(f"Stopped audio processing for user {user_id}")
+        # Clear mute flag
+        self._muted.pop(user_id, None)
     
     async def _process_audio_loop(self, user_id: UUID):
         """Background loop to process audio chunks with rolling buffer and VAD-like gating"""
@@ -267,12 +271,6 @@ class AudioStreamProcessor:
             if not transcribed_text or transcribed_text in ['...', '.', ',', '?', '!', '  ']:
                 logger.debug(f"⏭️ Skipping empty/noise transcription for user {user_id}")
                 return  # No meaningful speech detected
-            # If detection confidence is very low and we're in auto with no last_good, wait for more audio
-            if (input_lang == 'auto' or not input_lang) and not self.user_languages.get(user_id, {}).get('last_good_input'):
-                if 'detected_conf' in locals() and detected_conf < 0.50:
-                    logger.debug(f"⏭️ Low-confidence ({detected_conf:.2f}) detection with no prior hint; waiting for more audio for user {user_id}")
-                    return
-
             # Suppress repeated identical transcriptions within 1.5s window (tuned)
             now = time.time()
             last_text, last_ts = self._last_transcript.get(user_id, ("", 0.0))
