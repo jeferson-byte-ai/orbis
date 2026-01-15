@@ -213,10 +213,10 @@ class WhisperService:
                 no_speech_threshold=0.25,
                 condition_on_previous_text=False,
                 vad_parameters={
-                    "threshold": 0.22,
-                    "min_speech_duration_ms": 100,
-                    "min_silence_duration_ms": 300,
-                    "speech_pad_ms": 480,
+                    "threshold": 0.20,  # Menos sensível para não cortar fala
+                    "min_speech_duration_ms": 200,  # Requer mais duração para considerar fala
+                    "min_silence_duration_ms": 800,  # Aguarda silêncio mais longo antes de cortar
+                    "speech_pad_ms": 600,  # Mais padding para capturar início/fim da fala
                 } if vad_filter else None,
             )
             

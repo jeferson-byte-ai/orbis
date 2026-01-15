@@ -2,6 +2,7 @@
 NLLB Machine Translation Service
 Translates text between 200+ languages
 """
+import asyncio
 import logging
 from typing import Dict, Optional
 import torch
@@ -118,30 +119,41 @@ class NLLBService:
         Returns:
             Translated text
         """
+        return await asyncio.to_thread(
+            self._translate_blocking,
+            text,
+            source_lang,
+            target_lang,
+            max_length,
+        )
+
+    def _translate_blocking(
+        self,
+        text: str,
+        source_lang: str,
+        target_lang: str,
+        max_length: int,
+    ) -> str:
         try:
-            # Skip if same language
             if source_lang == target_lang:
                 return text
-            
-            # Convert language codes
+
             src_code = self.LANG_CODES.get(source_lang, 'eng_Latn')
             tgt_code = self.LANG_CODES.get(target_lang, 'eng_Latn')
-            
-            # Mock translation for now (until model is loaded)
-            if self.model is None:
+
+            if self.model is None or self.tokenizer is None:
                 logger.warning("Model not loaded, using mock translation")
                 return f"[{target_lang.upper()}] {text}"
-            
-            # Tokenize input
+
             self.tokenizer.src_lang = src_code
             inputs = self.tokenizer(
-                text, 
-                return_tensors="pt", 
+                text,
+                return_tensors="pt",
                 padding=True,
                 truncation=True,
                 max_length=512
             )
-            
+
             if self.device == "cuda":
                 inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
@@ -151,45 +163,43 @@ class NLLBService:
                 forced_bos_token_id = lang_code_map[tgt_code]
             else:
                 try:
-                    forced_bos_token_id = self.tokenizer.convert_tokens_to_ids(tgt_code)
-                    # Guard against unknown tokens returning the UNK id
-                    if forced_bos_token_id == self.tokenizer.unk_token_id:
-                        forced_bos_token_id = None
-                except Exception:
+                    token_id = self.tokenizer.convert_tokens_to_ids(tgt_code)
+                    if token_id != self.tokenizer.unk_token_id:
+                        forced_bos_token_id = token_id
+                except Exception:  # noqa: BLE001
                     forced_bos_token_id = None
 
             generate_kwargs = {
                 "max_length": max_length,
-                "num_beams": 5,
-                "early_stopping": True
+                "num_beams": 1,
+                "early_stopping": True,
             }
             if forced_bos_token_id is not None:
                 generate_kwargs["forced_bos_token_id"] = forced_bos_token_id
-            else:
-                logger.warning(
-                    "forced_bos_token_id unavailable for %s with current tokenizer; using default BOS token",
-                    tgt_code
-                )
-            
-            # Generate translation
+
             with torch.no_grad():
                 translated_tokens = self.model.generate(
                     **inputs,
                     **generate_kwargs
                 )
-            
-            # Decode translation
+
             translated_text = self.tokenizer.batch_decode(
-                translated_tokens, 
+                translated_tokens,
                 skip_special_tokens=True
             )[0]
-            
-            logger.info(f"Translated: '{text}' → '{translated_text}' ({source_lang}→{target_lang})")
+
+            logger.info(
+                "Translated: '%s' → '%s' (%s→%s)",
+                text,
+                translated_text,
+                source_lang,
+                target_lang,
+            )
             return translated_text
-            
-        except Exception as e:
-            logger.error(f"Translation error: {e}")
-            return text  # Fallback to original text
+
+        except Exception as exc:  # noqa: BLE001
+            logger.error("Translation error: %s", exc)
+            return text
     
     def get_supported_languages(self) -> Dict[str, str]:
         """Get list of supported languages"""

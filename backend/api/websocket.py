@@ -4,7 +4,6 @@ WebSocket endpoints for real-time audio streaming and translation
 import base64
 import logging
 from uuid import UUID
-import asyncio
 from fastapi import WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.routing import APIRouter
 
@@ -140,51 +139,10 @@ async def websocket_audio_endpoint(websocket: WebSocket, room_id: str):
         finally:
             db.close()
         
-        # Start audio processing for this user only if we have a concrete input language
-        # If input is 'auto' and no speaks_pref, wait for init_settings from client to avoid wrong decisions
-        should_start = bool(input_lang and input_lang != 'auto') or bool(speaks_pref)
-        if should_start:
-            await audio_stream_processor.start_processing(
-                user_id,
-                room_id,
-                input_lang=input_lang,
-                output_lang=output_lang,
-                speaks_pref=speaks_pref,
-                understands_pref=understands_pref
-            )
-        else:
-            logger.warning(
-                "⏸️ Deferring start_processing for user %s: input_lang=auto and no speaks_pref. Waiting for init_settings...",
-                user_id
-            )
-        
-        # If we deferred start (no concrete input language), auto-start after timeout using profile
-        if not should_start:
-            async def _delayed_autostart():
-                try:
-                    await asyncio.sleep(2.0)
-                    if user_id not in audio_stream_processor.user_languages:
-                        # Re-fetch latest language prefs from DB before starting
-                        try:
-                            db_prefs = await audio_stream_processor._fetch_user_language_prefs(user_id)
-                        except Exception:
-                            db_prefs = None
-                        latest_speaks = (db_prefs or {}).get('speaks_languages') or speaks_pref or []
-                        latest_understands = (db_prefs or {}).get('understands_languages') or understands_pref or []
-                        in_lang = (latest_speaks[0] if latest_speaks else 'en')
-                        out_lang = (latest_understands[0] if latest_understands else 'en')
-                        await audio_stream_processor.start_processing(
-                            user_id,
-                            room_id,
-                            input_lang=in_lang,
-                            output_lang=out_lang,
-                            speaks_pref=latest_speaks,
-                            understands_pref=latest_understands
-                        )
-                        logger.info("⏱️ init_settings timeout — starting with latest profile prefers speaks=%s → wants_to_hear=%s", latest_speaks, latest_understands)
-                except Exception as _e:
-                    logger.error("Auto-start fallback failed: %s", _e)
-            asyncio.create_task(_delayed_autostart())
+        logger.info(
+            "⏸️ Awaiting init_settings from client before starting audio processing for user %s",
+            user_id
+        )
         
         # Main message loop
         while True:

@@ -4,9 +4,10 @@ Handles audio chunks, participant connections, and low-latency delivery
 """
 import asyncio
 import logging
-from typing import Dict, List, Optional
+from typing import Deque, Dict, List, Optional, Tuple
 from uuid import UUID
 from fastapi import WebSocket
+from collections import deque
 
 logger = logging.getLogger(__name__)
 
@@ -124,23 +125,31 @@ class ConnectionManager:
 class AudioChunkManager:
     """Manages audio chunks for real-time processing"""
     
-    def __init__(self, chunk_duration_ms: int = 500):
-        self.chunk_duration_ms = chunk_duration_ms
-        self.audio_buffers: Dict[UUID, List[bytes]] = {}
+    def __init__(self, *, max_buffer_ms: int = 2500, sample_rate: int = 16000):
+        self.max_buffer_ms = max_buffer_ms
+        self.sample_rate = sample_rate
+        self.audio_buffers: Dict[UUID, Deque[Tuple[bytes, float]]] = {}
+        self._buffer_durations_ms: Dict[UUID, float] = {}
         self._debug_counters: Dict[UUID, int] = {}
 
     def add_audio_chunk(self, user_id: UUID, audio_data: bytes):
         """Add audio chunk to user's buffer"""
         if user_id not in self.audio_buffers:
-            self.audio_buffers[user_id] = []
+            self.audio_buffers[user_id] = deque()
+            self._buffer_durations_ms[user_id] = 0.0
             self._debug_counters[user_id] = 0
 
-        self.audio_buffers[user_id].append(audio_data)
+        chunk_duration_ms = 0.0
+        if self.sample_rate > 0:
+            chunk_duration_ms = (len(audio_data) / (self.sample_rate * 2)) * 1000.0
+
+        self.audio_buffers[user_id].append((audio_data, chunk_duration_ms))
+        self._buffer_durations_ms[user_id] += chunk_duration_ms
         self._debug_counters[user_id] += 1
 
         counter = self._debug_counters[user_id]
         if counter % 50 == 0:
-            total_bytes = sum(len(chunk) for chunk in self.audio_buffers[user_id])
+            total_bytes = sum(len(chunk) for chunk, _ in self.audio_buffers[user_id])
             logger.debug(
                 "[AudioDebug] User %s buffered chunk #%s (chunk_bytes=%s, total_buffer_bytes=%s, buffer_len=%s)",
                 user_id,
@@ -150,28 +159,36 @@ class AudioChunkManager:
                 len(self.audio_buffers[user_id])
             )
 
-        # Keep only recent chunks (last 2 seconds)
-        max_chunks = 2000 // self.chunk_duration_ms
-        if len(self.audio_buffers[user_id]) > max_chunks:
-            self.audio_buffers[user_id] = self.audio_buffers[user_id][-max_chunks:]
+        # Keep only recent audio by duration (default ~2.5s)
+        target_ms = max(self.max_buffer_ms, 0)
+        while self._buffer_durations_ms[user_id] > target_ms and self.audio_buffers[user_id]:
+            old_chunk, old_duration = self.audio_buffers[user_id].popleft()
+            self._buffer_durations_ms[user_id] -= old_duration
     
     def get_audio_chunks(self, user_id: UUID) -> List[bytes]:
         """Get all audio chunks for user"""
-        return self.audio_buffers.get(user_id, [])
+        buffer = self.audio_buffers.get(user_id)
+        if not buffer:
+            return []
+        return [chunk for chunk, _ in buffer]
 
     def consume_audio_chunks(self, user_id: UUID) -> List[bytes]:
         """Retrieve and clear buffered audio chunks for a user"""
-        if user_id not in self.audio_buffers:
+        buffer = self.audio_buffers.get(user_id)
+        if not buffer:
             return []
 
-        chunks = self.audio_buffers[user_id]
-        self.audio_buffers[user_id] = []
+        chunks = [chunk for chunk, _ in buffer]
+        buffer.clear()
+        self._buffer_durations_ms[user_id] = 0.0
         return chunks
     
     def clear_audio_buffer(self, user_id: UUID):
         """Clear user's audio buffer"""
         if user_id in self.audio_buffers:
             del self.audio_buffers[user_id]
+        if user_id in self._buffer_durations_ms:
+            del self._buffer_durations_ms[user_id]
 
 
 # Global instances

@@ -49,6 +49,7 @@ from backend.services.social_networking import social_networking_service
 from ml.asr.whisper_service import whisper_service
 from ml.mt.nllb_service import nllb_service
 from ml.tts.coqui_service import coqui_service
+from ml.tts.coqui_streaming_service import coqui_streaming_service
 
 # NEW: Import lazy loading and hardware detection services
 from backend.services.lazy_loader import lazy_loader, ModelType
@@ -216,6 +217,7 @@ async def startup_event():
         nllb_service.device = device
         
         coqui_service.device = device
+        coqui_streaming_service.device = device
         
         logger.info(f"✅ Hardware auto-configuration applied:")
         logger.info(f"   Device: {device}")
@@ -234,6 +236,12 @@ async def startup_event():
     if settings.enable_voice_cloning:
         lazy_loader.register_model(ModelType.COQUI, coqui_service)
         logger.info("📝 Registered Coqui TTS for lazy loading")
+        # Also load streaming service (shares model with coqui_service)
+        try:
+            coqui_streaming_service.load()
+            logger.info("📝 Loaded Coqui Streaming TTS for low-latency synthesis")
+        except Exception as e:
+            logger.warning(f"⚠️ Could not load streaming TTS, will use standard: {e}")
     
     # Start auto-unload task if enabled
     if settings.ml_auto_unload_enabled:

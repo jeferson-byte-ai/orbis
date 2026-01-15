@@ -2,6 +2,7 @@
 Coqui TTS Service with Voice Cloning
 Text-to-Speech with natural voice cloning using XTTS
 """
+import asyncio
 import json
 import logging
 import time
@@ -101,39 +102,44 @@ class CoquiTTSService:
         Returns:
             Audio array (numpy)
         """
-        try:
-            if self.tts is None:
-                logger.warning("TTS model not loaded, attempting to load...")
-                self.load()
+
+        def _synthesize_blocking() -> np.ndarray:
+            try:
                 if self.tts is None:
-                    logger.error("Failed to load TTS model, returning mock audio")
-                    return np.zeros(sample_rate, dtype=np.float32)
-            
-            # Synthesize with voice cloning (works great with 5+ seconds)
-            if speaker_wav:
-                logger.info(f"Synthesizing with cloned voice from: {speaker_wav}")
-                audio = self.tts.tts(
-                    text=text,
-                    speaker_wav=speaker_wav,
-                    language=language
+                    logger.warning("TTS model not loaded, attempting to load...")
+                    self.load()
+                    if self.tts is None:
+                        logger.error("Failed to load TTS model, returning mock audio")
+                        return np.zeros(sample_rate, dtype=np.float32)
+
+                if speaker_wav:
+                    logger.info("Synthesizing with cloned voice from: %s", speaker_wav)
+                    audio = self.tts.tts(
+                        text=text,
+                        speaker_wav=speaker_wav,
+                        language=language
+                    )
+                else:
+                    logger.info("Synthesizing with default voice")
+                    audio = self.tts.tts(
+                        text=text,
+                        language=language
+                    )
+
+                audio_array = np.array(audio, dtype=np.float32)
+                logger.info(
+                    "✅ Synthesized speech: '%s...' in %s (%s samples)",
+                    text[:50],
+                    language,
+                    len(audio_array)
                 )
-            else:
-                # Use default voice
-                logger.info(f"Synthesizing with default voice")
-                audio = self.tts.tts(
-                    text=text,
-                    language=language
-                )
-            
-            # Convert to numpy array
-            audio_array = np.array(audio, dtype=np.float32)
-            
-            logger.info(f"✅ Synthesized speech: '{text[:50]}...' in {language} ({len(audio_array)} samples)")
-            return audio_array
-            
-        except Exception as e:
-            logger.error(f"❌ TTS synthesis error: {e}")
-            return np.zeros(sample_rate, dtype=np.float32)
+                return audio_array
+
+            except Exception as exc:  # noqa: BLE001
+                logger.error("❌ TTS synthesis error: %s", exc)
+                return np.zeros(sample_rate, dtype=np.float32)
+
+        return await asyncio.to_thread(_synthesize_blocking)
     
     async def clone_voice(
         self,
