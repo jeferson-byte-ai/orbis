@@ -286,12 +286,12 @@ export const useTranslation = (): UseTranslationReturn => {
         const audioPayload: TranslationAudioPayload | undefined = data.audio || (data.audio_data ? {
           data: data.audio_data,
           encoding: 'pcm_s16le',
-          sample_rate: 22050
+          sample_rate: 24000
         } : undefined);
         if (audioPayload?.data) {
           // Play translated audio (with sequence for jitter buffer ordering)
           const seq: number | undefined = (data as any).seq;
-          void playAudio(audioPayload.data, audioPayload.sample_rate ?? 22050, audioPayload.encoding ?? 'pcm_s16le', seq);
+          void playAudio(audioPayload.data, audioPayload.sample_rate ?? 24000, audioPayload.encoding ?? 'pcm_s16le', seq);
         }
         break;
       }

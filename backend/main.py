@@ -48,6 +48,7 @@ from backend.services.social_networking import social_networking_service
 # from backend.services.disaster_recovery import disaster_recovery_service  # Requires psycopg2
 from ml.asr.whisper_service import whisper_service
 from ml.mt.nllb_service import nllb_service
+from ml.mt.fast_marian_service import fast_marian_service
 from ml.tts.coqui_service import coqui_service
 from ml.tts.coqui_streaming_service import coqui_streaming_service
 
@@ -215,6 +216,7 @@ async def startup_event():
         
         nllb_service.model_name = nllb_model
         nllb_service.device = device
+        fast_marian_service.device = device
         
         coqui_service.device = device
         coqui_streaming_service.device = device
